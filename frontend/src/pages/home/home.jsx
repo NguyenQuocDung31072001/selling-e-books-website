@@ -22,7 +22,7 @@ export default function HomePages() {
   return (
     <div>
         HomePages
-        <button onClick={()=>Logout()}>
+        <button className="" onClick={()=>Logout()}>
             logout
         </button>
     </div>
