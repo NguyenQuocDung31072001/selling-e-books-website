@@ -5,6 +5,7 @@ import {
   loginStart,
   loginSuccess,
   loginFailed,
+  updateCurrentUser,
 } from "./auth_slices";
 import axios from "axios";
 
@@ -32,8 +33,41 @@ export const loginApi = async (user, dispatch, navigate) => {
       user
     );
     dispatch(loginSuccess(res.data));
-    navigate("/");
+    if (res.data.role === "admin") {
+      navigate("/admin/home");
+    }
+    if (res.data.role === "user") {
+      navigate("/user/home");
+    }
   } catch (error) {
     dispatch(loginFailed());
+  }
+};
+export const updateAccountAdmin = async (
+  currentUser,
+  account,
+  dispatch
+) => {
+  try {
+    const res = await axios.post(
+      API_URL + "/v1/selling_e_books/account/setting/" + currentUser._id,
+      account,
+      {
+        headers: { token: currentUser.accessToken },
+      }
+    );
+    
+    const payloadAction={
+      ...currentUser,
+      email:res.data.email,
+      username:res.data.username,
+      password:res.data.password,
+      id_avatar:res.data.id_avatar,
+      avatar_url:res.data.avatar_url
+    }
+    console.log(payloadAction)
+    dispatch(updateCurrentUser(payloadAction));
+  } catch (error) {
+    console.log(error);
   }
 };

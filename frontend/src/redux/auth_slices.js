@@ -48,6 +48,9 @@ const authSlice = createSlice({
     logout: (state) => {
       state.login.currentUser = null;
     },
+    updateCurrentUser:(state,action)=>{
+      state.login.currentUser=action.payload
+    }
   },
 });
 export const {
@@ -58,6 +61,7 @@ export const {
   loginSuccess,
   loginFailed,
   logout,
+  updateCurrentUser
 } = authSlice.actions;
 
 export default authSlice.reducer;

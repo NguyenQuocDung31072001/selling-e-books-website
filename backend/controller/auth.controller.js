@@ -1,4 +1,4 @@
-const UserModel = require("../model/user.model");
+const Account = require("../model/account.model");
 const jwt = require("jsonwebtoken");
 
 const refreshTokens = [];
@@ -6,10 +6,13 @@ const refreshTokens = [];
 const register = async (req, res) => {
   //username,email,password
   try {
-    const user = new UserModel({
+    const user = new Account({
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
+      role: "user",
+      id_avatar:'',
+      avatar_url:''
     });
     const user_res = await user.save();
     res.status(200).json(user_res);
@@ -25,7 +28,7 @@ function generateAccessToken(id) {
     },
     process.env.JWT_KEY,
     {
-      expiresIn: "1s",
+      expiresIn: "1d",
     }
   );
 }
@@ -44,13 +47,13 @@ function generateRefreshToken(id) {
 const login = async (req, res) => {
   //email,password
   try {
-    const user = await UserModel.findOne({
+    const account = await Account.findOne({
       email: req.body.email,
       password: req.body.password,
     });
     // console.log(user.id)
-    const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
+    const accessToken = generateAccessToken(account.id);
+    const refreshToken = generateRefreshToken(account.id);
     refreshTokens.push(refreshToken);
 
     res.cookie("refreshToken", refreshToken, {
@@ -60,7 +63,7 @@ const login = async (req, res) => {
       sameSite: "strict",
     });
 
-    const other = user._doc;
+    const other = account._doc;
     res.status(200).json({ ...other, accessToken });
   } catch (error) {
     return res.status(404).json(error);
