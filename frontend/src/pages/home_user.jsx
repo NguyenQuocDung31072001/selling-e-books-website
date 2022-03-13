@@ -1,17 +1,15 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginFailed } from "../../redux/auth_slices";
-import { logout } from "../../redux/auth_slices";
-
-
-export default function HomePagesAdmin() {
+import { loginFailed } from "../redux/auth_slices";
+import { logout } from "../redux/auth_slices";
+export default function HomePagesUser() {
   const currentUser = useSelector((state) => state.auth.login.currentUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (currentUser.role!=='admin') {
+    if (currentUser?.role!=='user') {
       dispatch(loginFailed());
       navigate("/login");
     }
@@ -23,10 +21,10 @@ export default function HomePagesAdmin() {
   }
   return (
     <div>
-      
-        <div >
-          HomePages admin
+        <div>
+            HomePages user
         </div>
+
         <button className="" onClick={()=>Logout()}>
             logout
         </button>

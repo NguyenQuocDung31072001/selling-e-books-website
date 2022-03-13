@@ -27,9 +27,6 @@ db.once('open', () => console.log('connected to mongoose'))
 
 app.use('/v1/selling_e_books/auth', authRouter)
 app.use('/v1/selling_e_books/account', accountController)
-app.use('/v1/selling_e_books/author', authorRouter)
-app.use('/v1/selling_e_books/genre', genreRouter)
-app.use('/v1/selling_e_books/book', bookRouter)
 app.listen(5000, () => {
   console.log('server start success')
 })
