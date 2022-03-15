@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { loginFailed } from "../redux/auth_slices";
 import { logout } from "../redux/auth_slices";
 
-
 export default function HomePagesAdmin() {
   const currentUser = useSelector((state) => state.auth.login.currentUser);
   const navigate = useNavigate();

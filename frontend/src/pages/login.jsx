@@ -1,23 +1,23 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
-import { loginApi } from "../redux/api_request";
-import { TextField, Button } from "@mui/material";
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate, Link } from 'react-router-dom'
+import { loginApi } from '../redux/api_request'
+import { TextField, Button } from '@mui/material'
 
 export default function LoginPages() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const loginSubmit = (e) => {
-    e.preventDefault();
+  const loginSubmit = e => {
+    e.preventDefault()
     const user = {
       email: email,
-      password: password,
-    };
-    loginApi(user, dispatch, navigate);
-  };
+      password: password
+    }
+    loginApi(user, dispatch, navigate)
+  }
 
   return (
     <div className="h-screen flex justify-center items-center  ">
@@ -42,7 +42,7 @@ export default function LoginPages() {
               className="w-[260px]"
               type="text"
               label="Email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
             />
           </div>
           <div className=" mb-[20px]">
@@ -50,7 +50,7 @@ export default function LoginPages() {
               className="w-[260px]"
               type="password"
               label="Password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
             />
           </div>
           <Button className="w-full" variant="contained" onClick={loginSubmit}>
@@ -67,5 +67,5 @@ export default function LoginPages() {
         </form>
       </div>
     </div>
-  );
+  )
 }

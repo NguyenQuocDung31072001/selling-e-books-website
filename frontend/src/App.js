@@ -9,6 +9,9 @@ import HomePagesUser from "./pages/home_user";
 import NotFound from "./pages/not_found";
 import TopAdmin from "./component/top_admin";
 import TopUser from "./component/top_user"
+import GenreBookUser from "./pages/genre_book_user"
+import BreadcrumbsUser from "./component/breadcrumbs_user"
+import DetailBookUser from "./pages/detail_book_user";
 function App() {
   return (
     <div className="App">
@@ -19,7 +22,10 @@ function App() {
             <Route path="setting" element={<SettingAdmin/>}/>  
           </Route>
           <Route path="/user" element={<UserComponent/>}>
-            <Route path="home" element={<HomePagesUser/>}/>          
+            <Route path="home" element={<HomePagesUser/>}/>
+            <Route path="home/:genre" element={<GenreBookUser/>}/>
+            <Route path="home/:genre/:id_book" element={<DetailBookUser/>}/>
+
             <Route path="setting" element={<SettingUser/>}/>  
           </Route>
           <Route path="/login" element={<LoginPages />} />
@@ -34,7 +40,7 @@ function AdminComponent(){
   return (
     <div>
       <TopAdmin/>
-      <div className="mt-[60px]">
+      <div className="mt-[130px]">
         <Outlet/>
       </div>
     </div>
@@ -45,7 +51,8 @@ function UserComponent(){
   return (
     <div>
       <TopUser/>
-      <div className="mt-[60px]">
+      <div className="mt-[130px]">
+        <BreadcrumbsUser/>
         <Outlet/>
       </div>
     </div>

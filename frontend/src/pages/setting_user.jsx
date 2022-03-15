@@ -2,23 +2,31 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateAccountAdmin } from "../redux/api_request";
-import { loginFailed } from "../redux/auth_slices";
+import { loginFailed,logout } from "../redux/auth_slices";
+import { updateBreadcrumb } from "../redux/breadcrumb_slices";
 
 const IMAGE_URL = "http://localhost:5000/image_avatar/avatar_user.png";
 
 function SettingUser() {
   const currentUser = useSelector((state) => state.auth.login.currentUser);
-  const [email, setEmail] = useState(currentUser.email);
-  const [username, setUsername] = useState(currentUser.username);
-  const [password, setPassword] = useState(currentUser.password);
+  const [email, setEmail] = useState(currentUser?.email);
+  const [username, setUsername] = useState(currentUser?.username);
+  const [password, setPassword] = useState(currentUser?.password);
   const [image, setImage] = useState();
   const [imageBase64, setImageBase64] = useState();
 
   const dispatch = useDispatch();
   const navigate=useNavigate()
 
+  useEffect(()=>{
+    const breadcrumb={
+      genre:'setting',
+      name_book:''
+    }
+    dispatch(updateBreadcrumb(breadcrumb))
+  },[])
   useEffect(() => {
-    if (currentUser.role!=='user') {
+    if (currentUser?.role!=='user') {
       dispatch(loginFailed());
       navigate("/login");
     }
@@ -52,18 +60,20 @@ function SettingUser() {
     };
     updateAccountAdmin(currentUser, account, dispatch);
   };
-
+  const logout_fnc=()=>{
+    dispatch(logout())
+  }
   return (
     <div>
       <div className="flex">
-        {!currentUser.avatar_url && (
+        {!currentUser?.avatar_url && (
           <img
             className="h-[50px] w-[50px] object-cover rounded-[50px]"
             src={image ? URL.createObjectURL(image) : IMAGE_URL}
             alt=""
           />
         )}
-        {currentUser.avatar_url && (
+        {currentUser?.avatar_url && (
           <img
             className="h-[50px] w-[50px] object-cover rounded-[50px]"
             src={image ? URL.createObjectURL(image) : currentUser.avatar_url}
@@ -115,6 +125,12 @@ function SettingUser() {
           onClick={updateAccount}
         >
           Update Account
+        </button>
+        <button
+          className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
+          onClick={logout_fnc}
+        >
+          Logout
         </button>
       </div>
     </div>
