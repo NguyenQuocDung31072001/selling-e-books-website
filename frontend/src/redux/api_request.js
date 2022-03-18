@@ -11,7 +11,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000";
 
-export const registerApi = async (user, dispatch, navigate) => {
+export const registerApi = async (user, dispatch) => {
   dispatch(registerStart());
   try {
     const res = await axios.post(
@@ -19,7 +19,7 @@ export const registerApi = async (user, dispatch, navigate) => {
       user
     );
     dispatch(registerSuccess());
-    navigate("/login");
+    
   } catch (error) {
     dispatch(registerFailed());
   }

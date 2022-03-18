@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { registerApi } from "../redux/api_request";
-import { TextField, Button } from "@mui/material";
+import { Input, Button } from "antd";
 
 export default function RegisterPages() {
   const [email, setEmail] = useState("");
@@ -27,7 +27,8 @@ export default function RegisterPages() {
         <img
           className="w-full h-full object-cover"
           src="https://thumbs.dreamstime.com/b/man-holding-modern-ebook-reader-book-one-hand-paper-other-books-bookshelf-background-107296790.jpg"
-        />
+          alt=""
+          />
       </div>
       <div className="w-[300px] h-[400px] flex flex-col justify-center items-center bg-white rounded-[10px] z-10">
         <form
@@ -40,7 +41,7 @@ export default function RegisterPages() {
           </div>
 
           <div className=" mb-[10px]">
-            <TextField
+            <Input
               className="w-[260px]"
               type="text"
               label="Email"
@@ -48,7 +49,7 @@ export default function RegisterPages() {
             />
           </div>
           <div className=" mb-[20px]">
-            <TextField
+            <Input
               className="w-[260px]"
               type="text"
               label="Username"
@@ -56,7 +57,7 @@ export default function RegisterPages() {
             />
           </div>
           <div className=" mb-[20px]">
-            <TextField
+            <Input
               className="w-[260px]"
               type="password"
               label="Password"

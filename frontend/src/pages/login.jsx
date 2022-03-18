@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginApi } from '../redux/api_request'
-import { TextField, Button } from '@mui/material'
+import { Form, Input, Button, Checkbox } from 'antd';
+
 
 export default function LoginPages() {
   const [email, setEmail] = useState('')
@@ -19,16 +20,62 @@ export default function LoginPages() {
     loginApi(user, dispatch, navigate)
   }
 
+
+  const onFinish = (values) => {
+    console.log('Success:', values);
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+  };
+  
   return (
     <div className="h-screen flex justify-center items-center  ">
       <div className="w-screen h-screen fixed ">
         <img
           className="w-full h-full object-cover"
           src="https://thumbs.dreamstime.com/b/modern-ebook-reader-books-man-taking-bookshelf-107296999.jpg"
+          alt=""
         />
       </div>
       <div className="w-[300px] h-[350px] flex flex-col justify-center items-center bg-white rounded-[10px] z-10">
-        <form
+        
+      <Form
+      name="basic"
+      labelCol={{ span: 8 }}
+      wrapperCol={{ span: 16 }}
+      initialValues={{ remember: true }}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+      autoComplete="off"
+    >
+      <Form.Item
+        label="Username"
+        name="username"
+        rules={[{ required: true, message: 'Please input your username!' }]}
+      >
+        <Input onChange={e => setEmail(e.target.value)}/>
+      </Form.Item>
+
+      <Form.Item
+        label="Password"
+        name="password"
+        rules={[{ required: true, message: 'Please input your password!' }]}
+      >
+        <Input.Password onChange={e => setPassword(e.target.value)}/>
+      </Form.Item>
+
+      <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+        <Checkbox onChange={e=>console.log(e.target.checked)}>Remember me</Checkbox>
+      </Form.Item>
+
+      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Button type="primary" htmlType="submit" onClick={loginSubmit}>
+          Submit
+        </Button>
+      </Form.Item>
+    </Form>
+        {/* <form
           className="flex flex-col justify-center items-center w-[260px] h-full relative "
           action=""
           // onSubmit={loginSubmit}
@@ -38,15 +85,16 @@ export default function LoginPages() {
           </div>
 
           <div className=" mb-[10px]">
-            <TextField
+            <Input
               className="w-[260px]"
               type="text"
               label="Email"
+              placeholder='email'
               onChange={e => setEmail(e.target.value)}
             />
           </div>
           <div className=" mb-[20px]">
-            <TextField
+            <Input
               className="w-[260px]"
               type="password"
               label="Password"
@@ -64,7 +112,7 @@ export default function LoginPages() {
               </Link>
             </span>
           </div>
-        </form>
+        </form> */}
       </div>
     </div>
   )

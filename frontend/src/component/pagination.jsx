@@ -1,20 +1,29 @@
-import * as React from 'react';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
+import * as React from 'react'
+import { Pagination } from 'antd'
 
-
+function itemRender(current, type, originalElement) {
+  if (type === 'prev') {
+    return <a>Previous</a>
+  }
+  if (type === 'next') {
+    return <a>Next</a>
+  }
+  
+  return originalElement
+}
 
 export default function PaginationFunc(props) {
-    const {page,limit,total}={...props.pagination}
-    const pageChange=props.handlePageChange
+  const { page, limit, total } = { ...props.pagination }
+  const pageChange = props.handlePageChange
 
-    const count=Math.ceil(total/limit)
+  const count = Math.ceil(total / limit)
 
   return (
-    <Stack spacing={2}>
-      <Pagination count={count} shape="rounded" onChange={pageChange}/>
-    </Stack>
-  );
+    <div>
+      {/* <Pagination count={count} shape="rounded" onChange={pageChange}/> */}
+      <Pagination itemRender={itemRender} total={total} onChange={pageChange} />
+    </div>
+  )
 }
 
 // const pagination={
