@@ -1,5 +1,7 @@
 import { Table, Tag, Space, Button } from 'antd'
-
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import LoginAndRegister from '../component/login_register'
 const columns = [
   {
     title: 'Name',
@@ -74,20 +76,25 @@ const data = [
 ]
 
 export default function Cart() {
+  const currentUser = useSelector(state => state.auth.login.currentUser)
+  console.log(currentUser)
   return (
-    <div className='flex justify-between  mx-[20px] '>
-      <div className="w-[800px]">
-        <Table
-          pagination={{ pageSize: 10 }}
-          columns={columns}
-          dataSource={data}
-        />
-      </div>
-      <div className='flex flex-col-reverse w-[600px] h-[600px] bg-white'>
-        <Button>
-            Mua hàng
-        </Button>
-      </div>
+    <div className="flex justify-between  mx-[20px] ">
+      {!currentUser && <LoginAndRegister />}
+      {currentUser && (
+        <div>
+          <div className="w-[800px]">
+            <Table
+              pagination={{ pageSize: 10 }}
+              columns={columns}
+              dataSource={data}
+            />
+          </div>
+          <div className="flex flex-col-reverse w-[600px] h-[600px] bg-white">
+            <Button>Mua hàng</Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
