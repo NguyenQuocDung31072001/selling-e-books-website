@@ -5,9 +5,9 @@ const ReviewSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: 'Book'
   },
-  User: {
+  account: {
     type: mongoose.Types.ObjectId,
-    ref: 'User'
+    ref: 'account'
   },
   rating: {
     type: Number,

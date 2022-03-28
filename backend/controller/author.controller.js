@@ -3,7 +3,7 @@ const AuthorModel = require('../model/author.model')
 const BookModel = require('../model/book.model')
 const GenreController = require('../controller/genre.controller')
 const generateSlug = require('../common/slug')
-
+const uploadImage = require('../common/uploadImage')
 const GetAllAuthor = async (req, res) => {
   try {
     const allAuthor = await AuthorModel.find().lean()
@@ -41,9 +41,9 @@ const CreateNewAuthor = async (req, res) => {
       slug: slug,
       fullName: req.body.fullName,
       birthDate: req.body.birthDate,
-      avatar: req.body.avatar,
       books: []
     })
+    await uploadImage(newAuthor, 'avatarId', 'avatarUrl', req.body.avatarBase64)
     const savedAuthor = await newAuthor.save()
     res.status(200).json(savedAuthor)
   } catch (error) {
@@ -55,6 +55,7 @@ const CreateNewAuthor = async (req, res) => {
 const UpdateAuthor = async (req, res) => {
   try {
     const authorId = req.params.id
+    const newName = req.params.name
     if (!mongoose.isValidObjectId(authorId))
       throw new Error('Invalid Author ID')
     const updatedAuthor = await AuthorModel.findByIdAndUpdate(
@@ -62,6 +63,33 @@ const UpdateAuthor = async (req, res) => {
       req.body,
       { new: true }
     )
+
+    // const propNames = Object.getOwnPropertyNames(updateInfo)
+    // propNames.forEach(propName => {
+    //   if (updateInfo[propName] == null || updateInfo[propName] == undefined)
+    //     delete updateInfo[propName]
+    // })
+
+    if (!updatedAuthor) throw new Error('Author does not exist')
+
+    if (
+      newName &&
+      newName.toLowerCase() != updatedAuthor.fullName.toLowerCase()
+    ) {
+      const slug = await generateSlug(AuthorModel, newName)
+      updatedAuthor.slug = slug
+      updatedAuthor.fullName = newName
+    }
+
+    if (req.body.avatarBase64) {
+      await uploadImage(
+        updatedAuthor,
+        'avatarId',
+        'avatarUrl',
+        req.body.avatarBase64
+      )
+    }
+
     res.status(200).json(updatedAuthor)
   } catch (error) {
     console.log(error)
