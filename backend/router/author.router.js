@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const AuthorController = require('../controller/author.controller')
-router
+const BookController = require('../controller/book.controller')
+
+router.get('/:slug/books', BookController.getBookOfAuthor)
 
 router.get('/:slug', AuthorController.GetAuthor)
 

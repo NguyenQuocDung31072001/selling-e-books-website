@@ -10,7 +10,11 @@ const AuthorSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    avatar: {
+    avatarId: {
+      type: String,
+      require: true
+    },
+    avatarUrl: {
       type: String,
       require: true
     },

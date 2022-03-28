@@ -1,32 +1,6 @@
 const mongoose = require('mongoose')
 
-const DetailSchema = new mongoose.Schema({
-  format: {
-    //Format == 0 => Ebook
-    //format == 1 => Hardcover
-    type: Number,
-    required: true
-  },
-  language: {
-    type: mongoose.Types.ObjectId,
-    ref: 'Language'
-  },
-  pages: {
-    type: Number,
-    required: true
-  },
-  publishedBy: {
-    type: String,
-    required: true
-  },
-  publishedDate: {
-    type: Date,
-    required: true,
-    default: Date.now()
-  }
-})
-
-const Book = new mongoose.Schema(
+const BookSchema = new mongoose.Schema(
   {
     slug: {
       type: String,
@@ -37,9 +11,13 @@ const Book = new mongoose.Schema(
       type: String,
       required: true
     },
-    cover: {
+    coverId: {
       type: String,
       required: true
+    },
+    coverUrl: {
+      type: String,
+      require: true
     },
     genres: [
       {
@@ -57,9 +35,29 @@ const Book = new mongoose.Schema(
       type: String,
       required: true
     },
-    detail: {
-      type: DetailSchema,
+    format: {
+      //Format == 0 => Ebook
+      //format == 1 => Hardcover
+      type: Number,
       required: true
+    },
+    language: {
+      type: mongoose.Types.ObjectId,
+      ref: 'Language',
+      required: true
+    },
+    pages: {
+      type: Number,
+      required: true
+    },
+    publishedBy: {
+      type: String,
+      required: true
+    },
+    publishedDate: {
+      type: Date,
+      required: true,
+      default: Date.now()
     },
     rating: {
       type: Number,
@@ -74,9 +72,17 @@ const Book = new mongoose.Schema(
     deleted: {
       type: Boolean,
       default: false
+    },
+    amount: {
+      type: Number,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
     }
   },
   { timestamps: true }
 )
 
-module.exports = mongoose.model('Book', Book, 'Book')
+module.exports = mongoose.model('Book', BookSchema, 'Book')
