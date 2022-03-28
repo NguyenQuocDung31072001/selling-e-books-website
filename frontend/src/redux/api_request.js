@@ -71,3 +71,14 @@ export const updateAccountAdmin = async (
     console.log(error);
   }
 };
+export const addBook=async(new_book)=>{
+  try {
+      const res=await axios.post(
+        API_URL+'/v1/selling_e_books/book',
+        new_book
+      )
+      console.log(res)
+  } catch (error) {
+      console.log(error)
+  }
+}

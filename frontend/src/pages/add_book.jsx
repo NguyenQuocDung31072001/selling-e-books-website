@@ -1,6 +1,7 @@
 import { Button, Input, DatePicker, Space, Select } from 'antd'
-import moment from "moment";
-import React, { useState } from 'react'
+import moment from 'moment'
+import React, { useState, useEffect } from 'react'
+import { addBook } from '../redux/api_request'
 const { TextArea } = Input
 const { Option } = Select
 function AddBook() {
@@ -14,28 +15,44 @@ function AddBook() {
   const [price, setPrice] = useState()
   const [genre, setGenre] = useState()
   const [decription, setDecription] = useState()
-
-  const date=new Date()
-  const defaultDate=date.getFullYear()+'-'+`${date.getMonth()+1}`+'-'+date.getDate()
+  const [imageBase64, setImageBase64] = useState()
+  const date = new Date()
+  const defaultDate =
+    date.getFullYear() + '-' + `${date.getMonth() + 1}` + '-' + date.getDate()
 
   const changeImageBook = e => {
     // console.log(e.target.files[0])
     setImageBook(e.target.files[0])
   }
+  useEffect(() => {
+    if (imageBook) {
+      const reader = new FileReader()
+      reader.readAsDataURL(imageBook)
+      reader.onloadend = () => {
+        // console.log(reader.result)
+        setImageBase64(reader.result)
+      }
+      reader.onerror = () => {
+        console.error('AHHHHHHHH!!')
+      }
+    }
+  }, [imageBook])
+
   const handleAddBook = () => {
     let book = {
-      imageBook: imageBook,
+      base64Image: imageBase64,
       name: nameBook,
-      pushlishBy: pushlishBy,
-      page: page,
+      publishedBy: pushlishBy,
+      pages: page,
       amount: amount,
-      pushlishDate: pushlishDate,
-      author: author,
+      // pushlishDate: pushlishDate,
+      authors: author,
       price: price,
-      genre: genre,
-      decription: decription
+      genres: genre,
+      description: decription
     }
-    console.log(book)
+    addBook(book)
+    // console.log(book)
   }
   return (
     <div>
@@ -115,8 +132,8 @@ function AddBook() {
             <label className="w-[100px]">PushlishDate</label>
             <DatePicker
               style={{ width: 320 }}
-              defaultValue={moment(`${defaultDate}`, "YYYY-MM-DD")}
-              onChange={(date,id) => setPushlishDate(id)}
+              defaultValue={moment(`${defaultDate}`, 'YYYY-MM-DD')}
+              onChange={(date, id) => setPushlishDate(id)}
               // onChange={(date,id)=>console.log(id)}
             />
           </div>
@@ -143,16 +160,21 @@ function AddBook() {
               style={{ width: 320 }}
               onChange={e => setGenre(e)}
             >
-              <Option value="Chính trị - pháp luật">Chính trị - pháp luật</Option>
+              <Option value="Chính trị - pháp luật">
+                Chính trị - pháp luật
+              </Option>
               <Option value="Khoa học công nghệ">Khoa học công nghệ</Option>
               <Option value="Kinh tế">Kinh tế</Option>
               <Option value="Văn học nghệ thuật">Văn học nghệ thuật</Option>
-              <Option value="Văn hóa xã hội - Lịch sử">Văn hóa xã hội - Lịch sử</Option>
+              <Option value="Văn hóa xã hội - Lịch sử">
+                Văn hóa xã hội - Lịch sử
+              </Option>
               <Option value="Giáo trình">Giáo trình</Option>
               <Option value="Truyện, tiểu thuyết">Truyện, tiểu thuyết</Option>
-              <Option value="Tâm lý, tâm linh, tôn giáo">Tâm lý, tâm linh, tôn giáo</Option>
+              <Option value="Tâm lý, tâm linh, tôn giáo">
+                Tâm lý, tâm linh, tôn giáo
+              </Option>
               <Option value="Sách thiếu nhi">Sách thiếu nhi</Option>
-              
             </Select>
           </div>
           <div className="flex mb-[20px]">
