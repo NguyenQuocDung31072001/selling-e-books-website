@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom"
 function NotFound() {
     const navigate=useNavigate()
     useEffect(()=>{
-        navigate('/login')
+        navigate('/user/home')
     },[])
     return (
         <div>

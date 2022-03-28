@@ -16,12 +16,17 @@ const GetAllGenre = async (req, res) => {
 
 const GetGenre = async (req, res) => {
   try {
+    const perPage = 20
+    const page = req.query.page || 1
     const slug = req.params.slug
-    const genre = await GenreModel.find({ slug: slug }).populate({
-      path: 'books',
-      match: { deleted: false },
-      select: 'slug name cover'
-    })
+    const genre = await GenreModel.find({ slug: slug })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .populate({
+        path: 'books',
+        match: { deleted: false },
+        select: 'slug name cover'
+      })
     res.status(200).json(genre)
   } catch (error) {
     console.log(error)
@@ -52,15 +57,14 @@ const UpdateGenre = async (req, res) => {
   try {
     const genreId = req.params.id
     if (!mongoose.isValidObjectId(genreId)) throw new Error('Invalid genre id')
-    if (!req.body.name) throw new Error('Name is required')
-    const genre = await GenreModel.findById(genreId)
-    if (!genre) throw new Error('Genre does not exist')
-    if (req.body.name != genre.name) {
-      ;(genre.name = req.body.name),
-        (genre.slug = await generateSlug(GenreModel, req.body.name))
-      await genre.save()
-    }
-    res.status(200).json(genre)
+    const updatedGenre = await GenreModel.findByIdAndUpdate(
+      genreId,
+      {
+        name: req.body.name
+      },
+      { new: true }
+    )
+    res.status(200).json(updatedGenre)
   } catch (error) {
     console.log({ UpdateGenreError: error })
     req.status(500).json(error)
@@ -84,7 +88,7 @@ const SoftDelete = async (req, res) => {
     currentGenre.deleted = true
     const deletedGenre = currentGenre.save()
     await Promise.all([updatedBooks, deletedGenre])
-    res.status(200).json({ success: true })
+    res.status(200).json()
   } catch (error) {
     console.log({ SoftDeleteGenre: error })
     res.status(500).json(error)

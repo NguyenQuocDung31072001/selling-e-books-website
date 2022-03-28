@@ -20,8 +20,9 @@ const CreateNewBook = async (req, res) => {
       genres: genreIds,
       authors: authorIds,
       description: req.body.description,
-      format: parseInt(req.body.format),
-      language: new mongoose.Types.ObjectId(req.body.language),
+      // format: parseInt(req.body.format),
+      format:1,
+      language: new mongoose.Types.ObjectId('6229dc343a2e43c8cd9dbd65'),
       pages: parseInt(req.body.pages),
       publishedBy: req.body.publishedBy,
       rating: 0,
@@ -52,6 +53,7 @@ const CreateNewBook = async (req, res) => {
     )
 
     await Promise.all([updatedGenres, updatedAuthors])
+    console.log(savedBook)
     res.status(200).json(savedBook)
   } catch (error) {
     console.log({ CreateNewBookError: error })
