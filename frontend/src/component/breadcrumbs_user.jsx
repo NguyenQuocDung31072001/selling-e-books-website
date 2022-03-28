@@ -28,7 +28,7 @@ function BreadcrumbsUser() {
             {genre && !name_book &&  (
                 <div className='flex'>
                     <Link to="/user/home">
-                        Trang Chủ
+                        Trang chủ
                     </Link>
                     <span>/</span>
                     <span>{genre}</span>

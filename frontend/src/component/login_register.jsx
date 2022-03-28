@@ -63,13 +63,15 @@ function LoginAndRegister() {
           onCancel={handleCancel}
           footer={null}
           cancelButtonProps
+          
         >
           <Form
             name="basic"
-            labelCol={{ span: 8 }}
+            labelCol={{ span: 6 }}
             wrapperCol={{ span: 16 }}
             initialValues={{ remember: true }}
             autoComplete="off"
+            className='flex flex-col '
           >
             <Form.Item
               label="Email"
@@ -104,7 +106,7 @@ function LoginAndRegister() {
                 Submit
               </Button>
             </Form.Item>
-            <Form.Item>
+            <Form.Item className='flex justify-center'>
               <span>If you don't have account?</span>
               <span
                 className="text-sky-500 cursor-pointer"
@@ -127,7 +129,7 @@ function LoginAndRegister() {
         >
           <Form
             name="basic"
-            labelCol={{ span: 8 }}
+            labelCol={{ span: 6 }}
             wrapperCol={{ span: 16 }}
             initialValues={{ remember: true }}
             autoComplete="off"
@@ -173,7 +175,7 @@ function LoginAndRegister() {
                 Register
               </Button>
             </Form.Item>
-            <Form.Item>
+            <Form.Item className='flex justify-center'>
               <span>If you alraedy have account?</span>
               <span
                 className="text-sky-500 cursor-pointer"

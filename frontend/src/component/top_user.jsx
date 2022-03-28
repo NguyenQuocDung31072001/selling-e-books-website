@@ -30,7 +30,7 @@ function TopUser() {
 
   //currentUser.avatar_url
   return (
-    <div className="w-full h-[120px] min-w-max bg-blue-600 fixed top-0 text-white z-50">
+    <div className="w-full h-[130px] min-w-max bg-blue-600 fixed top-0 text-white z-50">
       <div className="flex justify-between items-center mt-[20px]">
         <Link to="/user/home">
           <div className="ml-[20px] text-[25px] text-white">
@@ -59,7 +59,7 @@ function TopUser() {
               <LoginAndRegister />
             </div>
           )}
-          <Link to="/">
+          <Link to="/user/cart">
             <ShoppingCartOutlined
               style={{ fontSize: '45px', color: '#EFFFFD' }}
             />

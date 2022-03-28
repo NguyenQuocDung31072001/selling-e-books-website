@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { loginFailed } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import PaginationFunc from '../component/pagination'
@@ -72,13 +72,16 @@ export default function HomePagesUser() {
             key={key}
             className="group w-[240px] h-[200px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer"
           >
-            <img src={book.image} className="" alt="" />
-            <div className="flex flex-col transition duration-[0.25s] group-hover:translate-y-[-130px] group-hover:text-white">
-              <span>{book.name}</span>
-              <span>Thể loại: {book.genre}</span>
-              <span>Tác giả: {book.author}</span>
-              <span>Mô tả: {book.decription}</span>
-            </div>
+            <Link to={`/user/home/${book.genre}/${book.name}`}>
+              <img src={book.image} className="" alt="" />
+              <div className="flex flex-col transition duration-[0.25s] group-hover:translate-y-[-130px] group-hover:text-white">
+                <span>{book.name}</span>
+                <span>Thể loại: {book.genre}</span>
+                <span>Tác giả: {book.author}</span>
+                <span>Mô tả: {book.decription}</span>
+              </div>
+
+            </Link>
           </div>
         ))}
       </div>

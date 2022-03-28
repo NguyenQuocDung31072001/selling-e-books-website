@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { updateAccountAdmin } from '../redux/api_request'
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { Input, Button, Image} from 'antd'
-
+import { Input, Button, Image } from 'antd'
+const { TextArea } = Input;
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
 function SettingUser() {
@@ -65,7 +65,6 @@ function SettingUser() {
     dispatch(logout())
   }
 
-
   return (
     <div>
       <div className="flex items-center">
@@ -79,7 +78,6 @@ function SettingUser() {
         {currentUser?.avatar_url && (
           <Image
             width={200}
-              
             src={image ? URL.createObjectURL(image) : currentUser.avatar_url}
           />
         )}
@@ -94,40 +92,60 @@ function SettingUser() {
             onChange={changeImage}
           />
         </label>
+      </div>
+      <div className='flex'>
+        <div >
+          <div className="flex w-[300px]">
+            <div className="w-[80px]">
+              <label> Email</label>
+            </div>
+            <Input
+              className="ml-[20px] "
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="flex w-[300px]">
+            <div className="w-[80px]">
+              <label>Username</label>
+            </div>
+            <Input
+              className="ml-[20px] "
+              // size="large"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="flex w-[300px]">
+            <div className="w-[60px]">
+              <label> Password</label>
+            </div>
+            <Input.Password
+              className="ml-[5px] "
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+        <div>
+        <div className="flex w-[300px]">
+            <div className="w-[80px]">
+              <label> Phone number</label>
+            </div>
+            <Input
+              className="ml-[20px] "
 
+            />
+          </div>
+          <div className="flex w-[300px]">
+            <div className="w-[80px]">
+              <label>Address</label>
+            </div>
+            <TextArea rows={4} />
+          </div>
+        </div>
       </div>
 
-      <div className="flex w-[300px]">
-        <div className="w-[80px]">
-          <label> Email</label>
-        </div>
-        <Input
-          className="ml-[20px] "
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-      </div>
-      <div className="flex w-[300px]">
-        <div className="w-[80px]">
-          <label>Username</label>
-        </div>
-        <Input
-          className="ml-[20px] "
-          // size="large"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-        />
-      </div>
-      <div className="flex w-[300px]">
-        <div className="w-[60px]">
-          <label> Password</label>
-        </div>
-        <Input.Password
-          className="ml-[5px] "
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
-      </div>
       <div>
         <Button
           // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
