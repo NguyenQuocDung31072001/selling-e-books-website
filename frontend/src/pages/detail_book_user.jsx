@@ -1,21 +1,30 @@
-import React, { useEffect } from 'react'
+import React, { useEffect,useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Typography } from 'antd'
+import { getBook } from '../redux/api_request'
 const { Title } = Typography
 
 function DetailBookUser() {
-  const { genre, id_book } = useParams()
+  const { genre, slug } = useParams()
   const dispatch = useDispatch()
+  const [book,setBook]=useState()
+  // console.log(genre,slug)
   // từ id_book lấy ra name_book rồi bỏ vào breadcrumb @@
   useEffect(() => {
     const breadcrum = {
       genre: genre,
-      name_book: id_book
+      name_book: slug
     }
     dispatch(updateBreadcrumb(breadcrum))
+    getBookFnc(slug)
   }, [])
+  const getBookFnc=async(slug)=>{
+    let bookApi=await getBook(slug)
+    console.log(bookApi)
+    setBook(bookApi)
+  } 
   return (
     <div>
       <div className="m-auto w-[1200px] h-[500px] border-2 border-solid flex">

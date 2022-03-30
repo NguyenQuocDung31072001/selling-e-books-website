@@ -27,7 +27,7 @@ function App() {
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
             <Route path="home/:genre" element={<GenreBookUser />} />
-            <Route path="home/:genre/:id_book" element={<DetailBookUser />} />
+            <Route path="home/:genre/:slug" element={<DetailBookUser />} />
             <Route path="cart" element={<Cart/>}/>
             <Route path="setting" element={<SettingUser />} />
           </Route>

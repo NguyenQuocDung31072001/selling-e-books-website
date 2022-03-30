@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginFailed } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import PaginationFunc from '../component/pagination'
-import { _book } from '../data/book'
 import SlideshowUser from '../component/slideshow_user'
-import { Image } from 'antd'
-
-const book = _book
+import {getAllBook} from "../redux/api_request"
 
 export default function HomePagesUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
+  const [bookData,setBookData]=useState([])
   //handle pagination
   const [bookRender, setBookRender] = useState([])
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
-    total: book.length
+    total: bookData.length
   })
 
   const pageChange = (current, pageSize) => {
@@ -34,31 +30,45 @@ export default function HomePagesUser() {
   useEffect(() => {
     let _page = pagination.page
     let _limit = pagination.limit
-    let _length = book.length
-
+    let _length = bookData.length
+    console.log(_page,_limit,_length)
     let _bookRender = []
 
     if (_length <= _page * _limit) {
-      _bookRender = book.slice((_page - 1) * _limit, _length)
+      _bookRender = bookData.slice((_page - 1) * _limit, _length)
     } else {
-      _bookRender = book.slice((_page - 1) * _limit, _page * _limit)
+      _bookRender = bookData.slice((_page - 1) * _limit, _page * _limit)
     }
     setBookRender(_bookRender)
   }, [pagination])
 
-  //handle breadcrumb
+
+  useEffect(()=>{
+    console.log(bookRender)
+  },[bookRender])
+
   useEffect(() => {
     const breadcrumb = { genre: '', name_book: '' }
     dispatch(updateBreadcrumb(breadcrumb))
+    setDataBookFnc()
   }, [])
 
-  //protected route
-  // useEffect(() => {
-  //   if (currentUser?.role !== 'user') {
-  //     dispatch(loginFailed())
-  //     navigate('/login')
-  //   }
-  // }, [currentUser])
+  useEffect(()=>{
+    if(bookData.length>0){
+
+      setPagination(prev=>{
+        return {
+          ...prev,
+          total:bookData.length
+        }
+      })
+    }
+  },[bookData])
+
+  const setDataBookFnc=async ()=>{
+    let data=await getAllBook()
+    setBookData(data)
+  }
 
   return (
     <div className="flex flex-col justify-center items-center">
@@ -70,15 +80,18 @@ export default function HomePagesUser() {
         {bookRender.map((book, key) => (
           <div
             key={key}
-            className="group w-[240px] h-[200px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer"
+            className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer"
           >
-            <Link to={`/user/home/${book.genre}/${book.name}`}>
-              <img src={book.image} className="" alt="" />
+            <Link to={`/user/home/${book.genres[0]?.name}/${book.slug}`}>
+              <div className='flex  h-[240px]'>
+              <img src={book.coverUrl} className="object-cover" alt="" />
+
+              </div>
               <div className="flex flex-col transition duration-[0.25s] group-hover:translate-y-[-130px] group-hover:text-white">
                 <span>{book.name}</span>
-                <span>Thể loại: {book.genre}</span>
-                <span>Tác giả: {book.author}</span>
-                <span>Mô tả: {book.decription}</span>
+                <span>Thể loại: {book.genres[0]?.name}</span>
+                <span>Tác giả: {book.authors[0].fullName}</span>
+                <span>Mô tả: {book.description}</span>
               </div>
 
             </Link>
