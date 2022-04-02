@@ -16,12 +16,7 @@ function SettingAdmin() {
 
   const dispatch = useDispatch();
   const navigate=useNavigate()
-  useEffect(() => {
-    if (currentUser.role!=='admin') {
-      dispatch(loginFailed());
-      navigate("/login");
-    }
-  }, [currentUser]);
+
 
   useEffect(() => {
     if (image) {

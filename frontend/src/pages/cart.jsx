@@ -144,12 +144,7 @@ export default function Cart() {
       setTotalFinal(tong_cong)
     }
   }
-  useEffect(() => {
-    if (currentUser?.role !== 'user') {
-      dispatch(loginFailed())
-      navigate('/login')
-    }
-  }, [currentUser])
+
 
   useEffect(() => {
     const breadcrumb = {

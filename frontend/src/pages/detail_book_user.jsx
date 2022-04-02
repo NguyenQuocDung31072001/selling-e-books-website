@@ -30,7 +30,7 @@ function DetailBookUser() {
   }
   return (
     <div className="h-[1400px]">
-      <div className="m-auto w-[1200px] h-[500px]  flex">
+      <div className="m-auto w-[1000px] h-[500px]  flex">
         <div className="w-[400px] h-[500px] flex items-center">
           <img className="w-full object-cover " src={book?.coverUrl} alt="" />
         </div>
