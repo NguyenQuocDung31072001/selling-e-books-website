@@ -87,8 +87,8 @@ export const getBook=async (slug)=>{
   // console.log('slug ',slug)
   try {
     const res = await axios.get(API_URL + '/v1/selling_e_books/book/'+slug,{})
-    console.log(res.data.books)
-    return res.data.books
+    console.log(res.data)
+    return res.data
   } catch (error) {
     console.log(error)
   }

@@ -124,7 +124,10 @@ export default function Cart() {
         break
       }
     }
-    setTotalFinal(value => (value -= data[indexKeyOfArray].total))
+    if(rowChecked.indexOf(key)>-1){
+
+      setTotalFinal(value => (value -= data[indexKeyOfArray].total))
+    }
     let newData = data.filter(data => data.key !== key)
     setData(newData)
   }

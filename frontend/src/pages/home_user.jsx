@@ -90,7 +90,7 @@ export default function HomePagesUser() {
               <div className="flex flex-col transition duration-[0.25s] group-hover:translate-y-[-130px] group-hover:text-white">
                 <span>{book.name}</span>
                 <span>Thể loại: {book.genres[0]?.name}</span>
-                <span>Tác giả: {book.authors[0].fullName}</span>
+                <span>Tác giả: {book.authors[0]?.fullName}</span>
                 <span>Mô tả: {book.description}</span>
               </div>
 
