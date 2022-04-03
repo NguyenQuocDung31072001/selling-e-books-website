@@ -70,14 +70,7 @@ function App() {
           </Route>
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
-            <Route
-              path="home/:genre"
-              element={
-                <ProtectRouterUser>
-                  <GenreBookUser />
-                </ProtectRouterUser>
-              }
-            />
+            <Route path="home/:genre" element={<GenreBookUser />} />
             <Route
               path="home/:genre/:slug"
               element={
@@ -124,7 +117,7 @@ function UserComponent() {
   return (
     <div>
       <TopUser />
-      <div className="mt-[130px]">
+      <div className="mt-[100px]">
         <BreadcrumbsUser />
         <Outlet />
       </div>

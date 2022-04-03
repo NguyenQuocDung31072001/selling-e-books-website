@@ -31,7 +31,7 @@ export default function HomePagesUser() {
     let _page = pagination.page
     let _limit = pagination.limit
     let _length = bookData.length
-    console.log(_page,_limit,_length)
+    // console.log(_page,_limit,_length)
     let _bookRender = []
 
     if (_length <= _page * _limit) {
@@ -43,9 +43,9 @@ export default function HomePagesUser() {
   }, [pagination])
 
 
-  useEffect(()=>{
-    console.log(bookRender)
-  },[bookRender])
+  // useEffect(()=>{
+  //   console.log(bookRender)
+  // },[bookRender])
 
   useEffect(() => {
     const breadcrumb = { genre: '', name_book: '' }
