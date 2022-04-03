@@ -44,7 +44,7 @@ function TopUser() {
             <button>Tìm kiếm</button>
           </div>
         </div>
-        <div className="flex justify-between items-center w-[100px] mr-[40px]">
+        <div className="flex justify-between items-center mr-[40px]">
           {currentUser && (
             <Link to="/user/setting">
               <img
