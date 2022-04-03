@@ -33,7 +33,6 @@ function SettingUser() {
     dispatch(updateBreadcrumb(breadcrumb))
   }, [])
 
-
   useEffect(() => {
     if (image) {
       const reader = new FileReader()
@@ -75,8 +74,9 @@ function SettingUser() {
       avatarBase64: imageBase64
     }
     console.log(account)
-    updatePassword(currentUser, account, dispatch)
+    updateAccountAdmin(currentUser, account, dispatch)
   }
+
   const logout_fnc = () => {
     dispatch(logout())
   }
@@ -98,7 +98,9 @@ function SettingUser() {
     <div className="flex flex-col justify-center items-center w-full relative space-y-10">
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
         <div className="w-full lg:w-2/3 xl:w-1/2 px-6 ">
-          <h2 className="text-xl font-semibold text-left mb-0">Hồ sơ của tôi</h2>
+          <h2 className="text-xl font-semibold text-left mb-0">
+            Hồ sơ của tôi
+          </h2>
           <h3 className="w-full text-md text-left font-normal text-gray-500">
             Quản lý thông tin hồ sơ để bảo mật tài khoản
           </h3>
@@ -109,7 +111,11 @@ function SettingUser() {
             <Image
               width={150}
               height={150}
-              style={{ borderRadius: '50%', overflow: 'hidden', objectFit: 'cover' }}
+              style={{
+                borderRadius: '50%',
+                overflow: 'hidden',
+                objectFit: 'cover'
+              }}
               src={imageBase64 || currentUser?.avatar_url || IMAGE_URL}
             />
             <label
@@ -129,21 +135,37 @@ function SettingUser() {
           <div className="flex flex-col h-full text-sm space-y-6 md:space-y-9 w-full lg:w-2/3 order-2 lg:order-1 ">
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600"> Email</label>
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  {' '}
+                  Email
+                </label>
               </div>
-              <Input size="large" value={email} onChange={e => setEmail(e.target.value)} />
+              <Input
+                size="large"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600">Tên đăng nhập</label>
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Tên đăng nhập
+                </label>
               </div>
-              <Input size="large" value={username} onChange={e => setUsername(e.target.value)} />
+              <Input
+                size="large"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600"> Số điện thoại</label>
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  {' '}
+                  Số điện thoại
+                </label>
               </div>
               <Input
                 size="large"
@@ -154,7 +176,9 @@ function SettingUser() {
 
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600">Ngày sinh</label>
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Ngày sinh
+                </label>
               </div>
               <Input
                 size="large"
@@ -166,9 +190,15 @@ function SettingUser() {
 
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600">Địa chỉ</label>
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Địa chỉ
+                </label>
               </div>
-              <Input size="large" value={address} onChange={e => setAddress(e.target.value)} />
+              <Input
+                size="large"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -190,7 +220,9 @@ function SettingUser() {
 
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
         <div className="w-full lg:w-2/3 xl:w-1/2 px-6">
-          <h2 className="text-xl font-semibold text-left mb-0">Thay đổi mật khẩu</h2>
+          <h2 className="text-xl font-semibold text-left mb-0">
+            Thay đổi mật khẩu
+          </h2>
           <h3 className="w-full text-md text-left font-normal text-gray-500">
             Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác
           </h3>
@@ -214,7 +246,9 @@ function SettingUser() {
 
           <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
             <div className="w-40 min-w-[8rem] text-right">
-              <label className="text-right whitespace-nowrap text-gray-600">Mật Khẩu Mới</label>
+              <label className="text-right whitespace-nowrap text-gray-600">
+                Mật Khẩu Mới
+              </label>
             </div>
             <Input.Password
               size="large"
