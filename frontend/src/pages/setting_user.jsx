@@ -83,7 +83,7 @@ function SettingUser() {
 
   const updatePassword = () => {
     if (newPassword !== confirmPassword) {
-      console.log('Mật khẩu không trùng khớp')
+      window.confirm('Mật khẩu không trùng khớp vui lòng kiểm tra lại')
     } else {
       const account = {
         _id: currentUser._id,
