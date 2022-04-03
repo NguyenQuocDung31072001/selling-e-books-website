@@ -1,6 +1,7 @@
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import authReducer from "./auth_slices";
-import breadcrumbReducer from "./breadcrumb_slices"
+import { configureStore, combineReducers } from '@reduxjs/toolkit'
+import authReducer from './auth_slices'
+import breadcrumbReducer from './breadcrumb_slices'
+import genreReducer from './genre_slice'
 import {
   persistStore,
   persistReducer,
@@ -9,25 +10,32 @@ import {
   PAUSE,
   PERSIST,
   PURGE,
-  REGISTER,
-} from "redux-persist";
-import storage from "redux-persist/lib/storage";
+  REGISTER
+} from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+import authorReducer from './author_slice'
+
 const persistConfig = {
-  key: "root",
+  key: 'root',
   version: 1,
-  storage,
-};
-const rootReducer = combineReducers({ auth: authReducer,breadcrumb:breadcrumbReducer });
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+  storage
+}
+const rootReducer = combineReducers({
+  auth: authReducer,
+  breadcrumb: breadcrumbReducer,
+  genre: genreReducer,
+  author: authorReducer
+})
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
-});
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+      }
+    })
+})
 
-export let persistor = persistStore(store);
+export let persistor = persistStore(store)

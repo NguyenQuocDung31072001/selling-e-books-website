@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { updateAccountAdmin } from '../redux/api_request'
+import { updateAccountAdmin, updateAccountPassword } from '../redux/api_request'
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image } from 'antd'
-const { TextArea } = Input;
+const { TextArea } = Input
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
 function SettingUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const [email, setEmail] = useState(currentUser?.email)
   const [username, setUsername] = useState(currentUser?.username)
-  const [password, setPassword] = useState(currentUser?.password)
+  const [address, setAddress] = useState(currentUser?.address || '')
+  const [phoneNumber, setPhoneNumber] = useState(currentUser?.phoneNumber || '')
+  const [birthDate, setBirthDate] = useState(currentUser?.birthDate || '')
   const [image, setImage] = useState()
   const [imageBase64, setImageBase64] = useState()
+
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -43,7 +49,19 @@ function SettingUser() {
   }, [image])
 
   const changeImage = e => {
-    setImage(e.target.files[0])
+    const image = e.target.files[0]
+    if (image) {
+      const reader = new FileReader()
+      reader.readAsDataURL(image)
+      reader.onloadend = () => {
+        setImageBase64(reader.result)
+      }
+      reader.onerror = () => {
+        console.error('AHHHHHHHH!!')
+      }
+    } else {
+      setImageBase64(null)
+    }
   }
 
   const updateAccount = e => {
@@ -51,109 +69,184 @@ function SettingUser() {
     const account = {
       email: email,
       username: username,
-      password: password,
+      address: address,
+      phoneNumber: phoneNumber,
+      birthDate: birthDate,
       avatarBase64: imageBase64
     }
-    updateAccountAdmin(currentUser, account, dispatch)
+    console.log(account)
+    updatePassword(currentUser, account, dispatch)
   }
   const logout_fnc = () => {
     dispatch(logout())
   }
 
-  return (
-    <div>
-      <div className="flex items-center">
-        {!currentUser?.avatar_url && (
-          <Image
-            width={200}
-            preview={false}
-            src={image ? URL.createObjectURL(image) : IMAGE_URL}
-          />
-        )}
-        {currentUser?.avatar_url && (
-          <Image
-            width={200}
-            src={image ? URL.createObjectURL(image) : currentUser.avatar_url}
-          />
-        )}
-        <label htmlFor="avatar_id">
-          <i className="fa-solid fa-user-tie text-[50px] cursor-pointer"></i>
+  const updatePassword = () => {
+    if (newPassword !== confirmPassword) {
+      console.log('Mật khẩu không trùng khớp')
+    } else {
+      const account = {
+        _id: currentUser._id,
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      }
+      updateAccountPassword(currentUser, account, dispatch)
+    }
+  }
 
-          <input
-            className="hidden"
-            id="avatar_id"
-            type="file"
-            accept="image/png, image/gif, image/jpeg"
-            onChange={changeImage}
-          />
-        </label>
+  return (
+    <div className="flex flex-col justify-center items-center w-full relative space-y-10">
+      <div className="flex flex-col justify-center items-center w-full relative space-y-4">
+        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 ">
+          <h2 className="text-xl font-semibold text-left mb-0">Hồ sơ của tôi</h2>
+          <h3 className="w-full text-md text-left font-normal text-gray-500">
+            Quản lý thông tin hồ sơ để bảo mật tài khoản
+          </h3>
+          <hr className="my-3" />
+        </div>
+        <div className="flex flex-col lg:flex-row justify-center items-stretch space-y-8 lg:space-x-8  lg:space-y-0 w-full lg:w-2/3 xl:w-1/2 px-6">
+          <div className="flex flex-col h-full justify-start items-center space-y-6  w-full  lg:w-1/3 order-1 lg:order-2">
+            <Image
+              width={150}
+              height={150}
+              style={{ borderRadius: '50%', overflow: 'hidden', objectFit: 'cover' }}
+              src={imageBase64 || currentUser?.avatar_url || IMAGE_URL}
+            />
+            <label
+              htmlFor="avatar_id"
+              className="px-4 py-2 border border-gray-300 cursor-pointer hover:bg-gray-50 text-base"
+            >
+              Chọn Ảnh{' '}
+            </label>
+            <input
+              className="hidden"
+              id="avatar_id"
+              type="file"
+              accept="image/png, image/gif, image/jpeg"
+              onChange={changeImage}
+            />
+          </div>
+          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-9 w-full lg:w-2/3 order-2 lg:order-1 ">
+            <div className="flex flex-row items-center space-x-4">
+              <div className="w-24 min-w-[6rem] text-right ">
+                <label className="text-right whitespace-nowrap text-gray-600"> Email</label>
+              </div>
+              <Input size="large" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+
+            <div className="flex flex-row items-center space-x-4">
+              <div className="w-24 min-w-[6rem] text-right ">
+                <label className="text-right whitespace-nowrap text-gray-600">Tên đăng nhập</label>
+              </div>
+              <Input size="large" value={username} onChange={e => setUsername(e.target.value)} />
+            </div>
+
+            <div className="flex flex-row items-center space-x-4">
+              <div className="w-24 min-w-[6rem] text-right ">
+                <label className="text-right whitespace-nowrap text-gray-600"> Số điện thoại</label>
+              </div>
+              <Input
+                size="large"
+                value={phoneNumber}
+                onChange={e => setPhoneNumber(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-row items-center space-x-4">
+              <div className="w-24 min-w-[6rem] text-right ">
+                <label className="text-right whitespace-nowrap text-gray-600">Ngày sinh</label>
+              </div>
+              <Input
+                size="large"
+                type="date"
+                value={birthDate.split('T')[0]}
+                onChange={e => setBirthDate(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-row items-center space-x-4">
+              <div className="w-24 min-w-[6rem] text-right ">
+                <label className="text-right whitespace-nowrap text-gray-600">Địa chỉ</label>
+              </div>
+              <Input size="large" value={address} onChange={e => setAddress(e.target.value)} />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-row space-x-6">
+          <Button
+            // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
+            onClick={updateAccount}
+          >
+            Lưu
+          </Button>
+          <Button
+            // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
+            onClick={logout_fnc}
+          >
+            Đăng xuất
+          </Button>
+        </div>
       </div>
-      <div className='flex'>
-        <div >
-          <div className="flex w-[300px]">
-            <div className="w-[80px]">
-              <label> Email</label>
-            </div>
-            <Input
-              className="ml-[20px] "
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="flex w-[300px]">
-            <div className="w-[80px]">
-              <label>Username</label>
-            </div>
-            <Input
-              className="ml-[20px] "
-              // size="large"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="flex w-[300px]">
-            <div className="w-[60px]">
-              <label> Password</label>
+
+      <div className="flex flex-col justify-center items-center w-full relative space-y-4">
+        <div className="w-full lg:w-2/3 xl:w-1/2 px-6">
+          <h2 className="text-xl font-semibold text-left mb-0">Thay đổi mật khẩu</h2>
+          <h3 className="w-full text-md text-left font-normal text-gray-500">
+            Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác
+          </h3>
+          <hr className="my-3" />
+        </div>
+
+        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 flex flex-col space-y-8">
+          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+            <div className="w-40 min-w-[8rem] text-right">
+              <label className="text-right whitespace-nowrap text-gray-600">
+                Mật Khẩu Hiện Tại
+              </label>
             </div>
             <Input.Password
-              className="ml-[5px] "
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              size="large"
+              value={oldPassword}
+              onChange={e => setOldPassword(e.target.value)}
+              placeholder
+            />
+          </div>
+
+          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+            <div className="w-40 min-w-[8rem] text-right">
+              <label className="text-right whitespace-nowrap text-gray-600">Mật Khẩu Mới</label>
+            </div>
+            <Input.Password
+              size="large"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder
+            />
+          </div>
+
+          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+            <div className="w-40 min-w-[8rem] text-right">
+              <label className="text-right whitespace-nowrap text-gray-600">
+                Xác Nhận Mật Khẩu
+              </label>
+            </div>
+            <Input.Password
+              size="large"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder
             />
           </div>
         </div>
-        <div>
-        <div className="flex w-[300px]">
-            <div className="w-[80px]">
-              <label> Phone number</label>
-            </div>
-            <Input
-              className="ml-[20px] "
 
-            />
-          </div>
-          <div className="flex w-[300px]">
-            <div className="w-[80px]">
-              <label>Address</label>
-            </div>
-            <TextArea rows={4} />
-          </div>
+        <div className="flex flex-row space-x-6">
+          <Button
+            // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
+            onClick={updatePassword}
+          >
+            Lưu
+          </Button>
         </div>
-      </div>
-
-      <div>
-        <Button
-          // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
-          onClick={updateAccount}
-        >
-          Update Account
-        </Button>
-        <Button
-          // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
-          onClick={logout_fnc}
-        >
-          Logout
-        </Button>
       </div>
     </div>
   )

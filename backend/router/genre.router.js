@@ -4,6 +4,8 @@ const AuthorController = require('../controller/author.controller')
 const GenreController = require('../controller/genre.controller')
 const BookController = require('../controller/book.controller')
 
+router.get('/delete', GenreController.getDeletedGenre)
+
 router.get('/:slug/books', BookController.GetBookOfGenre)
 
 router.get('/:slug', GenreController.GetGenre)

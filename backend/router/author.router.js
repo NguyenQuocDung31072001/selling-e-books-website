@@ -3,6 +3,8 @@ const router = express.Router()
 const AuthorController = require('../controller/author.controller')
 const BookController = require('../controller/book.controller')
 
+router.get('/delete', AuthorController.GetDeletedAuthor)
+
 router.get('/:slug/books', BookController.getBookOfAuthor)
 
 router.get('/:slug', AuthorController.GetAuthor)

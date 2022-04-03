@@ -10,6 +10,10 @@ const AuthorSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    address: {
+      type: String,
+      required: true
+    },
     avatarId: {
       type: String,
       require: true

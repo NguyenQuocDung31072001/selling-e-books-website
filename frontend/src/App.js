@@ -19,8 +19,9 @@ import BreadcrumbsUser from './component/breadcrumbs_user'
 import DetailBookUser from './pages/detail_book_user'
 import Cart from './pages/cart'
 import AddBook from './pages/add_book'
+import GenreManage from './pages/genre_book_admin'
+import AuthorManage from './pages/author_admin'
 import { useSelector } from 'react-redux'
-
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
@@ -43,6 +44,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/admin" element={<AdminComponent />}>
+            <Route path="genre" element={<GenreManage />} />
+            <Route path="author" element={<AuthorManage />} />
             <Route
               path="home"
               element={

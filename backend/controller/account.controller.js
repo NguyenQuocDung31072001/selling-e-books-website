@@ -8,11 +8,15 @@ const updateAccount = async (req, res) => {
   //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
   try {
     const account = await Account.findById(req.params.id)
-    account.email = req.body.email
-    account.username = req.body.username
-    account.password = req.body.password
-    //xử lý upload avatar mới
+    if (req.body.email) account.email = req.body.email
+    if (req.body.username) account.username = req.body.username
+    if (req.body.password) account.password = req.body.password
+    if (req.body.birthDate) account.birthDate = req.body.birthDate
+    if (req.body.address) account.address = req.body.address
+    if (req.body.phoneNumber) account.phoneNumber = req.body.phoneNumber
+
     if (req.body.avatarBase64) {
+      //xử lý upload avatar mới
       if (account.id_avatar) {
         cloudinary.uploader.destroy(
           account.id_avatar,
@@ -37,10 +41,46 @@ const updateAccount = async (req, res) => {
   }
 }
 
+const updatePasswordAccount = async (req, res) => {
+  //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
+  try {
+    const id = req.params.id
+    if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
+    const account = await Account.findById(id)
+    if (account.password == req.body.oldPassword)
+      account.password = req.body.newPassword
+    await account.save()
+    delete account.password
+    res.status(200).json(account)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const getAccountCart = async (req, res) => {
+  try {
+    const id = req.params.id
+    if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
+    const account = await Account.findById(id)
+      .select('cart')
+      .populate({
+        path: 'cart.book',
+        select: '_id slug name coverUrl price description'
+      })
+    if (!account) throw new Error('Invalid account')
+    res.status(200).json(account)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 const addBookToCart = async (req, res) => {
   try {
     const bookId = req.body.book
-    const accountId = req.body.Account
+    const accountId = req.body.account
+    if (accountId !== req.params.id) throw new Error('Account id not match')
     const updatedAccount = await updateCartAccount(accountId, bookId, 1, false)
     res.status(200).json(updatedAccount)
   } catch (error) {
@@ -53,10 +93,18 @@ const pullBookFromCart = async (req, res) => {
   try {
     const bookId = req.body.book
     const accountId = req.body.account
-    const deleteBook = req.body.deleteBook //Boolean
+    if (accountId !== req.params.id) throw new Error('account id not match')
+    let deleteBook = false //Boolean
+    if (typeof req.body.deleteBook === 'boolean')
+      deleteBook = req.body.deleteBook
+    else if (typeof req.body.deleteBook === 'string') {
+      if (req.body.deleteBook.toLowerCase() == 'true') deleteBook = true
+      else req.body.deleteBook.toLowerCase() == 'false'
+      deleteBook = false
+    }
     const updatedAccount = await updateCartAccount(
-      bookId,
       accountId,
+      bookId,
       -1,
       deleteBook
     )
@@ -67,10 +115,13 @@ const pullBookFromCart = async (req, res) => {
   }
 }
 
-const updateCartAccount = async (accountId, bookId, amount, deleted) => {
+const updateCartAccount = async (accountId, bookId, amount, deleteBook) => {
   if (!mongoose.isValidObjectId(accountId))
     throw new Error('Invalid account id')
   if (!mongoose.isValidObjectId(bookId)) throw new Error('Invalid book id')
+  console.log()
+  if (typeof deleteBook !== 'boolean')
+    throw new Error('type of deleteBook must be boolean')
   const account = await Account.findById(accountId)
   const book = await Book.findById(bookId)
   if (!account) throw new Error('Account does not exist')
@@ -85,7 +136,7 @@ const updateCartAccount = async (accountId, bookId, amount, deleted) => {
     else account.cart[indexOfBook].amount++
   } else {
     if (indexOfBook == -1) throw new Error('Cart does not contain book')
-    else if (deleted || account.cart[indexOfBook].amount == 1)
+    else if (deleteBook || account.cart[indexOfBook].amount == 1)
       account.cart.splice(indexOfBook, 1)
     else account.cart[indexOfBook].amount--
   }
@@ -94,7 +145,9 @@ const updateCartAccount = async (accountId, bookId, amount, deleted) => {
 }
 
 module.exports = {
+  getAccountCart,
   updateAccount,
   addBookToCart,
-  pullBookFromCart
+  pullBookFromCart,
+  updatePasswordAccount
 }
