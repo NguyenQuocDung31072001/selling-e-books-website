@@ -53,6 +53,8 @@ function LayoutAdmin() {
           <Menu.Item key="book">Xem sách</Menu.Item>
         </SubMenu>
         <Menu.Item key="confirm">Phê duyệt</Menu.Item>
+        <Menu.Item key="auhthor">Manage authors</Menu.Item>
+        <Menu.Item key="genres">Manage genres</Menu.Item>
       </Menu>
     </div>
   )
