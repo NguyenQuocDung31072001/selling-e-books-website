@@ -1,6 +1,12 @@
 import './App.css'
 import 'antd/dist/antd.css'
-import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Outlet,
+  Navigate
+} from 'react-router-dom'
 import HomePagesAdmin from './pages/home_admin'
 import SettingAdmin from './pages/setting_admin'
 import SettingUser from './pages/setting_user'
@@ -15,27 +21,84 @@ import Cart from './pages/cart'
 import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
+import { useSelector } from 'react-redux'
 function App() {
+  const currentUser = useSelector(state => state.auth.login.currentUser)
+
+  function ProtectRouterUser({ children }) {
+    return currentUser?.role === 'user' ? (
+      children
+    ) : (
+      <Navigate to="/user/home" />
+    )
+  }
+  function ProtectRouterAdmin({ children }) {
+    return currentUser?.role === 'admin' ? (
+      children
+    ) : (
+      <Navigate to="/user/home" />
+    )
+  }
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route path="/admin" element={<AdminComponent />}>
-            <Route path="home" element={<HomePagesAdmin />} />
-            <Route path="add_book" element={<AddBook />} />
-            <Route path="setting" element={<SettingAdmin />} />
             <Route path="genre" element={<GenreManage />} />
             <Route path="author" element={<AuthorManage />} />
+            <Route
+              path="home"
+              element={
+                <ProtectRouterAdmin>
+                  <HomePagesAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="add_book"
+              element={
+                <ProtectRouterAdmin>
+                  <AddBook />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="setting"
+              element={
+                <ProtectRouterAdmin>
+                  <SettingAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
           </Route>
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
             <Route path="home/:genre" element={<GenreBookUser />} />
-            <Route path="home/:genre/:id_book" element={<DetailBookUser />} />
-            <Route path="cart" element={<Cart />} />
-            <Route path="setting" element={<SettingUser />} />
+            <Route
+              path="home/:genre/:slug"
+              element={
+                <ProtectRouterUser>
+                  <DetailBookUser />
+                </ProtectRouterUser>
+              }
+            />
+            <Route
+              path="cart"
+              element={
+                <ProtectRouterUser>
+                  <Cart />
+                </ProtectRouterUser>
+              }
+            />
+            <Route
+              path="setting"
+              element={
+                <ProtectRouterUser>
+                  <SettingUser />
+                </ProtectRouterUser>
+              }
+            />
           </Route>
-          {/* <Route path="/login" element={<LoginPages />} />
-          <Route path="/register" element={<RegisterPages />} /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -57,7 +120,7 @@ function UserComponent() {
   return (
     <div>
       <TopUser />
-      <div className="mt-[130px]">
+      <div className="mt-[100px]">
         <BreadcrumbsUser />
         <Outlet />
       </div>

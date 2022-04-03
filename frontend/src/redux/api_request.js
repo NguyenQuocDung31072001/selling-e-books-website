@@ -36,7 +36,10 @@ const API_URL = 'http://localhost:5000'
 export const registerApi = async (user, dispatch) => {
   dispatch(registerStart())
   try {
-    const res = await axios.post(API_URL + '/v1/selling_e_books/auth/register', user)
+    const res = await axios.post(
+      API_URL + '/v1/selling_e_books/auth/register',
+      user
+    )
     dispatch(registerSuccess())
   } catch (error) {
     dispatch(registerFailed())
@@ -46,7 +49,10 @@ export const registerApi = async (user, dispatch) => {
 export const loginApi = async (user, dispatch, navigate) => {
   dispatch(loginStart())
   try {
-    const res = await axios.post(API_URL + '/v1/selling_e_books/auth/login', user)
+    const res = await axios.post(
+      API_URL + '/v1/selling_e_books/auth/login',
+      user
+    )
     dispatch(loginSuccess(res.data))
     if (res.data.role === 'admin') {
       navigate('/admin/home')
@@ -97,6 +103,16 @@ export const updateAccountPassword = async (currentUser, account, dispatch) => {
     )
 
     console.log(res)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getAllBook = async () => {
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/book')
+    // console.log(res.data.books)
+    return res.data.books
   } catch (error) {
     console.log(error)
   }
@@ -278,5 +294,16 @@ export const restoreDeletedAuthor = async (dispatch, author) => {
   } catch (error) {
     console.log(error)
     dispatch(authorError())
+  } 
+}
+
+export const getBook=async (slug)=>{
+  // console.log('slug ',slug)
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/book/'+slug,{})
+    console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
   }
 }

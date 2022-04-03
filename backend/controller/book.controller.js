@@ -142,6 +142,7 @@ const GetAllBook = async (req, res) => {
 const GetBook = async (req, res) => {
   try {
     const slug = req.params.slug
+    console.log(slug)
     const books = await getBooks({ slug: slug, deleted: false }, 1, 1)
     if (books.length == 0) throw new Error('Book does not exist')
     res.status(200).json(books[0])

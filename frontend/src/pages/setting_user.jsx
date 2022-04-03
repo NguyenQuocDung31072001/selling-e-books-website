@@ -32,12 +32,7 @@ function SettingUser() {
     }
     dispatch(updateBreadcrumb(breadcrumb))
   }, [])
-  useEffect(() => {
-    if (currentUser?.role !== 'user') {
-      dispatch(loginFailed())
-      navigate('/login')
-    }
-  }, [currentUser])
+
 
   useEffect(() => {
     if (image) {
