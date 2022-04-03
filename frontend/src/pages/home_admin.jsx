@@ -9,12 +9,6 @@ export default function HomePagesAdmin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (currentUser?.role!=='admin') {
-      dispatch(loginFailed());
-      navigate("/login");
-    }
-  }, [currentUser]);
 
   const Logout=()=>{
       console.log('logout')

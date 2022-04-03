@@ -5,80 +5,91 @@ import {
   loginStart,
   loginSuccess,
   loginFailed,
-  updateCurrentUser,
-} from "./auth_slices";
-import axios from "axios";
+  updateCurrentUser
+} from './auth_slices'
+import axios from 'axios'
 
-const API_URL = "http://localhost:5000";
+const API_URL = 'http://localhost:5000'
 
 export const registerApi = async (user, dispatch) => {
-  dispatch(registerStart());
+  dispatch(registerStart())
   try {
     const res = await axios.post(
-      API_URL + "/v1/selling_e_books/auth/register",
+      API_URL + '/v1/selling_e_books/auth/register',
       user
-    );
-    dispatch(registerSuccess());
-    
+    )
+    dispatch(registerSuccess())
   } catch (error) {
-    dispatch(registerFailed());
+    dispatch(registerFailed())
   }
-};
+}
 
 export const loginApi = async (user, dispatch, navigate) => {
-  dispatch(loginStart());
+  dispatch(loginStart())
   try {
     const res = await axios.post(
-      API_URL + "/v1/selling_e_books/auth/login",
+      API_URL + '/v1/selling_e_books/auth/login',
       user
-    );
-    dispatch(loginSuccess(res.data));
-    if (res.data.role === "admin") {
-      navigate("/admin/home");
+    )
+    dispatch(loginSuccess(res.data))
+    if (res.data.role === 'admin') {
+      navigate('/admin/home')
     }
-    if (res.data.role === "user") {
-      navigate("/user/home");
+    if (res.data.role === 'user') {
+      navigate('/user/home')
     }
   } catch (error) {
-    dispatch(loginFailed());
+    dispatch(loginFailed())
   }
-};
-export const updateAccountAdmin = async (
-  currentUser,
-  account,
-  dispatch
-) => {
+}
+export const updateAccountAdmin = async (currentUser, account, dispatch) => {
   try {
     const res = await axios.post(
-      API_URL + "/v1/selling_e_books/account/setting/" + currentUser._id,
+      API_URL + '/v1/selling_e_books/account/setting/' + currentUser._id,
       account,
       {
-        headers: { token: currentUser.accessToken },
+        headers: { token: currentUser.accessToken }
       }
-    );
-    
-    const payloadAction={
+    )
+
+    const payloadAction = {
       ...currentUser,
-      email:res.data.email,
-      username:res.data.username,
-      password:res.data.password,
-      id_avatar:res.data.id_avatar,
-      avatar_url:res.data.avatar_url
+      email: res.data.email,
+      username: res.data.username,
+      password: res.data.password,
+      id_avatar: res.data.id_avatar,
+      avatar_url: res.data.avatar_url
     }
     console.log(payloadAction)
-    dispatch(updateCurrentUser(payloadAction));
+    dispatch(updateCurrentUser(payloadAction))
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-};
-export const addBook=async(new_book)=>{
+}
+export const getAllBook = async () => {
   try {
-      const res=await axios.post(
-        API_URL+'/v1/selling_e_books/book',
-        new_book
-      )
-      console.log(res)
+    const res = await axios.get(API_URL + '/v1/selling_e_books/book')
+    // console.log(res.data.books)
+    return res.data.books
   } catch (error) {
-      console.log(error)
+    console.log(error)
+  }
+}
+export const addBook = async new_book => {
+  try {
+    const res = await axios.post(API_URL + '/v1/selling_e_books/book', new_book)
+    console.log(res)
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const getBook=async (slug)=>{
+  // console.log('slug ',slug)
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/book/'+slug,{})
+    console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
   }
 }
