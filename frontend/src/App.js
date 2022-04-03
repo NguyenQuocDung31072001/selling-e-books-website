@@ -11,24 +11,27 @@ import TopUser from './component/top_user'
 import GenreBookUser from './pages/genre_book_user'
 import BreadcrumbsUser from './component/breadcrumbs_user'
 import DetailBookUser from './pages/detail_book_user'
-import Cart from "./pages/cart"
+import Cart from './pages/cart'
 import AddBook from './pages/add_book'
+import GenreManage from './pages/genre_book_admin'
+import AuthorManage from './pages/author_admin'
 function App() {
   return (
     <div className="App">
-
       <BrowserRouter>
         <Routes>
           <Route path="/admin" element={<AdminComponent />}>
             <Route path="home" element={<HomePagesAdmin />} />
-            <Route path="add_book" element={<AddBook/>}/>
+            <Route path="add_book" element={<AddBook />} />
             <Route path="setting" element={<SettingAdmin />} />
+            <Route path="genre" element={<GenreManage />} />
+            <Route path="author" element={<AuthorManage />} />
           </Route>
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
             <Route path="home/:genre" element={<GenreBookUser />} />
             <Route path="home/:genre/:id_book" element={<DetailBookUser />} />
-            <Route path="cart" element={<Cart/>}/>
+            <Route path="cart" element={<Cart />} />
             <Route path="setting" element={<SettingUser />} />
           </Route>
           {/* <Route path="/login" element={<LoginPages />} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Menu } from 'antd'
+import { Menu, Spin } from 'antd'
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -52,6 +52,12 @@ function LayoutAdmin() {
           </Menu.Item>
           <Menu.Item key="book">Xem sách</Menu.Item>
         </SubMenu>
+        <Menu.Item key="genre">
+          <Link to="/admin/genre">Thể loại</Link>
+        </Menu.Item>
+        <Menu.Item key="author">
+          <Link to="/admin/author">Tác giả</Link>
+        </Menu.Item>
         <Menu.Item key="confirm">Phê duyệt</Menu.Item>
       </Menu>
     </div>

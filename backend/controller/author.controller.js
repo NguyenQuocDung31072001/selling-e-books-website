@@ -6,7 +6,17 @@ const generateSlug = require('../common/slug')
 const uploadImage = require('../common/uploadImage')
 const GetAllAuthor = async (req, res) => {
   try {
-    const allAuthor = await AuthorModel.find().lean()
+    const allAuthor = await AuthorModel.find({ deleted: false }).lean()
+    res.status(200).json(allAuthor)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const GetDeletedAuthor = async (req, res) => {
+  try {
+    const allAuthor = await AuthorModel.find({ deleted: true }).lean()
     res.status(200).json(allAuthor)
   } catch (error) {
     console.log(error)
@@ -41,6 +51,7 @@ const CreateNewAuthor = async (req, res) => {
       slug: slug,
       fullName: req.body.fullName,
       birthDate: req.body.birthDate,
+      address: req.body.address,
       books: []
     })
     await uploadImage(newAuthor, 'avatarId', 'avatarUrl', req.body.avatarBase64)
@@ -55,20 +66,30 @@ const CreateNewAuthor = async (req, res) => {
 const UpdateAuthor = async (req, res) => {
   try {
     const authorId = req.params.id
-    const newName = req.params.name
+    const newName = req.body.fullName
     if (!mongoose.isValidObjectId(authorId))
       throw new Error('Invalid Author ID')
+
+    const updateInfo = {
+      fullName: req.body.fullName,
+      address: req.body.address,
+      birthDate: req.body.birthDate
+    }
+
+    console.log(updateInfo)
+    const propNames = Object.getOwnPropertyNames(updateInfo)
+    propNames.forEach(propName => {
+      if (updateInfo[propName] == null || updateInfo[propName] == undefined)
+        delete updateInfo[propName]
+    })
+
     const updatedAuthor = await AuthorModel.findByIdAndUpdate(
       authorId,
-      req.body,
-      { new: true }
+      updateInfo,
+      {
+        new: true
+      }
     )
-
-    // const propNames = Object.getOwnPropertyNames(updateInfo)
-    // propNames.forEach(propName => {
-    //   if (updateInfo[propName] == null || updateInfo[propName] == undefined)
-    //     delete updateInfo[propName]
-    // })
 
     if (!updatedAuthor) throw new Error('Author does not exist')
 
@@ -89,6 +110,7 @@ const UpdateAuthor = async (req, res) => {
         req.body.avatarBase64
       )
     }
+    await updatedAuthor.save()
 
     res.status(200).json(updatedAuthor)
   } catch (error) {
@@ -180,6 +202,7 @@ const Restore = async (req, res) => {
 
 module.exports = {
   GetAuthor,
+  GetDeletedAuthor,
   GetAllAuthor,
   CreateNewAuthor,
   UpdateAuthor,

@@ -26,7 +26,7 @@ const accountUser = new mongoose.Schema(
     avatar_url: {
       type: String
     },
-    phone_number: {
+    phoneNumber: {
       type: String
     },
     address: {
@@ -40,7 +40,7 @@ const accountUser = new mongoose.Schema(
         {
           book: {
             type: mongoose.Types.ObjectId,
-            ref: 'book'
+            ref: 'Book'
           },
           amount: { type: Number, required: true }
         }
@@ -56,7 +56,7 @@ const accountUser = new mongoose.Schema(
     library: [
       {
         type: mongoose.Types.ObjectId,
-        ref: 'book'
+        ref: 'Book'
       }
     ],
     message: {

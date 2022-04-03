@@ -6,8 +6,18 @@ const generateSlug = require('../common/slug')
 
 const GetAllGenre = async (req, res) => {
   try {
-    const allGenres = await GenreModel.find().lean()
+    const allGenres = await GenreModel.find({ deleted: false }).lean()
     res.status(200).json(allGenres)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const getDeletedGenre = async (req, res) => {
+  try {
+    const deletedGenres = await GenreModel.find({ deleted: true }).lean()
+    res.status(200).json(deletedGenres)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -41,6 +51,7 @@ const CreateNewGenre = async (req, res) => {
     const newGenre = new GenreModel({
       slug: slug,
       name: req.body.name,
+      description: req.body.description,
       books: [],
       deleted: false
     })
@@ -57,11 +68,15 @@ const UpdateGenre = async (req, res) => {
   try {
     const genreId = req.params.id
     if (!mongoose.isValidObjectId(genreId)) throw new Error('Invalid genre id')
+    const updateInfo = {
+      name: req.body.name,
+      description: req.body.description
+    }
+    if (!updateInfo.name) delete updateInfo.name
+    if (!updateInfo.description) delete updateInfo.description
     const updatedGenre = await GenreModel.findByIdAndUpdate(
       genreId,
-      {
-        name: req.body.name
-      },
+      updateInfo,
       { new: true }
     )
     res.status(200).json(updatedGenre)
@@ -87,8 +102,8 @@ const SoftDelete = async (req, res) => {
     )
     currentGenre.deleted = true
     const deletedGenre = currentGenre.save()
-    await Promise.all([updatedBooks, deletedGenre])
-    res.status(200).json()
+    const result = await Promise.all([updatedBooks, deletedGenre])
+    res.status(200).json(result[1])
   } catch (error) {
     console.log({ SoftDeleteGenre: error })
     res.status(500).json(error)
@@ -220,6 +235,7 @@ const DeleteBooks = async bookIds => {
 module.exports = {
   GetGenre,
   GetAllGenre,
+  getDeletedGenre,
   CreateNewGenre,
   UpdateGenre,
   SoftDelete,
