@@ -353,7 +353,7 @@ export const decreaseCart=async(id_account,id_book)=>{
   }
 }
 export const increaseCart=async(data)=>{
-  console.log(data)
+  // console.log(data)
   try {
     const res= await axios.post(API_URL+`/v1/selling_e_books/account/${data.account}/cart`,data)
     // console.log(res.data)
