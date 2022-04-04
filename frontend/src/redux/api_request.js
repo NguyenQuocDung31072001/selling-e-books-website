@@ -307,3 +307,58 @@ export const getBook=async (slug)=>{
     console.log(error)
   }
 }
+
+export const addBookToCart=async(data)=>{
+  try {
+    const res= await axios.post(API_URL+`/v1/selling_e_books/account/${data.account}/cart`,data)
+    console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const getCart=async(id_account)=>{
+  try {
+    const res=await axios.get(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{})
+
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const deleteCart=async(id_account,id_book)=>{
+  try {
+    const res=await axios.delete(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{ data: {
+      account:id_account,
+      book:id_book,
+      deleteBook:true
+    }})
+    // console.log(res.data)
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const decreaseCart=async(id_account,id_book)=>{
+  try {
+    const res=await axios.delete(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{ data: {
+      account:id_account,
+      book:id_book,
+      deleteBook:false
+    }})
+    // console.log(res.data)
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const increaseCart=async(data)=>{
+  console.log(data)
+  try {
+    const res= await axios.post(API_URL+`/v1/selling_e_books/account/${data.account}/cart`,data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}

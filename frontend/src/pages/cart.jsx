@@ -3,16 +3,17 @@ import { Table, Button, Input } from 'antd'
 import { DeleteOutlined, DeleteTwoTone, DeleteFilled } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { loginFailed } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { cart } from '../data/cart'
+// import { cart } from '../data/cart'
+import { getCart,deleteCart,increaseCart,decreaseCart} from '../redux/api_request'
+
 export default function Cart() {
   const [totalFinal, setTotalFinal] = useState(0)
   const [rowChecked, setRowChecked] = useState([])
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const [data, setData] = useState(cart)
+  const [data, setData] = useState()
   const columns = [
     {
       title: 'Tất cả sản phẩm',
@@ -81,18 +82,23 @@ export default function Cart() {
         break
       }
     }
-    // console.log('indexKeyOfArray', indexKeyOfArray)
-    let newData = [...data]
-    newData[indexKeyOfArray].count.value += 1
-    newData[indexKeyOfArray].count.status = false
-    newData[indexKeyOfArray].total =
-      newData[indexKeyOfArray].price * newData[indexKeyOfArray].count.value
-
-    setData(newData)
-    // console.log('index of key ',rowChecked.indexOf(key))
-    if (rowChecked.indexOf(key) > -1) {
-      setTotalFinal(value => (value += newData[indexKeyOfArray].price))
+    const dataToIncreaseCart={
+      account:currentUser._id,
+      book:data[indexKeyOfArray].id
     }
+    increaseCart(dataToIncreaseCart)
+    // console.log('indexKeyOfArray', indexKeyOfArray)
+    // let newData = [...data]
+    // newData[indexKeyOfArray].count.value += 1
+    // newData[indexKeyOfArray].count.status = false
+    // newData[indexKeyOfArray].total =
+    //   newData[indexKeyOfArray].price * newData[indexKeyOfArray].count.value
+
+    // setData(newData)
+    // // console.log('index of key ',rowChecked.indexOf(key))
+    // if (rowChecked.indexOf(key) > -1) {
+    //   setTotalFinal(value => (value += newData[indexKeyOfArray].price))
+    // }
   }
   const decreaseFnc = key => {
     // console.log(key)
@@ -103,20 +109,21 @@ export default function Cart() {
         break
       }
     }
-    let newData = [...data]
-    newData[indexKeyOfArray].count.value -= 1
-    newData[indexKeyOfArray].total =
-      newData[indexKeyOfArray].price * newData[indexKeyOfArray].count.value
-    if (newData[indexKeyOfArray].count.value === 1) {
-      newData[indexKeyOfArray].count.status = true
-    }
-    setData(newData)
-    if (rowChecked.indexOf(key) > -1) {
-      setTotalFinal(value => (value -= newData[indexKeyOfArray].price))
-    }
+    decreaseCart(currentUser._id,data[indexKeyOfArray].id)
+    // let newData = [...data]
+    // newData[indexKeyOfArray].count.value -= 1
+    // newData[indexKeyOfArray].total =
+    //   newData[indexKeyOfArray].price * newData[indexKeyOfArray].count.value
+    // if (newData[indexKeyOfArray].count.value === 1) {
+    //   newData[indexKeyOfArray].count.status = true
+    // }
+    // setData(newData)
+    // if (rowChecked.indexOf(key) > -1) {
+    //   setTotalFinal(value => (value -= newData[indexKeyOfArray].price))
+    // }
   }
   const deleteProduct = key => {
-    // console.log('key delete = ', key)
+
     let indexKeyOfArray
     for (let i = 0; i < data.length; i++) {
       if (data[i].key === key) {
@@ -124,12 +131,24 @@ export default function Cart() {
         break
       }
     }
-    if(rowChecked.indexOf(key)>-1){
+    // if(rowChecked.indexOf(key)>-1){
 
-      setTotalFinal(value => (value -= data[indexKeyOfArray].total))
-    }
-    let newData = data.filter(data => data.key !== key)
-    setData(newData)
+    //   setTotalFinal(value => (value -= data[indexKeyOfArray].total))
+    // }
+    // let dataDelete={
+    //   account:currentUser._id,
+    //   book:data[indexKeyOfArray].id,
+    //   deleteBook:true
+    // }
+    // console.log(dataDelete)
+    deleteCartFnc(currentUser._id,data[indexKeyOfArray].id)
+    // deleteCartFnc(dataDelete)
+
+    // let newData = data.filter(data => data.key !== key)
+   
+  }
+  const deleteCartFnc=async(id_account,id_book)=>{
+    await deleteCart(id_account,id_book)
   }
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -145,14 +164,42 @@ export default function Cart() {
     }
   }
 
-
   useEffect(() => {
     const breadcrumb = {
       genre: 'giỏ hàng',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrumb))
+    
   }, [])
+
+  useEffect(()=>{
+    getCartFnc()
+  },[data])
+
+  const getCartFnc=async()=>{
+    const cart=await getCart(currentUser._id)
+    let cartDataRender=[]
+    for(let i=0;i<cart.cart.length;i++){
+      let dataCart={
+        key:i+1,
+        product:{
+          image:cart.cart[i].book.coverUrl,
+          name:cart.cart[i].book.name
+        },
+        price:cart.cart[i].book.price,
+        count:{
+          value:cart.cart[i].amount,
+          status:(cart.cart[i].amount>1)?false:true
+        },
+        total:cart.cart[i].book.price*cart.cart[i].amount,
+        id:cart.cart[i].book._id
+      }
+      cartDataRender.push(dataCart)
+    }
+    setData(cartDataRender) 
+  }
+
   return (
     <div className="flex justify-center min-w-[1200px] mx-[20px]">
       <div>
