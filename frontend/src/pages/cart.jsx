@@ -90,10 +90,6 @@ export default function Cart() {
     getCartFnc()
   }, [])
 
-  useEffect(()=>{
-    console.log('data render')
-
-  },[data])
 
   const getCartFnc = async () => {
     const cart = await getCart(currentUser._id)
@@ -132,7 +128,13 @@ export default function Cart() {
       book: data[indexKeyOfArray].id
     }
     increaseCart(dataToIncreaseCart)
-    window.location.reload();
+    let newData=[...data]
+    let item={...newData[indexKeyOfArray]}
+    item.count.value+=1
+    item.count.status=false
+    item.total=item.price*item.count.value
+    newData[indexKeyOfArray]=item
+    setData(newData)
   }
   const decreaseFnc = key => {
     let indexKeyOfArray
@@ -143,7 +145,15 @@ export default function Cart() {
       }
     }
     decreaseCart(currentUser._id, data[indexKeyOfArray].id)
-    window.location.reload();
+    let newData=[...data]
+    let item={...newData[indexKeyOfArray]}
+    item.count.value-=1
+    if(item.count.value===1){
+      item.count.status=true
+    }
+    item.total=item.price*item.count.value
+    newData[indexKeyOfArray]=item
+    setData(newData)
   }
   const deleteProduct = key => {
     let indexKeyOfArray
@@ -171,12 +181,9 @@ export default function Cart() {
       setTotalFinal(tong_cong)
     }
   }
-
-
-
-
   return (
     <div className="flex justify-center min-w-[1200px] mx-[20px]">
+      {console.log('alo alo alo')}
       <div>
         <Table
           className="w-[800px]"
