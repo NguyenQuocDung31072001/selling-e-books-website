@@ -326,7 +326,6 @@ export const getBook = async slug => {
       API_URL + '/v1/selling_e_books/book/' + slug,
       {}
     )
-    console.log(res.data)
     return res.data
   } catch (error) {
     console.log(error)

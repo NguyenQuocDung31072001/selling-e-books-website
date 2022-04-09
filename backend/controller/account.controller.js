@@ -68,6 +68,7 @@ const getAccountCart = async (req, res) => {
         path: 'cart.book',
         select: '_id slug name coverUrl price description'
       })
+      console.log(account)
     if (!account) throw new Error('Invalid account')
     res.status(200).json(account)
   } catch (error) {
