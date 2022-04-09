@@ -164,7 +164,7 @@ export default function Cart() {
       }
     }
     deleteCartFnc(currentUser._id, data[indexKeyOfArray].id)
-    window.location.reload();
+    
   }
   const deleteCartFnc = async (id_account, id_book) => {
     await deleteCart(id_account, id_book)
