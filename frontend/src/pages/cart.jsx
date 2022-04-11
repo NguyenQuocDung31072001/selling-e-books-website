@@ -135,6 +135,10 @@ export default function Cart() {
     item.total=item.price*item.count.value
     newData[indexKeyOfArray]=item
     setData(newData)
+    if(rowChecked.includes(key)){
+      setTotalFinal(prev=>prev+item.price)
+
+    }
   }
   const decreaseFnc = key => {
     let indexKeyOfArray
@@ -154,6 +158,10 @@ export default function Cart() {
     item.total=item.price*item.count.value
     newData[indexKeyOfArray]=item
     setData(newData)
+    if(rowChecked.includes(key)){
+      setTotalFinal(prev=>prev-item.price)
+
+    }
   }
   const deleteProduct = key => {
     let indexKeyOfArray
@@ -163,8 +171,10 @@ export default function Cart() {
         break
       }
     }
+    setTotalFinal(prev=>prev-data[indexKeyOfArray].total)
     deleteCartFnc(currentUser._id, data[indexKeyOfArray].id)
-    
+    const newData=data.filter(data=>data.key!==key)
+    setData(newData)
   }
   const deleteCartFnc = async (id_account, id_book) => {
     await deleteCart(id_account, id_book)
@@ -183,7 +193,7 @@ export default function Cart() {
   }
   return (
     <div className="flex justify-center min-w-[1200px] mx-[20px]">
-      {console.log('alo alo alo')}
+
       <div>
         <Table
           className="w-[800px]"
