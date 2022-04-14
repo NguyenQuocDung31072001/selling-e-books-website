@@ -5,7 +5,8 @@ import {
   loginStart,
   loginSuccess,
   loginFailed,
-  updateCurrentUser
+  updateCurrentUser,
+  logout
 } from './auth_slices'
 import axios from 'axios'
 import {
@@ -95,14 +96,17 @@ export const updateAccountAdmin = async (currentUser, account, dispatch) => {
 export const updateAccountPassword = async (currentUser, account, dispatch) => {
   try {
     const res = await axios.post(
-      API_URL + '/v1/selling_e_books/account/setting/' + currentUser._id + '/password',
+      API_URL +
+        '/v1/selling_e_books/account/setting/' +
+        currentUser._id +
+        '/password',
       account,
       {
         headers: { token: currentUser.accessToken }
       }
     )
-
     console.log(res)
+    if (res.status === 200) dispatch(logout())
   } catch (error) {
     console.log(error)
   }
@@ -170,7 +174,10 @@ export const createNewGenre = async (dispatch, genre) => {
 export const updateGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/genre/' + genre._id, genre)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/genre/' + genre._id,
+      genre
+    )
     dispatch(updateGenreData(res.data))
     return res.data
   } catch (error) {
@@ -182,7 +189,9 @@ export const updateGenre = async (dispatch, genre) => {
 export const softDeleteGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/genre/' + genre._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/genre/' + genre._id
+    )
     console.log(res.data)
     dispatch(softDeleteUpdate(genre))
     return res.data
@@ -194,7 +203,9 @@ export const softDeleteGenre = async (dispatch, genre) => {
 
 export const hardDeleteGenre = async (dispatch, genre) => {
   try {
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/genre/delete/' + genre._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/genre/delete/' + genre._id
+    )
     console.log(res.data)
     dispatch(hardDeleteUpdate(genre))
   } catch (error) {
@@ -206,7 +217,9 @@ export const hardDeleteGenre = async (dispatch, genre) => {
 export const restoreDeletedGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/genre/restore/' + genre._id)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/genre/restore/' + genre._id
+    )
     console.log(res.data)
     dispatch(restoreDeleteUpdate(genre))
     return res.data
@@ -253,7 +266,10 @@ export const updateAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
     console.log(author)
-    const res = await axios.put(API_URL + '/v1/selling_e_books/author/' + author._id, author)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/author/' + author._id,
+      author
+    )
     dispatch(updateAuthorData(res.data))
     return res.data
   } catch (error) {
@@ -265,7 +281,9 @@ export const updateAuthor = async (dispatch, author) => {
 export const softDeleteAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/author/' + author._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/author/' + author._id
+    )
     dispatch(softDeleteAuthorUpdate(res.data))
   } catch (error) {
     console.log(error)
@@ -276,7 +294,9 @@ export const softDeleteAuthor = async (dispatch, author) => {
 export const hardDeleteAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/author/delete/' + author._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/author/delete/' + author._id
+    )
     console.log(res.data)
     dispatch(hardDeleteAuthorUpdate(author))
   } catch (error) {
@@ -288,19 +308,24 @@ export const hardDeleteAuthor = async (dispatch, author) => {
 export const restoreDeletedAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/author/restore/' + author._id)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/author/restore/' + author._id
+    )
     console.log(res.data)
     dispatch(restoreDeletedAuthorUpdate(res.data))
   } catch (error) {
     console.log(error)
     dispatch(authorError())
-  } 
+  }
 }
 
-export const getBook=async (slug)=>{
+export const getBook = async slug => {
   // console.log('slug ',slug)
   try {
-    const res = await axios.get(API_URL + '/v1/selling_e_books/book/'+slug,{})
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/book/' + slug,
+      {}
+    )
     console.log(res.data)
     return res.data
   } catch (error) {
@@ -308,6 +333,15 @@ export const getBook=async (slug)=>{
   }
 }
 
+export const addBookToCart=async(data)=>{
+  try {
+    const res= await axios.post(API_URL+`/v1/selling_e_books/account/${data.account}/cart`,data)
+    console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 export const getProvinceData = async()=>{
   try {
@@ -336,5 +370,48 @@ export const getWardData = async(district)=>{
   } catch (error) {
     console.log(error)
     return []
+export const getCart=async(id_account)=>{
+  try {
+    const res=await axios.get(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{})
+
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const deleteCart=async(id_account,id_book)=>{
+  try {
+    const res=await axios.delete(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{ data: {
+      account:id_account,
+      book:id_book,
+      deleteBook:true
+    }})
+    // console.log(res.data)
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const decreaseCart=async(id_account,id_book)=>{
+  try {
+    const res=await axios.delete(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{ data: {
+      account:id_account,
+      book:id_book,
+      deleteBook:false
+    }})
+    // console.log(res.data)
+    return res.data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const increaseCart=async(data)=>{
+  // console.log(data)
+  try {
+    await axios.post(API_URL+`/v1/selling_e_books/account/${data.account}/cart`,data)
+    // console.log(res.data)
+    // return res.data
+  } catch (error) {
+    console.log(error)
   }
 }

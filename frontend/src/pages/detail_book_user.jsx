@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Typography, Rate, Progress, Button } from 'antd'
 import { CheckCircleFilled } from '@ant-design/icons'
-import { getBook } from '../redux/api_request'
+import { getBook,addBookToCart} from '../redux/api_request'
+
 const { Title } = Typography
 
 function DetailBookUser() {
   const { genre, slug } = useParams()
   const dispatch = useDispatch()
   const [book, setBook] = useState()
+  const currentUser=useSelector(state=>state.auth.login.currentUser)
   // console.log(genre,slug)
   // từ id_book lấy ra name_book rồi bỏ vào breadcrumb @@
   useEffect(() => {
@@ -27,6 +29,16 @@ function DetailBookUser() {
   const getBookFnc = async slug => {
     let bookApi = await getBook(slug)
     setBook(bookApi)
+  }
+  const buyBookFnc=()=>{
+    const id_book=book._id
+    const id_account=currentUser._id
+    // console.log(id_book,id_account)
+    const data={
+      book:id_book,
+      account:id_account
+    }
+    addBookToCart(data)
   }
   return (
     <div className="h-[1400px]">
@@ -54,7 +66,7 @@ function DetailBookUser() {
             <Link to="/user/setting">Đổi địa chỉ</Link>
           </div>
           <div>
-            <Button>Mua sách</Button>
+            <Button onClick={buyBookFnc}>Mua sách</Button>
           </div>
         </div>
       </div>

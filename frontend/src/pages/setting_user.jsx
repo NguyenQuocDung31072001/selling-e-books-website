@@ -93,13 +93,14 @@ function SettingUser() {
     console.log(account)
     updateAccountAdmin(currentUser, account, dispatch)
   }
+
   const logout_fnc = () => {
     dispatch(logout())
   }
 
   const updatePassword = () => {
     if (newPassword !== confirmPassword) {
-      console.log('Mật khẩu không trùng khớp')
+      window.confirm('Mật khẩu không trùng khớp vui lòng kiểm tra lại')
     } else {
       const account = {
         _id: currentUser._id,
@@ -258,7 +259,6 @@ function SettingUser() {
                     }
                 </Select>
               </div>
-             
             </div>
           </div>
         </div>
