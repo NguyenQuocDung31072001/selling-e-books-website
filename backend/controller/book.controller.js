@@ -54,7 +54,6 @@ const CreateNewBook = async (req, res) => {
     )
 
     await Promise.all([updatedGenres, updatedAuthors])
-    console.log(savedBook)
     res.status(200).json(savedBook)
   } catch (error) {
     console.log({ CreateNewBookError: error })
