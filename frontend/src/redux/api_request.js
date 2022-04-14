@@ -342,6 +342,34 @@ export const addBookToCart=async(data)=>{
     console.log(error)
   }
 }
+
+export const getProvinceData = async()=>{
+  try {
+    const res = await axios.get('https://provinces.open-api.vn/api/')
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
+export const getDistrictData = async(province)=>{
+  try {
+    const res = await axios.get(`https://provinces.open-api.vn/api/p/${province}?depth=2`)
+    return res.data.districts
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
+export const getWardData = async(district)=>{
+  try {
+    const res = await axios.get(`https://provinces.open-api.vn/api/d/${district}?depth=2`)
+    return res.data.wards
+  } catch (error) {
+    console.log(error)
+    return []
 export const getCart=async(id_account)=>{
   try {
     const res=await axios.get(API_URL+`/v1/selling_e_books/account/${id_account}/cart`,{})
