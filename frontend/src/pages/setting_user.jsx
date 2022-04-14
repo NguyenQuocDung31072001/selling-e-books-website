@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { getDistrictData, getProvinceData, getWardData, updateAccountAdmin, updateAccountPassword } from '../redux/api_request'
+import { updateAccountAdmin, updateAccountPassword } from '../redux/api_request'
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { Input, Button, Image, Select } from 'antd'
+import { Input, Button, Image } from 'antd'
 const { TextArea } = Input
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
@@ -17,13 +17,6 @@ function SettingUser() {
   const [birthDate, setBirthDate] = useState(currentUser?.birthDate || '')
   const [image, setImage] = useState()
   const [imageBase64, setImageBase64] = useState()
-  const [province, setProvince] = useState(currentUser.address.province||'')
-  const [district, setDistrict] = useState(currentUser.address.district||'')
-  const [ward, setWard] = useState(currentUser.address.ward||'')
-
-  const [provinceData, setProvinceData] = useState([])
-  const [districtData, setDistrictData] = useState([])
-  const [wardData, setWardData] = useState([])
 
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -37,12 +30,6 @@ function SettingUser() {
       genre: 'setting',
       name_book: ''
     }
-    const  getData = async()=>{
-      const provinceData = await getProvinceData()
-      console.log(provinceData)
-      setProvinceData(provinceData)
-    }
-    getData();
     dispatch(updateBreadcrumb(breadcrumb))
   }, [])
 
@@ -81,14 +68,10 @@ function SettingUser() {
     const account = {
       email: email,
       username: username,
-      address: {
-        province: province,
-        district: district,
-        ward: ward
-      },
+      address: address,
       phoneNumber: phoneNumber,
       birthDate: birthDate,
-      avatarBase64: imageBase64,
+      avatarBase64: imageBase64
     }
     console.log(account)
     updateAccountAdmin(currentUser, account, dispatch)
@@ -109,31 +92,6 @@ function SettingUser() {
       }
       updateAccountPassword(currentUser, account, dispatch)
     }
-  }
-
-  const updateProvince = (value)=> {
-    console.log(value)
-    const _province = provinceData.find(pro=>pro.code == value)
-    setProvince(_province.name);
-    const fetchDistrict = async ()=>{
-      const districts = await getDistrictData(_province.code)
-      setDistrictData(districts)
-    }
-    fetchDistrict();
-  }
-
-  const updateDistrict = (value)=> {
-    const _district = districtData.find(dis=>dis.code == value)
-    setDistrict(_district.name);
-    const fetchWard = async ()=>{
-      const wards = await getWardData(_district.code)
-      setWardData(wards)
-    }
-    fetchWard();
-  } 
-  const updateWard = (value)=> {
-      const _ward = wardData.find(war=>war.code == value)
-      setWard(_ward.name)
   }
 
   return (
@@ -236,29 +194,11 @@ function SettingUser() {
                   Địa chỉ
                 </label>
               </div>
-              <div className='flex flex-row space-x-3 relative'>
-                <Select  style={{ width: '150px' }} name="provice" id="" onChange={updateProvince} placeholder={province||"Chọn Tỉnh/Thành Phố"}>
-                  {
-                    provinceData.map(province=>{
-                      return <Select.Option key={province.code} value={province.code}>{province.name}</Select.Option>
-                    })
-                    }
-                </Select>
-                <Select  style={{ width: '150px' }} name="district" id="" onChange={updateDistrict} placeholder={district||"Chọn Quận/Huyện"}>
-                  {
-                    districtData.map(district=>{
-                      return <Select.Option key={district.code} value={district.code}>{district.name}</Select.Option>
-                    })
-                    }
-                </Select>
-                <Select  style={{ width: '150px' }} name="ward" id="" onChange={updateWard} placeholder={ward||"Chọn Phường/Xã"}>
-                  {
-                    wardData.map(ward=>{
-                      return <Select.Option key={ward.code} value={ward.code}>{ward.name}</Select.Option>
-                    })
-                    }
-                </Select>
-              </div>
+              <Input
+                size="large"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -300,6 +240,7 @@ function SettingUser() {
               size="large"
               value={oldPassword}
               onChange={e => setOldPassword(e.target.value)}
+              placeholder
             />
           </div>
 
@@ -313,6 +254,7 @@ function SettingUser() {
               size="large"
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
+              placeholder
             />
           </div>
 
@@ -326,6 +268,7 @@ function SettingUser() {
               size="large"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
+              placeholder
             />
           </div>
         </div>

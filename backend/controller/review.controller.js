@@ -1,7 +1,6 @@
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const Review = require('../model/review.model')
-const Order = require('../model/order.model')
 const mongoose = require('mongoose')
 const createNewReview = async (req, res) => {
   try {
@@ -16,23 +15,26 @@ const createNewReview = async (req, res) => {
       if (reviewInfo[prop] == undefined || reviewInfo[prop] == null)
         throw new Error(`${prop} is null`)
     })
-
-    const account = await Account.findById(reviewInfo.account)
-    if (!account) throw new Error('Account does not exist')
-    const book = await Book.findById(reviewInfo.book)
-    if (!book) throw new Error('Book does not exist')
-    const order = await Order.findOne({
-      user: reviewInfo.account,
-      'books.book': reviewInfo.book,
-      status: { $in: [3, 4] }
-    })
-    if (!order) throw new Error('You have not yet purchased.')
-
     const newReview = new Review(reviewInfo)
     const savedReview = await newReview.save()
-    account.reviews.push(savedReview._id)
-    book.reviews.push(savedReview._id)
-    await Promise.all([account.save(), book.save()])
+    const updatedAccount = await Account.findByIdAndUpdate(
+      savedReview.account,
+      { $push: { reviews: savedReview._id } }
+    )
+    if (!updatedAccount) await Review.deleteOne({ _id: savedReview._id })
+
+    const updatedBook = await Book.findByIdAndUpdate(savedReview.book, {
+      $push: { reviews: savedReview._id }
+    })
+    if (!updatedBook) {
+      const asyncUpdateAccount = Account.findByIdAndUpdate(
+        savedReview.account,
+        { $pull: { reviews: savedReview._id } }
+      )
+      const asyncDeleteReview = Review.deleteOne({ _id: savedReview._id })
+      await Promise.all(asyncUpdateAccount, asyncDeleteReview)
+    }
+
     res.status(200).json(savedReview)
   } catch (error) {
     console.log(error)

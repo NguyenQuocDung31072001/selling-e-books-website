@@ -14,7 +14,6 @@ const updateAccount = async (req, res) => {
     if (req.body.birthDate) account.birthDate = req.body.birthDate
     if (req.body.address) account.address = req.body.address
     if (req.body.phoneNumber) account.phoneNumber = req.body.phoneNumber
-    if (req.body.address) account.address = req.body.address
 
     if (req.body.avatarBase64) {
       //xử lý upload avatar mới
@@ -63,10 +62,12 @@ const getAccountCart = async (req, res) => {
   try {
     const id = req.params.id
     if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
-    const account = await Account.findById(id).select('cart').populate({
-      path: 'cart.book',
-      select: '_id slug name coverUrl price description'
-    })
+    const account = await Account.findById(id)
+      .select('cart')
+      .populate({
+        path: 'cart.book',
+        select: '_id slug name coverUrl price description'
+      })
     if (!account) throw new Error('Invalid account')
     res.status(200).json(account)
   } catch (error) {
@@ -84,7 +85,7 @@ const addBookToCart = async (req, res) => {
     res.status(200).json(updatedAccount)
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res.status(500)
   }
 }
 

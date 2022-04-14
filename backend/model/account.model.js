@@ -30,18 +30,7 @@ const accountUser = new mongoose.Schema(
       type: String
     },
     address: {
-      district: {
-        type: String,
-        default: ''
-      },
-      ward: {
-        type: String,
-        default: ''
-      },
-      province: {
-        type: String,
-        default: ''
-      }
+      type: String
     },
     birthDate: {
       type: Date
@@ -81,15 +70,7 @@ const accountUser = new mongoose.Schema(
       default: []
     },
     newMessage: { type: Boolean, default: false },
-    reviews: {
-      type: [
-        {
-          type: mongoose.ObjectId, 
-          ref: 'Review'
-        }
-      ], 
-      default: []
-    }
+    reviews: { type: mongoose.ObjectId, ref: 'Review' }
   },
   {
     timestamps: true

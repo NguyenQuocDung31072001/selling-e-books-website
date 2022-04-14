@@ -43,9 +43,9 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/admin" element={ <ProtectRouterAdmin><AdminComponent /></ProtectRouterAdmin>}>
-            <Route path="genre" element={<ProtectRouterAdmin><GenreManage /></ProtectRouterAdmin>} />
-            <Route path="author" element={<ProtectRouterAdmin><AuthorManage /></ProtectRouterAdmin>} />
+          <Route path="/admin" element={<AdminComponent />}>
+            <Route path="genre" element={<GenreManage />} />
+            <Route path="author" element={<AuthorManage />} />
             <Route
               path="home"
               element={

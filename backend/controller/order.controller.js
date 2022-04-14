@@ -1,11 +1,16 @@
-const { default: mongoose } = require('mongoose')
-const { ORDER_STATUS_NAME } = require('../common/constant')
-const updateOrderById = require('../common/updateOrder')
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
-const order = require('../model/order.model')
-const Order = require('../model/order.model')
-const { createPayment, refundPayment } = require('./payment.controller')
+const Order = require('../model/order')
+
+const ORDER_STATUS_NAME = {
+  '-2': 'Hủy',
+  '-1': 'Từ chối',
+  0: 'Chờ xác nhận',
+  1: 'Đã xác nhận',
+  2: 'Đã vận chuyển',
+  3: 'Giao hàng thành công',
+  4: 'Đã nhận hàng'
+}
 
 const checkOut = async (req, res) => {
   try {
@@ -38,122 +43,97 @@ const checkOut = async (req, res) => {
   }
 }
 
-const createNewOrder = async (req, res) => {
+const createNewOrder = (req, res) => {
   try {
-    const bookIds = req.body.books
-    const accountId = req.body.account
-    const district = req.body.district
-    const ward = req.body.ward
-    const province = req.body.province
-    const paymentMethod = req.body.payment
-
-    if (accountId !== req.params.userId)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'account not match' })
-      )
-
-    const account = await Account.findById(accountId).populate('cart.book')
-
-    if (!account)
-      throw new Error(
-        JSON.stringify({ code: 404, message: 'Account does not exist' })
-      )
-
-    if (paymentMethod != 'cod' && paymentMethod != 'paypal')
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
-      )
-
-    let total = 0
-    const orderBooks = bookIds.map(bookId => {
-      const cartItem = account.cart.find(
-        item => item.book._id.toString() == bookId
-      )
-
-      if (!cartItem)
-        throw new Error(
-          JSON.stringify({
-            code: 400,
-            message: 'Book and account are not valid'
-          })
-        )
-      if (cartItem.book.amount < cartItem.amount) throw new Error('Not enough')
-
-      total += cartItem.book.price * cartItem.amount
-
-      return {
-        book: cartItem.book._id,
-        amount: cartItem.amount,
-        price: cartItem.book.price
-      }
-    })
-
-    const newOrder = new Order({
-      user: account._id,
-      books: orderBooks,
-      status: 0,
-      paid: false,
-      total: total,
-      address: {
-        district,
-        ward,
-        province
-      }
-    })
-
-    const asyncUpdateBooks = orderBooks.map(orderItem => {
-      return Book.updateOne(
-        { _id: orderItem.book },
-        { $inc: { amount: -orderItem.amount } }
-      )
-    })
-
-    const asyncUpdateCart = Account.updateOne(
-      { _id: accountId },
-      {
-        $pull: {
-          cart: {
-            book: { $in: bookIds }
-          }
-        }
-      }
-    )
-
     //COD
-    if (paymentMethod == 'cod') {
-      newOrder.payment = 0
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
-      const savedOrder = await newOrder.save()
-      res.json({ success: true, order: savedOrder })
-    } else if (paymentMethod == 'paypal') {
-      //Payment by Paypal
-      newOrder.payment = 1
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
-      const savedOrder = await newOrder.save()
-      await createPayment(savedOrder._id, res)
-    } else
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
+    if (req.body.payment == 'cod') {
+      const bookIds = req.body.book
+      const accountId = req.body.account
+
+      const account = await Account.findById(accountId).populate('cart.book')
+      let total = 0
+
+      const orderBooks = bookIds.map(bookId => {
+        const cartItem = account.cart.find(
+          item => item.book._id.toString() == bookId
+        )
+        if (!cartItem) throw new Error('Book and account are not valid')
+        return {
+          book: cartItem.book._id,
+          amount: cartItem.amount,
+          price: cartItem.book.price
+        }
+      })
+
+      const newOrder = new Order({
+        user: currentUser._id,
+        books: orderBooks,
+        status: 0,
+        paid: false,
+        payment: 0,
+        total: total,
+        address: req.body.address
+      })
+
+      const asyncUpdateBooks = orderBooks.map(orderItem => {
+        return bookHead.updateOne(
+          { _id: orderItem.book },
+          { $inc: { amount: -orderItem.amount } }
+        )
+      })
+
+      account.cart = account.cart.filter(
+        cartItem => bookIds.indexOf(cartItem.book.toString()) == -1
       )
+      const updatedBooks = await Promise.all(asyncUpdateBooks)
+      const savedOrder = await newOrder.save()
+      const updatedUser = await account.save()
+      res.json({ success: true, order: savedOrder })
+    } else {
+      //tra bang the
+    }
   } catch (error) {
     console.log(error)
-    res.status(error.code || 500).json({ success: false, error: error })
+    res.json({ success: false, error: error })
+  }
+}
+
+const cancelOrder = (req, res) => {
+  try {
+    const orderId = req.prarams.id
+    const accountId = req.body.account
+    const updatedOrder = await updateOrderById(orderId, -2)
+    res.json({ success: true, order: updatedOrder })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const confirmOrder = (req, res) => {
+  try {
+    const id = req.params.id
+    const updatedOrder = await Order.findByIdAndUpdate(id, { status: 1 })
+    if (!updatedOrder) throw new Error('Order does not exist')
+    updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
+    res.status(200).json(updatedOrder)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
   }
 }
 
 const getOrders = async (req, res) => {
   try {
-    const statusQuery = req.query.status || 0
-    const all = await Order.find({ status: statusQuery })
+    const statusQuery = req.query.status ? req.query.status : 0
+    const all = await Order.find({ tinh_trang: statusQuery })
       .populate({ path: 'user', select: 'username email avatar_url address' })
-      .populate({ path: 'books.book', select: '_id slug name coverUrl' })
-      .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
-      )
+      .populate({ path: 'books.book' })
       .lean()
     all.forEach(order => {
       order.statusName = ORDER_STATUS_NAME[order.status]
     })
+
     res.status(200).json(all)
   } catch (error) {
     console.log(error)
@@ -161,16 +141,13 @@ const getOrders = async (req, res) => {
   }
 }
 
-const getOrderById = async (req, res) => {
+const getOrder = async (req, res) => {
   try {
-    const id = req.params.id
+    const id = req.parmas.id
     const order = await Order.findById(id)
       .populate({ path: 'user', select: 'username email avatar_url address' })
-      .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
-      .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
-      )
-      .lean()
+      .populate('Book')
+    order.statusName = ORDER_STATUS_NAME[order.status]
     res.status(200).json(order)
   } catch (error) {
     console.log(error)
@@ -178,18 +155,44 @@ const getOrderById = async (req, res) => {
   }
 }
 
-const getOrderOfUser = async (req, res) => {
+const deliveryOrder = async (req, res) => {
   try {
-    const id = req.params.id
-    const userId = req.params.userId
-    const order = await Order.findOne({ _id: id, user: userId })
-      .populate({ path: 'user', select: 'username email avatar_url' })
-      .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
-      .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
-      )
-    order.statusName = ORDER_STATUS_NAME[order.status]
-    res.status(200).json(order)
+    const orderId = req.params.id
+    const updatedOrder = await updateOrderById(orderId, 1, 2)
+    res.status(200).json(updatedOrder)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const finishOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id
+    const updatedOrder = await updateOrderById(orderId, 3)
+    res.status(200).json(updatedOrder)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const receivedOrder = (req, res) => {
+  try {
+    const orderId = req.params.id
+    const updatedOrder = await updateOrderById(orderId, 4)
+    res.status(200).json(updatedOrder)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
+const refuseOrder = async (req, res) => {
+  try {
+    const orderId = req.parmas.id
+    const updatedOrder = await updateOrderById(orderId, -1)
+    res.status(200).json(updatedOrder)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -202,91 +205,50 @@ const updateOrder = async (req, res) => {
     let currentStatus = parseInt(req.body.current)
     let newStatus = parseInt(req.body.new)
     if (newStatus != -1) newStatus = currentStatus + 1
-    if (newStatus > 0) {
-      const result = await updateOrderById(id, newStatus)
-      res.status(200).json(result)
-    } else {
-      await updateOrderById(id, newStatus, (error, order) => {
-        if (error) {
-          const errorObj = JSON.parse(error.message)
-          return res.status(errorObj.code || 500).json(errorObj)
-        } else {
-          res.status(200).json(order)
-        }
-      })
-    }
-  } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
-  }
-}
-
-const updateOrderByAdmin = async (req, res) => {
-  try {
-    const id = req.params.id
-    const newStatus = req.body.newStatus
-    if (newStatus > 3 || newStatus < -3 || newStatus == -2)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid new status' })
-      )
-    await updateOrderById(id, newStatus, (error, order) => {
-      if (error) {
-        const errorObj = JSON.parse(error.message)
-        return res.status(errorObj.code || 500).json(errorObj)
-      } else {
-        res.status(200).json(order)
-      }
-    })
-  } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
-  }
-}
-
-const updateOrderOfUser = async (req, res) => {
-  try {
-    const id = req.params.id
-    let newStatus = parseInt(req.body.newStatus)
-    if (newStatus !== 4 && newStatus !== -2) throw new Error('Invalid status')
-    await updateOrderById(id, newStatus, (error, order) => {
-      if (error) {
-        const errorObj = JSON.parse(error.message)
-        return res.status(errorObj.code || 500).json(errorObj)
-      } else {
-        res.status(200).json(order)
-      }
-    })
-  } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
-  }
-}
-
-const getAllOrderOfUser = async (req, res) => {
-  try {
-    const userID = req.params.id
-    if (!mongoose.isValidObjectId(userID)) throw new Error('Invalid user id')
-    const orders = await Order.find({ user: userID })
-      .populate({ path: 'books.book', select: '_id slug name coverUrl' })
-      .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
-      )
-      .lean()
-    res.json(orders)
+    const result = await updateOrderById(id, newStatus)
+    res.status(200).json(result)
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res.json(error)
   }
+}
+
+const updateOrderById = async (id, status) => {
+  if (!mongoose.isValidObjectId(id)) throw new Error('invalid id')
+  if (status < -1 || status > 3 || parseInt(status) != status)
+    throw new Error('invalid status')
+  const updatedOrder = await Order.findByIdAndUpdate(
+    id,
+    { status: status },
+    { new: true }
+  )
+  if (status == -1) {
+    const updatedBooks = await restoreBooks(updatedOrder.books)
+  }
+  updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
+  return updatedOrder
+}
+
+const restoreBooks = async books => {
+  const asyncUpdateBooks = books.map(bookItem => {
+    return Book.findByIdAndUpdate(bookItem.book, {
+      $inc: { amount: bookItem.amount }
+    })
+  })
+  return await Promise.all(asyncUpdateBooks)
 }
 
 module.exports = {
   checkOut,
   createNewOrder,
+  cancelOrder,
+  confirmOrder,
   getOrders,
-  getOrderOfUser,
+  getOrder,
   updateOrder,
-  getAllOrderOfUser,
-  updateOrderOfUser,
-  updateOrderByAdmin,
-  getOrderById
+  deliveryOrder,
+  finishOrder,
+  receivedOrder,
+  updateOrderById,
+  restoreBooks
 }
