@@ -4,13 +4,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import PaginationFunc from '../component/pagination'
 import SlideshowUser from '../component/slideshow_user'
-import {getAllBook} from "../redux/api_request"
-
+import { getAllBook } from '../redux/api_request'
+import { Spin } from 'antd'
 export default function HomePagesUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [bookData,setBookData]=useState([])
+  const [bookData, setBookData] = useState([])
   //handle pagination
   const [bookRender, setBookRender] = useState([])
   const [pagination, setPagination] = useState({
@@ -42,7 +42,6 @@ export default function HomePagesUser() {
     setBookRender(_bookRender)
   }, [pagination])
 
-
   // useEffect(()=>{
   //   console.log(bookRender)
   // },[bookRender])
@@ -53,20 +52,19 @@ export default function HomePagesUser() {
     setDataBookFnc()
   }, [])
 
-  useEffect(()=>{
-    if(bookData.length>0){
-
-      setPagination(prev=>{
+  useEffect(() => {
+    if (bookData.length > 0) {
+      setPagination(prev => {
         return {
           ...prev,
-          total:bookData.length
+          total: bookData.length
         }
       })
     }
-  },[bookData])
+  }, [bookData])
 
-  const setDataBookFnc=async ()=>{
-    let data=await getAllBook()
+  const setDataBookFnc = async () => {
+    let data = await getAllBook()
     setBookData(data)
   }
 
@@ -77,28 +75,32 @@ export default function HomePagesUser() {
       </div>
 
       <div className="flex flex-wrap w-[1300px]">
+        {bookRender.length === 0 && (
+          <div className='w-full h-full flex items-center justify-center'>
+            <Spin tip="Loading..."/>
+          </div>
+          
+        )}
         {bookRender.map((book, key) => (
           <div
             key={key}
-            className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer"
+            className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer shadow-neutral-400"
           >
             <Link to={`/user/home/${book.genres[0]?.name}/${book.slug}`}>
-              <div className='flex  h-[240px]'>
-              <img src={book.coverUrl} className="object-cover" alt="" />
-
+              <div className="flex  h-[240px]">
+                <img src={book.coverUrl} className="object-cover" alt="" />
               </div>
-              <div className="flex flex-col transition duration-[0.25s] group-hover:translate-y-[-130px] group-hover:text-white">
+              <div className="flex flex-col h-[110px] transition duration-[0.25s] group-hover:translate-y-[-60px] group-hover:text-white group-hover:bg-stone-600">
                 <span>{book.name}</span>
                 <span>Thể loại: {book.genres[0]?.name}</span>
                 <span>Tác giả: {book.authors[0]?.fullName}</span>
                 <span>Mô tả: {book.description}</span>
               </div>
-
             </Link>
           </div>
         ))}
       </div>
-      <div className='mt-[30px]'>
+      <div className="mt-[30px]">
         <PaginationFunc pagination={pagination} handlePageChange={pageChange} />
       </div>
       <div className="w-full h-[300px]"></div>

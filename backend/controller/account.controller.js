@@ -1,5 +1,6 @@
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
+const Genres = require('../model/genres.model')
 const Collection = require('../model/collection.model')
 const { cloudinary } = require('../utils/cloudinary')
 const { default: mongoose } = require('mongoose')
@@ -14,6 +15,7 @@ const updateAccount = async (req, res) => {
     if (req.body.birthDate) account.birthDate = req.body.birthDate
     if (req.body.address) account.address = req.body.address
     if (req.body.phoneNumber) account.phoneNumber = req.body.phoneNumber
+    if (req.body.address) account.address = req.body.address
 
     if (req.body.avatarBase64) {
       //xử lý upload avatar mới
@@ -62,15 +64,28 @@ const getAccountCart = async (req, res) => {
   try {
     const id = req.params.id
     if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
-    const account = await Account.findById(id)
-      .select('cart')
-      .populate({
-        path: 'cart.book',
-        select: '_id slug name coverUrl price description'
+    const account = await Account.findById(id).select('cart').populate({
+      path: 'cart.book',
+      select: '_id slug name coverUrl price description genres'
+    })
+    // console.log(account.cart[0].book.genres)
+    // const genres=await Genres.findById(account.cart[0].book.genres)
+    let _account = []
+    // console.log({...account._doc.cart[0]._doc})
+    for (let i = 0; i < account.cart.length; i++) {
+      const genres = await Genres.findById(account.cart[i].book.genres)
+      let book = {
+        ...account.cart[i].book._doc,
+        genres: genres.name
+      }
+      _account.push({
+        ...account._doc.cart[i]._doc,
+        book: book
       })
-      console.log(account)
+    }
+
     if (!account) throw new Error('Invalid account')
-    res.status(200).json(account)
+    res.status(200).json(_account)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -86,7 +101,7 @@ const addBookToCart = async (req, res) => {
     res.status(200).json(updatedAccount)
   } catch (error) {
     console.log(error)
-    res.status(500)
+    res.status(500).json(error)
   }
 }
 
@@ -109,9 +124,10 @@ const pullBookFromCart = async (req, res) => {
       -1,
       deleteBook
     )
+    // console.log(updateAccount)
     res.status(200).json(updatedAccount)
   } catch (error) {
-    console.log(error)
+    console.log('bok error roi', error)
     res.status(error)
   }
 }

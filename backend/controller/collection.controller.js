@@ -2,22 +2,26 @@ const Collection = require('../model/collection.model')
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const { default: mongoose } = require('mongoose')
+
 const addFavoriteBook = async (req, res) => {
   try {
-    const id = req.params.id
-    const bookId = req.body.bookId
-    const collectionId = req.body.collection
+    const userId = req.params.userId
+    const collectionId = req.params.collectionId
+    const bookId = req.body.book
 
-    const isNewCollection = req.body.newCollection ? true : false
-    const account = await Account.findById(id)
-    const book = await Book.findById(bookId)
-    const collection = await Collection.findById(collectionId)
+    const [account, book, collection] = await Promise.all([
+      Account.findById(userId),
+      Book.findById(bookId),
+      Collection.findById(collectionId)
+    ])
 
     if (!account) throw new Error('Account does not exist')
     if (!book) throw new Error('Book does not exist')
     if (!collection) throw new Error('Collection does not exist')
-    if (account.collections.indexOf(collection._d) == -1)
-      throw new Error('Collection does not match')
+    if (account.collections.indexOf(collection._id) == -1)
+      throw new Error('Collection does not exist')
+    if (collection.books.indexOf(book._id) != -1)
+      throw new Error('This book has been added')
 
     collection.books.push(book._id)
     const updatedCollection = await collection.save()
@@ -28,13 +32,58 @@ const addFavoriteBook = async (req, res) => {
   }
 }
 
+const removeFavoriteBook = async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const collectionId = req.params.collectionId
+    const bookId = req.body.book
+
+    const [account, book, collection] = await Promise.all([
+      Account.findById(userId),
+      Book.findById(bookId),
+      Collection.findById(collectionId)
+    ])
+
+    if (!account) throw new Error('Account does not exist')
+    if (!book) throw new Error('Book does not exist')
+    if (!collection) throw new Error('Collection does not exist')
+    if (account.collections.indexOf(collection._id) == -1)
+      throw new Error('Collection does not exist')
+    if (collection.books.indexOf(book._id) == -1)
+      throw new Error('Book does not exist')
+
+    const updatedCollection = await Collection.findByIdAndUpdate(
+      collection._id,
+      { $pull: { books: book._id } },
+      { new: true }
+    )
+    res.status(200).json(updatedCollection)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+}
+
 const updateCollectionName = async (req, res) => {
   try {
-    const id = req.params.id
+    const userId = req.params.userId
+    const collectionId = req.params.collectionId
+
     const newName = req.body.newName
-    if (mongoose.isValidObjectId(id)) throw new Error('Invalid collection id')
+
+    if (mongoose.isValidObjectId(userId)) throw new Error('Invalid user id')
+
+    if (mongoose.isValidObjectId(collectionId))
+      throw new Error('Invalid collection id')
+
+    const accountExisted = await Account.findOne({
+      _id: userId,
+      collection: collectionId
+    })
+    if (!accountExisted) throw new Error('Collection and Account do not match')
+
     const updatedCollection = await Collection.findByIdAndUpdate(
-      id,
+      collectionId,
       { name: newName },
       { new: true }
     )
@@ -47,17 +96,17 @@ const updateCollectionName = async (req, res) => {
 
 const createNewCollection = async (req, res) => {
   try {
-    const accountId = req.body.account
+    const userId = req.params.userId
     const name = req.body.name
     const bookId = req.body.book
 
-    const account = await Account.findById(accountId)
+    if (!mongoose.isValidObjectId(userId)) throw new Error('Invalid user id')
+
+    const account = await Account.findById(userId)
     if (!account) throw new Error('Account does not exist')
-    if (!mongoose.isValidObjectId(accountId))
-      throw new Error('Invalid account id')
 
     const collectionExist = await Collection.find({
-      account: accountId,
+      account: userId,
       name: { $regex: new RegExp(name, 'i') }
     })
     if (collectionExist.length > 0) throw new Error('Collection already exists')
@@ -69,7 +118,7 @@ const createNewCollection = async (req, res) => {
     }
 
     const newCollection = new Collection({
-      account: accountId,
+      account: userId,
       name: name,
       books: bookId ? [].concat(bookId) : []
     })
@@ -77,7 +126,7 @@ const createNewCollection = async (req, res) => {
     const savedCollection = await newCollection.save()
     account.collections.push(savedCollection._id)
     const updatedAccount = await account.save()
-    res.status(200).json(updatedAccount)
+    res.status(200).json(savedCollection)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -86,13 +135,24 @@ const createNewCollection = async (req, res) => {
 
 const deleteCollection = async (req, res) => {
   try {
-    const id = req.params.id
-    if (!mongoose.isValidObjectId(id)) throw new Error('Invalid collection id')
+    const userId = req.params.userId
+    const collectionId = req.params.collectionId
+
+    if (!mongoose.isValidObjectId(userId))
+      throw new Error('Invalid collection id')
+    if (!mongoose.isValidObjectId(collectionId))
+      throw new Error('Invalid collection id')
+
     const updatedAccount = await Account.findOneAndUpdate(
-      { collections: id },
-      { $pull: { collections: id } }
+      {
+        _id: userId,
+        collections: collectionId
+      },
+      { $pull: { collections: collectionId } },
+      { new: true }
     )
-    const deletedCollection = await Collection.deleteOne({ _id: id })
+    if (!updatedAccount) throw new Error('Collection and Account do not match')
+    const deletedCollection = await Collection.deleteOne({ _id: collectionId })
     res.status(200).json({ updatedAccount })
   } catch (error) {
     console.log(error)
@@ -101,10 +161,21 @@ const deleteCollection = async (req, res) => {
 }
 const getCollectionById = async (req, res) => {
   try {
-    const id = req.params.id
-    const collection = await Collection.findById(id)
+    const userId = req.params.userId
+    const collectionId = req.params.collectionId
+
+    if (!mongoose.isValidObjectId(userId))
+      throw new Error('Invalid collection id')
+    if (!mongoose.isValidObjectId(collectionId))
+      throw new Error('Invalid collection id')
+
+    const collection = await Collection.findOne({
+      _id: collectionId,
+      account: userId
+    })
       .populate({ path: 'account', select: 'username email avatar_url' })
       .populate('books')
+
     res.status(200).json(collection)
   } catch (error) {
     console.log(error)
@@ -114,14 +185,17 @@ const getCollectionById = async (req, res) => {
 
 const getCollectionOfAccount = async (req, res) => {
   try {
-    const accountId = req.params.id
-    const collection = await Collection.find({ account: accountId })
+    const userId = req.params.userId
+    const accountWithCollection = await Account.findById(userId)
       .populate({
-        path: 'account',
-        select: 'username email avatar_url'
+        path: 'collections',
+        populate: {
+          path: 'books',
+          model: 'Book'
+        }
       })
-      .populate('books')
-    res.json(collection)
+      .select('username email avatar_url')
+    res.json(accountWithCollection)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -130,6 +204,7 @@ const getCollectionOfAccount = async (req, res) => {
 
 module.exports = {
   addFavoriteBook,
+  removeFavoriteBook,
   updateCollectionName,
   createNewCollection,
   deleteCollection,

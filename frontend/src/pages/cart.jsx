@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Button, Input } from 'antd'
+import { Table, Button, Input, Spin } from 'antd'
 import { DeleteOutlined, DeleteTwoTone, DeleteFilled } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,20 +12,24 @@ import {
 } from '../redux/api_request'
 
 export default function Cart() {
+  const [loading, setLoading] = useState(false)
+  const [firstLoading,setFirstLoading]=useState(true)
   const [totalFinal, setTotalFinal] = useState(0)
   const [rowChecked, setRowChecked] = useState([])
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const [data, setData] = useState()
+  const [data, setData] = useState([])
   const columns = [
     {
       title: 'Tất cả sản phẩm',
       dataIndex: 'product',
       render: product => (
         <div className="flex items-center">
-          <img className="w-[50px] h-[50px]" src={product.image} alt="" />
-          <span className="ml-[20px]">{product.name}</span>
+          <Link to={`/user/home/${product.genres}/${product.slug}`}>
+            <img className="w-[50px] h-[50px]" src={product.image} alt="" />
+            <span className="ml-[20px]">{product.name}</span>
+          </Link>
         </div>
       )
     },
@@ -79,43 +83,56 @@ export default function Cart() {
   ]
 
   useEffect(() => {
+    setLoading(true)
     const breadcrumb = {
       genre: 'giỏ hàng',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrumb))
+    getCartFnc()
+    setLoading(false)
   }, [])
 
   useEffect(() => {
-    getCartFnc()
-  }, [])
+    console.log(loading)
+  }, [loading])
 
+useEffect(()=>{
+  if(data.length>0){
+    setFirstLoading(false)
+  }
+},[data])
 
   const getCartFnc = async () => {
     const cart = await getCart(currentUser._id)
+    console.log(cart)
     let cartDataRender = []
-    for (let i = 0; i < cart.cart.length; i++) {
+    for (let i = 0; i < cart.length; i++) {
       let dataCart = {
         key: i + 1,
         product: {
-          image: cart.cart[i].book.coverUrl,
-          name: cart.cart[i].book.name
+          image: cart[i].book.coverUrl,
+          name: cart[i].book.name,
+          genres: cart[i].book.genres,
+          slug: cart[i].book.slug
         },
-        price: cart.cart[i].book.price,
+        price: cart[i].book.price,
         count: {
-          value: cart.cart[i].amount,
-          status: cart.cart[i].amount > 1 ? false : true
+          value: cart[i].amount,
+          status: cart[i].amount > 1 ? false : true
         },
-        total: cart.cart[i].book.price * cart.cart[i].amount,
-        id: cart.cart[i].book._id
+        total: cart[i].book.price * cart[i].amount,
+        id: cart[i].book._id
       }
       cartDataRender.push(dataCart)
     }
     // return cartDataRender
+    // console.log(cartDataRender)
     setData(cartDataRender)
   }
 
   const increaseFnc = key => {
+    setLoading(true)
     let indexKeyOfArray
     for (let i = 0; i < data.length; i++) {
       if (data[i].key === key) {
@@ -127,20 +144,24 @@ export default function Cart() {
       account: currentUser._id,
       book: data[indexKeyOfArray].id
     }
-    increaseCart(dataToIncreaseCart)
-    let newData=[...data]
-    let item={...newData[indexKeyOfArray]}
-    item.count.value+=1
-    item.count.status=false
-    item.total=item.price*item.count.value
-    newData[indexKeyOfArray]=item
+    const increaseCartfnc = async () => {
+      await increaseCart(dataToIncreaseCart)
+      setLoading(false)
+    }
+    increaseCartfnc()
+    let newData = [...data]
+    let item = { ...newData[indexKeyOfArray] }
+    item.count.value += 1
+    item.count.status = false
+    item.total = item.price * item.count.value
+    newData[indexKeyOfArray] = item
     setData(newData)
-    if(rowChecked.includes(key)){
-      setTotalFinal(prev=>prev+item.price)
-
+    if (rowChecked.includes(key)) {
+      setTotalFinal(prev => prev + item.price)
     }
   }
   const decreaseFnc = key => {
+    setLoading(true)
     let indexKeyOfArray
     for (let i = 0; i < data.length; i++) {
       if (data[i].key === key) {
@@ -148,22 +169,26 @@ export default function Cart() {
         break
       }
     }
-    decreaseCart(currentUser._id, data[indexKeyOfArray].id)
-    let newData=[...data]
-    let item={...newData[indexKeyOfArray]}
-    item.count.value-=1
-    if(item.count.value===1){
-      item.count.status=true
+    const decreaseCartFnc = async () => {
+      await decreaseCart(currentUser._id, data[indexKeyOfArray].id)
+      setLoading(false)
     }
-    item.total=item.price*item.count.value
-    newData[indexKeyOfArray]=item
+    decreaseCartFnc()
+    let newData = [...data]
+    let item = { ...newData[indexKeyOfArray] }
+    item.count.value -= 1
+    if (item.count.value === 1) {
+      item.count.status = true
+    }
+    item.total = item.price * item.count.value
+    newData[indexKeyOfArray] = item
     setData(newData)
-    if(rowChecked.includes(key)){
-      setTotalFinal(prev=>prev-item.price)
-
+    if (rowChecked.includes(key)) {
+      setTotalFinal(prev => prev - item.price)
     }
   }
   const deleteProduct = key => {
+    setLoading(true)
     let indexKeyOfArray
     for (let i = 0; i < data.length; i++) {
       if (data[i].key === key) {
@@ -171,14 +196,18 @@ export default function Cart() {
         break
       }
     }
-    setTotalFinal(prev=>prev-data[indexKeyOfArray].total)
+
+    setTotalFinal(prev => prev - data[indexKeyOfArray].total)
+
+    const deleteCartFnc = async (id_account, id_book) => {
+      await deleteCart(id_account, id_book)
+      setLoading(false)
+    }
     deleteCartFnc(currentUser._id, data[indexKeyOfArray].id)
-    const newData=data.filter(data=>data.key!==key)
+    const newData = data.filter(data => data.key !== key)
     setData(newData)
   }
-  const deleteCartFnc = async (id_account, id_book) => {
-    await deleteCart(id_account, id_book)
-  }
+
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setRowChecked(selectedRowKeys)
@@ -193,7 +222,16 @@ export default function Cart() {
   }
   return (
     <div className="flex justify-center min-w-[1200px] mx-[20px]">
-
+      {firstLoading && (
+        <div className="fixed w-screen h-screen z-10">
+          <Spin tip="Loading..." />
+        </div>
+      )}
+      {loading && (
+        <div className="fixed w-screen h-screen z-10">
+          <Spin tip="Loading..." />
+        </div>
+      )}
       <div>
         <Table
           className="w-[800px]"
