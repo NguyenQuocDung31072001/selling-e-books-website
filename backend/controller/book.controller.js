@@ -10,10 +10,14 @@ const uploadImage = require('../common/uploadImage')
 const CreateNewBook = async (req, res) => {
   try {
     const slug = await generateSlug(BookModel, req.body.name)
+    const genre=await GenreModel.find({name:req.body.genres})
+    const genreIds=genre[0]._id
 
-    const genreIds = req.body.genres ? [].concat(req.body.genres) : []
-    const authorIds = req.body.authors ? [].concat(req.body.authors) : []
-
+    // const genreIds = req.body.genres ? [].concat(req.body.genres) : []
+     const author=await AuthorModel.findOne({fullName:req.body.authors})
+    const authorIds=author._id
+    // // const authorIds = req.body.authors ? [].concat(req.body.authors) : []
+    // // console.log(authorIds._id)
     const newBook = new BookModel({
       slug: slug,
       name: req.body.name,

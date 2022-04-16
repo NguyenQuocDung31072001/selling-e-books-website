@@ -1,21 +1,52 @@
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import {useParams} from "react-router-dom"
-import {updateBreadcrumb} from "../redux/breadcrumb_slices"
-
+import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { Link, useParams } from 'react-router-dom'
+import { updateBreadcrumb } from '../redux/breadcrumb_slices'
+import { getBookOfGenres } from '../redux/api_request'
 function GenreBookUser() {
-    const {genre}=useParams()
-    
-    const dispatch=useDispatch()
-    useEffect(()=>{
-        const breadcrumb={genre:genre,name_book:''}
-        dispatch(updateBreadcrumb(breadcrumb))
-    },[genre])
-    return (
-        <div>
-            
+  const { genre } = useParams()
+  const [book, setBook] = useState([])
+  const [nameGenres, setNameGenres] = useState()
+  //   console.log(genre)
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const breadcrumb = { genre_slug: genre,genre_name:nameGenres, name_book: '' }
+    dispatch(updateBreadcrumb(breadcrumb))
+  }, [nameGenres])
+  //   useEffect(() => {
+  //     console.log(book)
+  //   }, [book])
+  useEffect(() => {
+    const getBookOfGenresFnc = async () => {
+      const bookData = await getBookOfGenres(genre)
+      setBook(bookData.books)
+      setNameGenres(bookData.genre.name)
+    }
+    getBookOfGenresFnc()
+  }, [])
+
+  return (
+    <div className="flex">
+      {book.map((book, key) => (
+        <div
+          key={key}
+          className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer shadow-neutral-400"
+        >
+          <Link to={`/user/home/${book.genres[0]?.slug}/${book.slug}`}>
+            <div className="flex items-center p-[10px] h-[240px]">
+              <img src={book.coverUrl} className="object-cover" alt="" />
+            </div>
+            <div className="flex flex-col h-[110px] transition duration-[0.25s] group-hover:translate-y-[-60px] group-hover:text-white group-hover:bg-stone-600">
+              <span>{book.name}</span>
+              <span>Thể loại: {book.genres[0]?.name}</span>
+              <span>Tác giả: {book.authors[0]?.fullName}</span>
+              <span>Mô tả: {book.description}</span>
+            </div>
+          </Link>
         </div>
-    );
+      ))}
+    </div>
+  )
 }
 
-export default GenreBookUser;
+export default GenreBookUser

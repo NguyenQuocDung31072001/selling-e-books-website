@@ -1,7 +1,11 @@
 import { Button, Input, DatePicker, Space, Select } from 'antd'
 import moment from 'moment'
 import React, { useState, useEffect } from 'react'
-import { addBook } from '../redux/api_request'
+import {
+  addBook,
+  getAllGenresForAddBook,
+  getAllAuthorForAddBook
+} from '../redux/api_request'
 const { TextArea } = Input
 const { Option } = Select
 function AddBook() {
@@ -16,6 +20,9 @@ function AddBook() {
   const [genre, setGenre] = useState()
   const [decription, setDecription] = useState()
   const [imageBase64, setImageBase64] = useState()
+  const [allGenres, setAllGenres] = useState([])
+  const [allAuthor, setAllAuthor] = useState([])
+
   const date = new Date()
   const defaultDate =
     date.getFullYear() + '-' + `${date.getMonth() + 1}` + '-' + date.getDate()
@@ -24,6 +31,31 @@ function AddBook() {
     // console.log(e.target.files[0])
     setImageBook(e.target.files[0])
   }
+  useEffect(() => {
+    const getAllGenresFnc = async () => {
+      const allGenre = await getAllGenresForAddBook()
+      const allGenreName = []
+      for (let i = 0; i < allGenre.length; i++) {
+        allGenreName.push(allGenre[i].name)
+      }
+      setAllGenres(allGenreName)
+    }
+    const getAllAuthorFnc = async () => {
+      const allAuthor = await getAllAuthorForAddBook()
+      const allAuthorName = []
+      for (let i = 0; i < allAuthor.length; i++) {
+        allAuthorName.push(allAuthor[i].fullName)
+      }
+      setAllAuthor(allAuthorName)
+    }
+    getAllGenresFnc()
+    getAllAuthorFnc()
+  }, [])
+
+  // useEffect(() => {
+  //   console.log(allAuthor)
+  // }, [allAuthor])
+
   useEffect(() => {
     if (imageBook) {
       const reader = new FileReader()
@@ -51,9 +83,11 @@ function AddBook() {
       genres: genre,
       description: decription
     }
+    // console.log(book)
     addBook(book)
     // console.log(book)
   }
+
   return (
     <div>
       <div className="flex">
@@ -141,10 +175,26 @@ function AddBook() {
         <div className="w-[400px] h-[450px] ml-[20px] mt-[100px]">
           <div className="flex mb-[20px]">
             <label className="w-[120px]">Author</label>
-            <Input
+            {/* <Input
               placeholder="Author"
               onChange={e => setAuthor(e.target.value)}
-            />
+            /> */}
+
+            {allAuthor.length > 0 && (
+              <Select
+                // defaultValue={allAuthor[0]}
+                style={{ width: 320 }}
+                onChange={e => setAuthor(e)}
+              >
+                {allAuthor.map((author, key) => {
+                  return (
+                    <Option key={key} value={author}>
+                      {author}
+                    </Option>
+                  )
+                })}
+              </Select>
+            )}
           </div>
           <div className="flex mb-[20px]">
             <label className="w-[120px]">Price</label>
@@ -155,27 +205,21 @@ function AddBook() {
           </div>
           <div className="flex mb-[20px]">
             <label className="w-[100px]">Genres</label>
-            <Select
-              defaultValue="Chính trị - pháp luật"
-              style={{ width: 320 }}
-              onChange={e => setGenre(e)}
-            >
-              <Option value="Chính trị - pháp luật">
-                Chính trị - pháp luật
-              </Option>
-              <Option value="Khoa học công nghệ">Khoa học công nghệ</Option>
-              <Option value="Kinh tế">Kinh tế</Option>
-              <Option value="Văn học nghệ thuật">Văn học nghệ thuật</Option>
-              <Option value="Văn hóa xã hội - Lịch sử">
-                Văn hóa xã hội - Lịch sử
-              </Option>
-              <Option value="Giáo trình">Giáo trình</Option>
-              <Option value="Truyện, tiểu thuyết">Truyện, tiểu thuyết</Option>
-              <Option value="Tâm lý, tâm linh, tôn giáo">
-                Tâm lý, tâm linh, tôn giáo
-              </Option>
-              <Option value="Sách thiếu nhi">Sách thiếu nhi</Option>
-            </Select>
+            {allGenres.length > 0 && (
+              <Select
+                // defaultValue={allGenres[0]}
+                style={{ width: 320 }}
+                onChange={e => setGenre(e)}
+              >
+                {allGenres.map((genre, key) => {
+                  return (
+                    <Option key={key} value={genre}>
+                      {genre}
+                    </Option>
+                  )
+                })}
+              </Select>
+            )}
           </div>
           <div className="flex mb-[20px]">
             <label className="w-[100px]">Decription</label>

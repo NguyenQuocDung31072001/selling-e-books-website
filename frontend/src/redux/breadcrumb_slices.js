@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   breadcrumb: {
-    genre: '',
+    genre_name:'',
+    genre_slug: '',
     name_book: ''
   }
 }

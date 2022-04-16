@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { Typography, Rate, Progress, Button, notification } from 'antd'
+import { Typography, Rate, Progress, Button, notification, Spin } from 'antd'
 import { CheckCircleFilled } from '@ant-design/icons'
 import { getBook, addBookToCart } from '../redux/api_request'
 
@@ -12,29 +12,35 @@ function DetailBookUser() {
   const { genre, slug } = useParams()
   const dispatch = useDispatch()
   const [book, setBook] = useState()
+  const [loading, setLoading] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
-  // console.log(genre,slug)
-  // từ id_book lấy ra name_book rồi bỏ vào breadcrumb @@
-  useEffect(() => {
+  useEffect(()=>{
+
     const breadcrum = {
-      genre: genre,
+      genre_slug: genre,
+      genre_name:book?.genres[0].name,
       name_book: slug
     }
     dispatch(updateBreadcrumb(breadcrum))
+    console.log(book)
+  },[book])
+  useEffect(() => {
+    setLoading(true)
+    const getBookFnc = async slug => {
+      let bookApi = await getBook(slug)
+      setBook(bookApi)
+      setLoading(false)
+    }
     getBookFnc(slug)
   }, [])
   // useEffect(()=>{
-  //   console.log(book?._id)
+  //   console.log(book)
   // },[book])
-  const getBookFnc = async slug => {
-    let bookApi = await getBook(slug)
-    setBook(bookApi)
-  }
+
   const buyBookFnc = () => {
     const id_book = book._id
     const id_account = currentUser._id
-    // console.log(id_book,id_account)
     const data = {
       book: id_book,
       account: id_account
@@ -58,6 +64,11 @@ function DetailBookUser() {
   return (
     <div className="w-screen flex flex-col justify-center items-center">
       <div className="mt-[30px] w-[1000px] h-[500px] shadow-md shadow-zinc-200 flex relative">
+        {loading && (
+          <div className="fixed w-screen h-screen z-10">
+            <Spin tip="Loading..." />
+          </div>
+        )}
         <div className="w-[450px] p-[20px] h-[500px] flex items-center shadow-md shadow-zinc-200">
           <img
             className="w-[400px] object-cover "
@@ -71,10 +82,12 @@ function DetailBookUser() {
           </div>
           <div className="w-[500px] flex items-center justify-between">
             <div>
-              <Title level={4}>Tác giả:{book?.authors[0]}</Title>
+              <Title level={4}>Tác giả:{book?.authors[0].fullName}</Title>
             </div>
             <div>
-              <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
+              <Link to={`/user/home/${book?.genres[0].slug}`}>
+                <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
+              </Link>
             </div>
           </div>
           <div className="w-[500px] mt-[20px] flex ">
@@ -94,7 +107,7 @@ function DetailBookUser() {
             <Title level={4}>Mô tả </Title>
             <p className="text-[16px]">{book?.description}</p>
           </div>
-          <div className='absolute bottom-5 right-20'>
+          <div className="absolute bottom-5 right-20">
             <Button onClick={buyBookFnc}>Mua sách</Button>
           </div>
         </div>

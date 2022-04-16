@@ -22,6 +22,7 @@ import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
 import { useSelector } from 'react-redux'
+import {useEffect} from "react"
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
@@ -39,6 +40,9 @@ function App() {
       <Navigate to="/user/home" />
     )
   }
+  // useEffect(()=>{
+  //   document.body.style.backgroundImage="url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_GanGwjAcDqvDcT2a8OnyeT_LcDAM3k4Z9BG0mTOKM02JX1LqJyyBUK8bqoAezKFRryo&usqp=CAU')"
+  // },[])
   return (
     <div className="App">
       <BrowserRouter>

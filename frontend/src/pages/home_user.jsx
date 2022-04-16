@@ -86,8 +86,8 @@ export default function HomePagesUser() {
             key={key}
             className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer shadow-neutral-400"
           >
-            <Link to={`/user/home/${book.genres[0]?.name}/${book.slug}`}>
-              <div className="flex  h-[240px]">
+            <Link to={`/user/home/${book.genres[0]?.slug}/${book.slug}`}>
+              <div className="flex items-center p-[10px] h-[240px]">
                 <img src={book.coverUrl} className="object-cover" alt="" />
               </div>
               <div className="flex flex-col h-[110px] transition duration-[0.25s] group-hover:translate-y-[-60px] group-hover:text-white group-hover:bg-stone-600">

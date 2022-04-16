@@ -89,47 +89,45 @@ export default function Cart() {
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrumb))
+
+    const getCartFnc = async () => {
+      const cart = await getCart(currentUser._id)
+      console.log(cart)
+      let cartDataRender = []
+      for (let i = 0; i < cart.length; i++) {
+        let dataCart = {
+          key: i + 1,
+          product: {
+            image: cart[i].book.coverUrl,
+            name: cart[i].book.name,
+            genres: cart[i].book.genres,
+            slug: cart[i].book.slug
+          },
+          price: cart[i].book.price,
+          count: {
+            value: cart[i].amount,
+            status: cart[i].amount > 1 ? false : true
+          },
+          total: cart[i].book.price * cart[i].amount,
+          id: cart[i].book._id
+        }
+        cartDataRender.push(dataCart)
+      }
+      setData(cartDataRender)
+      setFirstLoading(false)
+      setLoading(false)
+    }
     getCartFnc()
-    setLoading(false)
+   
   }, [])
 
   useEffect(() => {
     console.log(loading)
   }, [loading])
 
-useEffect(()=>{
-  if(data.length>0){
-    setFirstLoading(false)
-  }
-},[data])
 
-  const getCartFnc = async () => {
-    const cart = await getCart(currentUser._id)
-    console.log(cart)
-    let cartDataRender = []
-    for (let i = 0; i < cart.length; i++) {
-      let dataCart = {
-        key: i + 1,
-        product: {
-          image: cart[i].book.coverUrl,
-          name: cart[i].book.name,
-          genres: cart[i].book.genres,
-          slug: cart[i].book.slug
-        },
-        price: cart[i].book.price,
-        count: {
-          value: cart[i].amount,
-          status: cart[i].amount > 1 ? false : true
-        },
-        total: cart[i].book.price * cart[i].amount,
-        id: cart[i].book._id
-      }
-      cartDataRender.push(dataCart)
-    }
-    // return cartDataRender
-    // console.log(cartDataRender)
-    setData(cartDataRender)
-  }
+
+ 
 
   const increaseFnc = key => {
     setLoading(true)
