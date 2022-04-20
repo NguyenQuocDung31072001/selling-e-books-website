@@ -5,7 +5,8 @@ import {
   loginStart,
   loginSuccess,
   loginFailed,
-  updateCurrentUser
+  updateCurrentUser,
+  logout
 } from './auth_slices'
 import axios from 'axios'
 import {
@@ -104,8 +105,8 @@ export const updateAccountPassword = async (currentUser, account, dispatch) => {
         headers: { token: currentUser.accessToken }
       }
     )
-
     console.log(res)
+    if (res.status === 200) dispatch(logout())
   } catch (error) {
     console.log(error)
   }
@@ -332,6 +333,19 @@ export const getBook = async slug => {
   }
 }
 
+export const addBookToCart = async data => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/account/${data.account}/cart`,
+      data
+    )
+    console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const getProvinceData = async () => {
   try {
     const res = await axios.get('https://provinces.open-api.vn/api/')
@@ -363,6 +377,68 @@ export const getWardData = async district => {
   } catch (error) {
     console.log(error)
     return []
+  }
+}
+
+export const getCart = async id_account => {
+  try {
+    const res = await axios.get(
+      API_URL + `/v1/selling_e_books/account/${id_account}/cart`,
+      {}
+    )
+
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const deleteCart = async (id_account, id_book) => {
+  try {
+    const res = await axios.delete(
+      API_URL + `/v1/selling_e_books/account/${id_account}/cart`,
+      {
+        data: {
+          account: id_account,
+          book: id_book,
+          deleteBook: true
+        }
+      }
+    )
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const decreaseCart = async (id_account, id_book) => {
+  try {
+    const res = await axios.delete(
+      API_URL + `/v1/selling_e_books/account/${id_account}/cart`,
+      {
+        data: {
+          account: id_account,
+          book: id_book,
+          deleteBook: false
+        }
+      }
+    )
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const increaseCart = async data => {
+  // console.log(data)
+  try {
+    await axios.post(
+      API_URL + `/v1/selling_e_books/account/${data.account}/cart`,
+      data
+    )
+    // console.log(res.data)
+    // return res.data
+  } catch (error) {
+    console.log(error)
   }
 }
 
