@@ -3,7 +3,7 @@ const { updateAccount } = require('../controller/account.controller')
 const { refundPayment } = require('../controller/payment.controller')
 const Book = require('../model/book.model')
 const Order = require('../model/order.model')
-const { ORDER_STATUS_NAME } = require('./constant')
+const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('./constant')
 
 const updateOrderById = async (id, status, callback = null) => {
   try {
@@ -29,23 +29,50 @@ const updateOrderById = async (id, status, callback = null) => {
             callback(error, null)
           } else {
             const updatedOrder = await Order.findOneAndUpdate(
-              id,
+              { _id: id },
               { status: status, refund: true },
               { new: true }
             )
+              .populate({
+                path: 'user',
+                select: 'username email avatar_url address'
+              })
+              .populate({
+                path: 'books.book',
+                select: 'slug _id name avatarUrl'
+              })
+              .select(
+                '_id user books status paid total address phone message payment createAt updateAt'
+              )
+              .lean()
             await restoreBooks(currentOrder.books)
+            updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
+            updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
             callback(null, updatedOrder)
           }
         })
       } else {
         const updatedOrder = await Order.findOneAndUpdate(
-          id,
+          { _id: id },
           { status: status },
           { new: true }
         )
+          .populate({
+            path: 'user',
+            select: 'username email avatar_url address'
+          })
+          .populate({
+            path: 'books.book',
+            select: 'slug _id name avatarUrl'
+          })
+          .select(
+            '_id user books status paid total address phone message payment createAt updateAt'
+          )
+          .lean()
         if (status == -1 || status == -2 || status == -3)
           await restoreBooks(currentOrder.books)
         updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
+        updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
         callback(null, updatedOrder)
       }
     }

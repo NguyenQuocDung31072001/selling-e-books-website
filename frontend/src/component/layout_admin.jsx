@@ -58,7 +58,9 @@ function LayoutAdmin() {
         <Menu.Item key="author">
           <Link to="/admin/author">Tác giả</Link>
         </Menu.Item>
-        <Menu.Item key="confirm">Phê duyệt</Menu.Item>
+        <Menu.Item key="confirm">
+          <Link to="/admin/confirm"> Phê duyệt</Link>
+        </Menu.Item>
         <Menu.Item key="auhthor">Manage authors</Menu.Item>
         <Menu.Item key="genres">Manage genres</Menu.Item>
       </Menu>

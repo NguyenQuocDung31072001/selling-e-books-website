@@ -22,6 +22,7 @@ import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
 import { useSelector } from 'react-redux'
+import OrderManage from './pages/order_admin'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
@@ -43,9 +44,38 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/admin" element={ <ProtectRouterAdmin><AdminComponent /></ProtectRouterAdmin>}>
-            <Route path="genre" element={<ProtectRouterAdmin><GenreManage /></ProtectRouterAdmin>} />
-            <Route path="author" element={<ProtectRouterAdmin><AuthorManage /></ProtectRouterAdmin>} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectRouterAdmin>
+                <AdminComponent />
+              </ProtectRouterAdmin>
+            }
+          >
+            <Route
+              path="genre"
+              element={
+                <ProtectRouterAdmin>
+                  <GenreManage />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="author"
+              element={
+                <ProtectRouterAdmin>
+                  <AuthorManage />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="confirm"
+              element={
+                <ProtectRouterAdmin>
+                  <OrderManage />
+                </ProtectRouterAdmin>
+              }
+            />
             <Route
               path="home"
               element={

@@ -95,7 +95,10 @@ export const updateAccountAdmin = async (currentUser, account, dispatch) => {
 export const updateAccountPassword = async (currentUser, account, dispatch) => {
   try {
     const res = await axios.post(
-      API_URL + '/v1/selling_e_books/account/setting/' + currentUser._id + '/password',
+      API_URL +
+        '/v1/selling_e_books/account/setting/' +
+        currentUser._id +
+        '/password',
       account,
       {
         headers: { token: currentUser.accessToken }
@@ -170,7 +173,10 @@ export const createNewGenre = async (dispatch, genre) => {
 export const updateGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/genre/' + genre._id, genre)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/genre/' + genre._id,
+      genre
+    )
     dispatch(updateGenreData(res.data))
     return res.data
   } catch (error) {
@@ -182,7 +188,9 @@ export const updateGenre = async (dispatch, genre) => {
 export const softDeleteGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/genre/' + genre._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/genre/' + genre._id
+    )
     console.log(res.data)
     dispatch(softDeleteUpdate(genre))
     return res.data
@@ -194,7 +202,9 @@ export const softDeleteGenre = async (dispatch, genre) => {
 
 export const hardDeleteGenre = async (dispatch, genre) => {
   try {
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/genre/delete/' + genre._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/genre/delete/' + genre._id
+    )
     console.log(res.data)
     dispatch(hardDeleteUpdate(genre))
   } catch (error) {
@@ -206,7 +216,9 @@ export const hardDeleteGenre = async (dispatch, genre) => {
 export const restoreDeletedGenre = async (dispatch, genre) => {
   try {
     dispatch(genreLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/genre/restore/' + genre._id)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/genre/restore/' + genre._id
+    )
     console.log(res.data)
     dispatch(restoreDeleteUpdate(genre))
     return res.data
@@ -253,7 +265,10 @@ export const updateAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
     console.log(author)
-    const res = await axios.put(API_URL + '/v1/selling_e_books/author/' + author._id, author)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/author/' + author._id,
+      author
+    )
     dispatch(updateAuthorData(res.data))
     return res.data
   } catch (error) {
@@ -265,7 +280,9 @@ export const updateAuthor = async (dispatch, author) => {
 export const softDeleteAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/author/' + author._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/author/' + author._id
+    )
     dispatch(softDeleteAuthorUpdate(res.data))
   } catch (error) {
     console.log(error)
@@ -276,7 +293,9 @@ export const softDeleteAuthor = async (dispatch, author) => {
 export const hardDeleteAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.delete(API_URL + '/v1/selling_e_books/author/delete/' + author._id)
+    const res = await axios.delete(
+      API_URL + '/v1/selling_e_books/author/delete/' + author._id
+    )
     console.log(res.data)
     dispatch(hardDeleteAuthorUpdate(author))
   } catch (error) {
@@ -288,19 +307,24 @@ export const hardDeleteAuthor = async (dispatch, author) => {
 export const restoreDeletedAuthor = async (dispatch, author) => {
   try {
     dispatch(authorLoading())
-    const res = await axios.put(API_URL + '/v1/selling_e_books/author/restore/' + author._id)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/author/restore/' + author._id
+    )
     console.log(res.data)
     dispatch(restoreDeletedAuthorUpdate(res.data))
   } catch (error) {
     console.log(error)
     dispatch(authorError())
-  } 
+  }
 }
 
-export const getBook=async (slug)=>{
+export const getBook = async slug => {
   // console.log('slug ',slug)
   try {
-    const res = await axios.get(API_URL + '/v1/selling_e_books/book/'+slug,{})
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/book/' + slug,
+      {}
+    )
     console.log(res.data)
     return res.data
   } catch (error) {
@@ -308,8 +332,7 @@ export const getBook=async (slug)=>{
   }
 }
 
-
-export const getProvinceData = async()=>{
+export const getProvinceData = async () => {
   try {
     const res = await axios.get('https://provinces.open-api.vn/api/')
     return res.data
@@ -319,9 +342,11 @@ export const getProvinceData = async()=>{
   }
 }
 
-export const getDistrictData = async(province)=>{
+export const getDistrictData = async province => {
   try {
-    const res = await axios.get(`https://provinces.open-api.vn/api/p/${province}?depth=2`)
+    const res = await axios.get(
+      `https://provinces.open-api.vn/api/p/${province}?depth=2`
+    )
     return res.data.districts
   } catch (error) {
     console.log(error)
@@ -329,12 +354,51 @@ export const getDistrictData = async(province)=>{
   }
 }
 
-export const getWardData = async(district)=>{
+export const getWardData = async district => {
   try {
-    const res = await axios.get(`https://provinces.open-api.vn/api/d/${district}?depth=2`)
+    const res = await axios.get(
+      `https://provinces.open-api.vn/api/d/${district}?depth=2`
+    )
     return res.data.wards
   } catch (error) {
     console.log(error)
     return []
+  }
+}
+
+//Order manage api
+export const getOrders = async (status, page, sorter, filter) => {
+  try {
+    const queryObj = {}
+    if (page) queryObj.page = page
+    if (status != null && status != undefined) queryObj.status = status
+    if (sorter && sorter.field && sorter.order) {
+      const fields = [].concat(sorter.field)
+      queryObj.sorterField = fields[0]
+      queryObj.sorterOrder = sorter.order == 'ascend' ? 1 : -1
+    }
+    if (filter && filter.field) {
+      queryObj.filterField = filter.field
+      queryObj.filterValue = filter.value
+    }
+    const queryString = new URLSearchParams(queryObj).toString()
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/order?' + queryString
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const updateOrder = async order => {
+  try {
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/order/' + order._id,
+      order
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
   }
 }
