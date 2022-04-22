@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Typography, Rate, Progress, Button, notification, Spin } from 'antd'
-import { CheckCircleFilled } from '@ant-design/icons'
+import { CheckCircleFilled, ConsoleSqlOutlined } from '@ant-design/icons'
 import { getBook, addBookToCart } from '../redux/api_request'
-
+import BreadcrumbsUser from '../component/breadcrumbs_user'
+import { numberFormat } from '../utils/formatNumber'
+import { PATH_NAME } from '../config/pathName'
 const { Title } = Typography
 
 function DetailBookUser() {
@@ -33,6 +35,7 @@ function DetailBookUser() {
       setLoading(false)
     }
     getBookFnc(slug)
+    // console.log(numberFormat(1000))
   }, [])
   // useEffect(()=>{
   //   console.log(book)
@@ -63,6 +66,9 @@ function DetailBookUser() {
   }
   return (
     <div className="w-screen flex flex-col justify-center items-center">
+      <div className="w-screen flex justify-start ml-[20px]">
+      <BreadcrumbsUser />
+      </div>
       <div className="mt-[30px] w-[1000px] h-[500px] shadow-md shadow-zinc-200 flex relative">
         {loading && (
           <div className="fixed w-screen h-screen z-10">
@@ -85,13 +91,15 @@ function DetailBookUser() {
               <Title level={4}>Tác giả:{book?.authors[0].fullName}</Title>
             </div>
             <div>
-              <Link to={`/user/home/${book?.genres[0].slug}`}>
+              <Link to={`${PATH_NAME.DETAIL_BOOK_USER}/${book?.genres[0].slug}`}>
                 <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
               </Link>
             </div>
           </div>
           <div className="w-[500px] mt-[20px] flex ">
-            <Title level={1}>{book?.price}đ</Title>
+            <Title level={1}>
+            {numberFormat(book?.price)}
+              </Title>
           </div>
           <div className="w-[500px] flex justify-between">
             <div>

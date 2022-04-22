@@ -50,7 +50,9 @@ function LayoutAdmin() {
           <Menu.Item key="add_book">
             <Link to="/admin/add_book">Thêm sách</Link>
           </Menu.Item>
-          <Menu.Item key="book">Xem sách</Menu.Item>
+          <Menu.Item key="book">
+            <Link to="/admin/all_book">Xem sách</Link>
+          </Menu.Item>
         </SubMenu>
         <Menu.Item key="genre">
           <Link to="/admin/genre">Thể loại</Link>

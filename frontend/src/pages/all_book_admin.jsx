@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import PaginationFunc from '../component/pagination'
-import SlideshowUser from '../component/slideshow_user'
 import { getAllBook } from '../redux/api_request'
-import { Spin } from 'antd'
+import { message, Spin } from 'antd'
 import { PATH_NAME } from '../config/pathName'
-export default function HomePagesUser() {
+export default function AllBookAdmin() {
+//   const currentUser = useSelector(state => state.auth.login.currentUser)
+//   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [bookData, setBookData] = useState([])
   //handle pagination
@@ -69,11 +70,10 @@ export default function HomePagesUser() {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="w-full h-[350px] mt-[30px]">
-        <SlideshowUser />
-      </div>
-
-      <div className="flex flex-wrap  p-[18px] w-[88%] bg-white">
+        <div className='w-full h-[100px] bg-sky-500'>
+            <p>Tất cả sách</p>
+        </div>
+      <div className="flex flex-wrap mt-[30px] p-[18px] w-[88%] bg-white">
         {bookRender.length === 0 && (
           <div className='w-full h-full flex items-center justify-center'>
             <Spin tip="Loading..."/>
@@ -85,7 +85,7 @@ export default function HomePagesUser() {
             key={key}
             className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer shadow-neutral-400"
           >
-            <Link to={`${PATH_NAME.USER_HOME_PAGE}/${book.genres[0]?.slug}/${book.slug}`}>
+            <Link to={`${PATH_NAME.ALL_BOOK_ADMIN}/${book.genres[0]?.slug}/${book.slug}`}>
               <div className="flex items-center p-[10px] h-[240px]">
                 <img src={book.coverUrl} className="object-cover" alt="" />
               </div>
