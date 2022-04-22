@@ -5,7 +5,13 @@ import { Menu, Spin } from 'antd'
 import {
   AppstoreOutlined,
   MailOutlined,
-  SettingOutlined
+  SettingOutlined,
+  AppstoreAddOutlined, 
+  EyeOutlined,
+  CheckOutlined,
+  AreaChartOutlined,
+  BarChartOutlined,
+  LineChartOutlined
 } from '@ant-design/icons'
 
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_admin.png'
@@ -43,24 +49,24 @@ function LayoutAdmin() {
         mode="inline"
         theme="dark"
       >
-        <Menu.Item key="dashboard">
+        <Menu.Item icon={<AreaChartOutlined />} key="dashboard">
           <Link to="/admin/home">Dashboard</Link>
         </Menu.Item>
         <SubMenu key="sub1" icon={<SettingOutlined />} title="Manage book">
-          <Menu.Item key="add_book">
+          <Menu.Item icon={<AppstoreAddOutlined/>} key="add_book">
             <Link to="/admin/add_book">Thêm sách</Link>
           </Menu.Item>
-          <Menu.Item key="book">
+          <Menu.Item icon={<EyeOutlined />} key="book">
             <Link to="/admin/all_book">Xem sách</Link>
           </Menu.Item>
         </SubMenu>
-        <Menu.Item key="genre">
+        <Menu.Item icon={<BarChartOutlined />} key="genre">
           <Link to="/admin/genre">Thể loại</Link>
         </Menu.Item>
-        <Menu.Item key="author">
+        <Menu.Item icon={<LineChartOutlined />} key="author">
           <Link to="/admin/author">Tác giả</Link>
         </Menu.Item>
-        <Menu.Item key="confirm">Phê duyệt</Menu.Item>
+        <Menu.Item icon={<CheckOutlined />} key="confirm">Phê duyệt</Menu.Item>
       </Menu>
     </div>
   )
