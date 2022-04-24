@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector ,useDispatch} from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Image, Input } from 'antd'
 import { ShoppingCartOutlined } from '@ant-design/icons'
 import LoginAndRegister from './login_register'
-
+import { updateQuery } from '../redux/search_slices'
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
 const typeBook = [
@@ -21,12 +21,19 @@ const typeBook = [
 
 function TopUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
+  const dispatch=useDispatch()
+  const [query,setQuery]=useState('')
+
   const [image, setImage] = useState()
   useEffect(() => {
     if (currentUser?.avatar_url) {
       setImage(currentUser.avatar_url)
     }
   }, [currentUser])
+  
+  useEffect(()=>{
+    dispatch(updateQuery(query))
+  },[query])
 
   //currentUser.avatar_url
   return (
@@ -38,7 +45,7 @@ function TopUser() {
           </div>
         </Link>
         <div className="w-1/2 flex items-center bg-white rounded-[5px]">
-          <Input size="large" placeholder="Tìm kiếm" />
+          <Input size="large" placeholder="Tìm kiếm" value={query} onChange={(e)=>setQuery(e.target.value)}/>
           <div className="flex items-center w-[140px] h-[40px] bg-cyan-800  rounded-r-[5px] px-[10px]">
             <i className="fa-solid fa-magnifying-glass pr-[10px]"></i>
             <button>Tìm kiếm</button>

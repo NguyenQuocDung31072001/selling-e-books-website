@@ -8,6 +8,7 @@ import { getBook, addBookToCart } from '../redux/api_request'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { numberFormat } from '../utils/formatNumber'
 import { PATH_NAME } from '../config/pathName'
+
 const { Title } = Typography
 
 function DetailBookUser() {
@@ -17,16 +18,7 @@ function DetailBookUser() {
   const [loading, setLoading] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
-  useEffect(()=>{
 
-    const breadcrum = {
-      genre_slug: genre,
-      genre_name:book?.genres[0].name,
-      name_book: slug
-    }
-    dispatch(updateBreadcrumb(breadcrum))
-    console.log(book)
-  },[book])
   useEffect(() => {
     setLoading(true)
     const getBookFnc = async slug => {
@@ -35,11 +27,19 @@ function DetailBookUser() {
       setLoading(false)
     }
     getBookFnc(slug)
-    // console.log(numberFormat(1000))
   }, [])
-  // useEffect(()=>{
-  //   console.log(book)
-  // },[book])
+
+  useEffect(()=>{
+    const breadcrum = {
+      genre_slug: genre,
+      genre_name:book?.genres[0].name,
+      name_book: slug
+    }
+    dispatch(updateBreadcrumb(breadcrum))
+    console.log(book)
+  },[book])
+
+
 
   const buyBookFnc = () => {
     const id_book = book._id
