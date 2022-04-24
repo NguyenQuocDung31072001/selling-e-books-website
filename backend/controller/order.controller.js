@@ -50,22 +50,14 @@ const createNewOrder = async (req, res) => {
     const paymentMethod = req.body.payment
     const phone = req.body.phone
 
-    if (accountId !== req.params.userId)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'account not match' })
-      )
+    if (accountId !== req.params.userId) throw new Error('account not match')
 
     const account = await Account.findById(accountId).populate('cart.book')
 
-    if (!account)
-      throw new Error(
-        JSON.stringify({ code: 404, message: 'Account does not exist' })
-      )
+    if (!account) throw new Error('Account does not exist')
 
     if (paymentMethod != 'cod' && paymentMethod != 'paypal')
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
-      )
+      throw new Error('Invalid payment method')
 
     let total = 0
     const orderBooks = bookIds.map(bookId => {
@@ -73,13 +65,7 @@ const createNewOrder = async (req, res) => {
         item => item.book._id.toString() == bookId
       )
 
-      if (!cartItem)
-        throw new Error(
-          JSON.stringify({
-            code: 400,
-            message: 'Book and account are not valid'
-          })
-        )
+      if (!cartItem) throw new Error('Book and account are not valid')
       if (cartItem.book.amount < cartItem.amount) throw new Error('Not enough')
 
       total += cartItem.book.price * cartItem.amount
@@ -135,10 +121,7 @@ const createNewOrder = async (req, res) => {
       await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       const savedOrder = await newOrder.save()
       await createPayment(savedOrder._id, res)
-    } else
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
-      )
+    } else throw new Error('Invalid payment method')
   } catch (error) {
     console.log(error)
     res.status(error.code || 500).json({ success: false, error: error })
@@ -231,8 +214,7 @@ const updateOrder = async (req, res) => {
     } else {
       await updateOrderById(id, newStatus, (error, order) => {
         if (error) {
-          const errorObj = JSON.parse(error.message)
-          return res.status(errorObj.code || 500).json(errorObj)
+          return res.status(500).json(error)
         } else {
           console.log(order)
           res.status(200).json(order)
@@ -240,8 +222,7 @@ const updateOrder = async (req, res) => {
       })
     }
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    return res.status(500).json(error)
   }
 }
 
@@ -250,19 +231,18 @@ const updateOrderByAdmin = async (req, res) => {
     const id = req.params.id
     const newStatus = req.body.newStatus
     if (newStatus > 3 || newStatus < -3 || newStatus == -2)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid new status' })
-      )
+      throw new Error('Invalid new status')
+
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        return res.status(errorObj.code || 500).json(error)
+        return res.status(500).json(error)
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    console.log(error)
+    return res.status(500).json(errorObj)
   }
 }
 
@@ -273,15 +253,13 @@ const updateOrderOfUser = async (req, res) => {
     if (newStatus !== 4 && newStatus !== -2) throw new Error('Invalid status')
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        const errorObj = JSON.parse(error.message)
-        return res.status(errorObj.code || 500).json(errorObj)
+        return res.status(500).json(error)
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    return res.status(500).json(error)
   }
 }
 

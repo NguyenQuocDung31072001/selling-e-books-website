@@ -7,16 +7,10 @@ const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('./constant')
 
 const updateOrderById = async (id, status, callback = null) => {
   try {
-    if (!mongoose.isValidObjectId(id))
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'invalid order id' })
-      )
+    if (!mongoose.isValidObjectId(id)) throw new Error('invalid order id')
 
     const currentOrder = await Order.findById(id)
-    if (!currentOrder)
-      throw new Error(
-        JSON.stringify({ code: 404, message: 'Order does not exist' })
-      )
+    if (!currentOrder) throw new Error('Order does not exist')
 
     if (checkValidNewStatus(currentOrder.status, status)) {
       if (
@@ -83,28 +77,17 @@ const updateOrderById = async (id, status, callback = null) => {
 
 const checkValidNewStatus = (currentStatus, newStatus) => {
   if (newStatus < -2 || newStatus > 4 || parseInt(newStatus) != newStatus)
-    throw new Error(JSON.stringify({ code: 400, message: 'invalid status' }))
+    throw new Error('invalid status')
   else if (newStatus == currentStatus) throw new Error('Invalid new status')
   else if (newStatus > 0 && newStatus != currentStatus + 1)
-    throw new Error(
-      JSON.stringify({ code: 400, message: 'Invalid new status' })
-    )
+    throw new Error('Invalid new status')
   else if (currentStatus < 0 || currentStatus == 4)
-    throw new Error(
-      JSON.stringify({ code: 400, message: 'Can not change order status' })
-    )
-  else if (currentStatus < 0)
-    throw new Error(
-      JSON.stringify({ code: 400, message: 'Can not change order status' })
-    )
+    throw new Error('Can not change order status')
+  else if (currentStatus < 0) throw new Error('Can not change order status')
   else if (currentStatus > 0 && newStatus < 0 && newStatus != -3)
-    throw new Error(
-      JSON.stringify({ code: 400, message: 'Invalid new status' })
-    )
+    throw new Error('Invalid new status')
   else if (newStatus == -3 && currentStatus != 2)
-    throw new Error(
-      JSON.stringify({ code: 400, message: 'Invalid new status' })
-    )
+    throw new Error('Invalid new status')
   else return true
 }
 
@@ -117,7 +100,7 @@ const restoreBooks = async books => {
     })
     return await Promise.all(asyncUpdateBooks)
   } catch (error) {
-    throw new Error(JSON.stringify(error))
+    throw error
   }
 }
 
