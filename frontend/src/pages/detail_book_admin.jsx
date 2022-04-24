@@ -4,6 +4,7 @@ import { Typography, Spin } from 'antd'
 import { getBook } from '../redux/api_request'
 import { numberFormat } from '../utils/formatNumber'
 import { PATH_NAME } from '../config/pathName'
+import UpdateBookAdmin from '../component/update_book_admin'
 const { Title } = Typography
 
 function DetailBookAdmin() {
@@ -34,7 +35,7 @@ function DetailBookAdmin() {
         )}
         <div className="w-[40%] p-[20px] h-[500px] flex justify-center items-center shadow-md shadow-zinc-200">
           <img
-            className="w-[90%] object-cover "
+            className="w-[90%] h-full object-cover "
             src={book?.coverUrl}
             alt=""
           />
@@ -69,6 +70,12 @@ function DetailBookAdmin() {
           <div className="w-[500px] flex flex-col items-start">
             <Title level={4}>Mô tả </Title>
             <p className="text-[16px]">{book?.description}</p>
+          </div>
+          <div>
+            {book && 
+            <UpdateBookAdmin book={book}/>
+            
+            }
           </div>
         </div>
       </div>

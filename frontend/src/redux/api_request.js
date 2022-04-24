@@ -143,6 +143,16 @@ export const addBook = async new_book => {
     console.log(error)
   }
 }
+export const updateBook = async new_book => {
+  try {
+    const res = await axios.put(API_URL + '/v1/selling_e_books/book/'+new_book.id, new_book)
+
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 
 export const getAllGenresForAddBook = async () => {

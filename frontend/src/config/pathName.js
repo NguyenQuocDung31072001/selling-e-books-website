@@ -1,4 +1,5 @@
 export const PATH_NAME = {
+    LOCAL:"http://localhost:3000",
     //admin
     MANAGE_ADMIN:"/admin/genre",
     MANAGE_AUTHOR:"/admin/author",

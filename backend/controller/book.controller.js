@@ -68,8 +68,13 @@ const CreateNewBook = async (req, res) => {
 const UpdateBook = async (req, res) => {
   try {
     const bookId = req.params.id
-    const genreIds = req.body.genres ? [].concat(req.body.genres) : []
-    const authorIds = req.body.authors ? [].concat(req.body.authors) : []
+
+    const genre=await GenreModel.find({name:req.body.genres})
+    const genreIds=genre[0]._id
+    
+    const author=await AuthorModel.findOne({fullName:req.body.authors})
+    const authorIds=author._id
+
     const newName = req.body.name
     const updateInfo = {
       genres: genreIds,
@@ -116,7 +121,7 @@ const UpdateBook = async (req, res) => {
     }
 
     await updatedBook.save()
-    res.status(200).json(updatedBook)
+    res.status(200).json({...updatedBook._doc,genre_slug:genre[0].slug})
   } catch (error) {
     console.log({ CreateNewBookError: error })
     res.status(500).json(error)
