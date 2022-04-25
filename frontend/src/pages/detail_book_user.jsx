@@ -65,53 +65,53 @@ function DetailBookUser() {
     })
   }
   return (
-    <div className="w-screen flex flex-col justify-center items-center">
-      <div className="w-screen flex justify-start ml-[20px]">
+    <div className="flex flex-col justify-center items-center">
+      <div className="w-[95%] flex justify-start ">
       <BreadcrumbsUser />
       </div>
-      <div className="mt-[30px] w-[1000px] h-[500px] shadow-md shadow-zinc-200 flex relative">
+      <div className="mt-[30px] w-[70%] h-[500px] shadow-md shadow-zinc-200 flex relative">
         {loading && (
           <div className="fixed w-screen h-screen z-10">
             <Spin tip="Loading..." />
           </div>
         )}
-        <div className="w-[450px] p-[20px] h-[500px] flex items-center shadow-md shadow-zinc-200">
+        <div className="w-[40%] p-[20px] h-[500px] flex items-center justify-center shadow-md shadow-zinc-200">
           <img
-            className="w-[400px] object-cover "
+            className="max-w-[100%] max-h-[100%] object-cover "
             src={book?.coverUrl}
             alt=""
           />
         </div>
-        <div className="w-[760px] flex flex-col items-center overflow-scroll overscroll-contain">
+        <div className="w-[60%] flex flex-col items-center">
           <div className="w-full flex justify-center">
             <Title level={2}>{book?.name}</Title>
           </div>
-          <div className="w-[500px] flex items-center justify-between">
+          <div className="w-[80%] flex items-center justify-between">
             <div>
-              <Title level={4}>Tác giả:{book?.authors[0].fullName}</Title>
+              <Title level={4}>Tác giả: {book?.authors[0].fullName}</Title>
             </div>
             <div>
               <Link to={`${PATH_NAME.DETAIL_BOOK_USER}/${book?.genres[0].slug}`}>
-                <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
+                <Title level={4}>Thể loại: {book?.genres[0]?.name}</Title>
               </Link>
             </div>
           </div>
-          <div className="w-[500px] mt-[20px] flex ">
+          <div className="w-[80%] mt-[20px] flex ">
             <Title level={1}>
             {numberFormat(book?.price)}
               </Title>
           </div>
-          <div className="w-[500px] flex justify-between">
+          <div className="w-[80%] flex flex-col items-start">
             <div>
-              <Title level={4}>Nhà sản xuất:{book?.publishedBy}</Title>
+              <Title level={4}>Nhà sản xuất: {book?.publishedBy}</Title>
             </div>
             <div>
               <Title level={4}>
-                Ngày xuất bản:{book?.publishedDate?.split('T')[0]}
+                Ngày xuất bản: {book?.publishedDate?.split('T')[0]}
               </Title>
             </div>
           </div>
-          <div className="w-[500px] flex flex-col items-start">
+          <div className="w-[80%] flex flex-col items-start">
             <Title level={4}>Mô tả </Title>
             <p className="text-[16px]">{book?.description}</p>
           </div>
@@ -120,10 +120,10 @@ function DetailBookUser() {
           </div>
         </div>
       </div>
-      <div className="w-[1000px] mt-[40px] flex">
-        <div className="w-[500px]">
+      <div className="w-[70%] mt-[40px] flex">
+        <div className="w-[40%]">
           <Title level={4}>Đánh giá- Nhận xét từ khách hàng</Title>
-          <div className="ml-[100px]">
+          <div className="ml-[50px]">
             <div className="flex ml-[80px] ">
               <Title level={1}>5</Title>
               <div className="flex flex-col">
@@ -202,9 +202,9 @@ function DetailBookUser() {
         </div>
         <div>Tìm kiếm theo đánh giá</div>
       </div>
-      <div className="flex flex-col w-[1000px] mt-[50px]">
+      <div className="flex flex-col w-[70%] mt-[50px]">
         <div className="flex">
-          <div className="w-[350px] flex">
+          <div className="w-[350px] flex ml-[50px]">
             <img
               className="w-[50px] h-[50px] rounded-[50px] "
               src="https://res.cloudinary.com/dwrg88vkg/image/upload/v1647597016/mni8r7ibwvam4muh3uea.jpg"

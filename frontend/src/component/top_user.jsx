@@ -44,7 +44,7 @@ function TopUser() {
             <span>E_Book</span>
           </div>
         </Link>
-        <div className="w-1/2 flex items-center bg-white rounded-[5px]">
+        <div className="w-[50%] flex items-center bg-white rounded-[5px]">
           <Input size="large" placeholder="Tìm kiếm" value={query} onChange={(e)=>setQuery(e.target.value)}/>
           <div className="flex items-center w-[140px] h-[40px] bg-cyan-800  rounded-r-[5px] px-[10px]">
             <i className="fa-solid fa-magnifying-glass pr-[10px]"></i>
@@ -74,7 +74,7 @@ function TopUser() {
         </div>
       </div>
       <div className="flex justify-center">
-        {typeBook.map((type, key) => (
+        {typeBook.map((type, key) => (  
           <div key={key} className="mx-[10px] cursor-pointer ">
             <Link to={`/user/home/${type}`}>
               <span className="text-white"> {type}</span>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Slide,Fade  } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
-import "../css/slideshow_user.css"
+
 const slideImages = [
 
   {
@@ -31,11 +31,11 @@ const slideImages = [
 
 const SlideshowUser = () => {
     return (
-        <div className="w-[1400px] m-auto z-0">
+        <div className="w-[90%] m-auto z-0">
           <Slide className="" canSwipe={false}>
            {slideImages.map((slideImage, index)=> (
               <div  key={index}>
-                <img className="flex items-center justify-center w-full h-[300px] object-cover" src={slideImage.url} alt="" />
+                <img className="flex items-center justify-center w-[100%] h-[300px] object-cover" src={slideImage.url} alt="" />
               </div>
             ))} 
           </Slide>

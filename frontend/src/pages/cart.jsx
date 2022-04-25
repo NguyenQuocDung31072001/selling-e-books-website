@@ -217,13 +217,13 @@ export default function Cart() {
     }
   }
   return (
-    <div className="flex flex-col justify-center min-w-[1200px] mx-[20px]">
-      <div>
+    <div className="flex flex-col justify-center min-w-[75%] mx-[20px]">
+      <div className='w-[95%]'>
         <BreadcrumbsUser />
       </div>
-      <div className="flex justify-center min-w-[1200px] mx-[20px]">
+      <div className="flex justify-center min-w-[75%] mx-[20px]">
         {firstLoading && (
-          <div className="fixed w-screen h-screen z-10">
+          <div className="fixed w-screen h-screen  z-10 ">
             <Spin tip="Loading..." />
           </div>
         )}
@@ -248,7 +248,7 @@ export default function Cart() {
             <div>
               <div className="flex justify-between mb-[10px] mt-[15px]">
                 <span>Giao tới</span>
-                <Link to={`${PATH_NAME.USER_CART}`}>Thay đổi</Link>
+                <Link to={`${PATH_NAME.USER_SETTING}`}>Thay đổi</Link>
               </div>
               <div className="flex ">
                 <h1>Nguyễn Quốc Dũng</h1>

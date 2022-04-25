@@ -27,12 +27,12 @@ export default function HomePagesUser() {
   }
   useEffect(() => {
     //load api lấy tất cả sách bỏ vào bookData
-    const setDataBookFnc = async () => {
+
+    ;(async function(){ // cú pháp IIFE->Thực thi hàm luôn, khỏi gọi lại, khỏi đặt tên->dùng cho hàm private và ko cần tái sử dụng.
       let data = await getAllBook()
       setBookData(data || [])
-    }
-    // setLoading(false)
-    setDataBookFnc()
+    })()
+    
   }, [])
 
   useEffect(() => {

@@ -30,8 +30,8 @@ function GenreBookUser() {
   }, [])
 
   return (
-    <div className="w-screen flex flex-col items-center">
-      <div className="w-screen flex justify-start ml-[20px]">
+    <div className="flex flex-col items-center">
+      <div className="w-[95%] flex justify-start">
         <BreadcrumbsUser />
       </div>
       <div className="flex p-[18px] w-[88%] bg-white">
