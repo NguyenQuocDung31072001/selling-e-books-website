@@ -477,3 +477,40 @@ export const increaseCart = async data => {
     console.log(error)
   }
 }
+
+//Order manage api
+export const getOrders = async (status, page, sorter, filter) => {
+  try {
+    const queryObj = {}
+    if (page) queryObj.page = page
+    if (status != null && status != undefined) queryObj.status = status
+    if (sorter && sorter.field && sorter.order) {
+      const fields = [].concat(sorter.field)
+      queryObj.sorterField = fields[0]
+      queryObj.sorterOrder = sorter.order == 'ascend' ? 1 : -1
+    }
+    if (filter && filter.field) {
+      queryObj.filterField = filter.field
+      queryObj.filterValue = filter.value
+    }
+    const queryString = new URLSearchParams(queryObj).toString()
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/order?' + queryString
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const updateOrder = async order => {
+  try {
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/order/' + order._id,
+      order
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}

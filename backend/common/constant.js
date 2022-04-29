@@ -5,8 +5,12 @@ module.exports = Object.freeze({
     '-1': 'Từ chối',
     0: 'Chờ xác nhận',
     1: 'Đã xác nhận',
-    2: 'Đã vận chuyển',
+    2: 'Đang vận chuyển',
     3: 'Giao hàng thành công',
     4: 'Đã nhận hàng'
+  },
+  PAYMENT_METHOD: {
+    0: 'COD',
+    1: 'Paypal'
   }
 })

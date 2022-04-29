@@ -22,6 +22,7 @@ import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
 import AllBookAdmin from './pages/all_book_admin'
 import { useSelector } from 'react-redux'
+import OrderManage from './pages/order_admin'
 import { useEffect } from 'react'
 import DetailBookAdmin from './pages/detail_book_admin'
 import AllGenreBookAdmin from './pages/all_book_genre_admin'
@@ -67,6 +68,14 @@ function App() {
               element={
                 <ProtectRouterAdmin>
                   <AuthorManage />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="confirm"
+              element={
+                <ProtectRouterAdmin>
+                  <OrderManage />
                 </ProtectRouterAdmin>
               }
             />
