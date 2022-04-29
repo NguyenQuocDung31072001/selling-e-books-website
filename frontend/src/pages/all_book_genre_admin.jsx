@@ -1,24 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
-import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { getBookOfGenres } from '../redux/api_request'
-import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { PATH_NAME } from '../config/pathName'
-function GenreBookUser() {
+import { getBookOfGenres } from '../redux/api_request'
+function AllGenreBookAdmin() {
   const { genre } = useParams()
   const [book, setBook] = useState([])
   const [nameGenres, setNameGenres] = useState()
-
-  const dispatch = useDispatch()
-  useEffect(() => {
-    const breadcrumb = {
-      genre_slug: genre,
-      genre_name: nameGenres,
-      name_book: ''
-    }
-    dispatch(updateBreadcrumb(breadcrumb))
-  }, [nameGenres])
 
   useEffect(() => {
     const getBookOfGenresFnc = async () => {
@@ -30,18 +18,18 @@ function GenreBookUser() {
   }, [])
 
   return (
-    <div className="w-screen flex flex-col items-center">
-      <div className="w-screen flex justify-start ml-[20px]">
-        <BreadcrumbsUser />
-      </div>
-      <div className="flex p-[18px] w-[88%] bg-white">
+    <div className="w-full flex flex-col items-center">
+        <div className='w-full h-[100px] bg-sky-500'>
+            <p>{nameGenres}</p>
+        </div>
+      <div className="flex mt-[20px] p-[18px] w-[88%] bg-white">
 
       {book.map((book, key) => (
         <div
           key={key}
           className="group w-[240px] h-[290px] m-[10px] p-[5px] shadow-xl overflow-hidden cursor-pointer shadow-neutral-400"
         >
-          <Link to={`${PATH_NAME.GENRES_BOOK_USER}/${book.genres[0]?.slug}/${book.slug}`}>
+          <Link to={`${PATH_NAME.GENRES_BOOK_ADMIN}/${book.genres[0]?.slug}/${book.slug}`}>
             <div className="flex items-center p-[10px] h-[240px]">
               <img src={book.coverUrl} className="object-cover" alt="" />
             </div>
@@ -59,4 +47,4 @@ function GenreBookUser() {
   )
 }
 
-export default GenreBookUser
+export default AllGenreBookAdmin

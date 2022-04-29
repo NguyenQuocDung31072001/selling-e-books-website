@@ -42,8 +42,8 @@ function SettingAdmin() {
       email: email,
       username: username,
       password: password,
-      avatarBase64: imageBase64,
-    };
+      avatarBase64: imageBase64
+    }
     updateAccountAdmin(currentUser, account, dispatch);
   };
 

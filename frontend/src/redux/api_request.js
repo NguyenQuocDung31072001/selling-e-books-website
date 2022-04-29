@@ -121,20 +121,57 @@ export const getAllBook = async () => {
     console.log(error)
   }
 }
-
+export const getBookOfGenres = async genres => {
+  try {
+    const res = await axios.get(
+      API_URL + `/v1/selling_e_books/genre/${genres}/books`
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
 export const addBook = async new_book => {
   try {
     const res = await axios.post(API_URL + '/v1/selling_e_books/book', new_book)
-    console.log(res)
     const payloadAction = {
       name: res.name,
       description: res.description
     }
+    console.log(res.data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const updateBook = async new_book => {
+  try {
+    const res = await axios.put(API_URL + '/v1/selling_e_books/book/'+new_book.id, new_book)
+
+    // console.log(res.data)
+    return res.data
   } catch (error) {
     console.log(error)
   }
 }
 
+
+export const getAllGenresForAddBook = async () => {
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/genre')
+
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const getAllAuthorForAddBook = async () => {
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/author')
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
 //Genre API
 export const getAllGenres = async dispatch => {
   try {
@@ -326,7 +363,6 @@ export const getBook = async slug => {
       API_URL + '/v1/selling_e_books/book/' + slug,
       {}
     )
-    console.log(res.data)
     return res.data
   } catch (error) {
     console.log(error)

@@ -2,6 +2,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import authReducer from './auth_slices'
 import breadcrumbReducer from './breadcrumb_slices'
 import genreReducer from './genre_slice'
+import searchReducer from "./search_slices"
 import {
   persistStore,
   persistReducer,
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
   auth: authReducer,
   breadcrumb: breadcrumbReducer,
   genre: genreReducer,
-  author: authorReducer
+  author: authorReducer,
+  search:searchReducer
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 

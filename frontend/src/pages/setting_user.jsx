@@ -5,6 +5,7 @@ import { getDistrictData, getProvinceData, getWardData, updateAccountAdmin, upda
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image, Select } from 'antd'
+import BreadcrumbsUser from '../component/breadcrumbs_user'
 const { TextArea } = Input
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
@@ -33,17 +34,20 @@ function SettingUser() {
   const navigate = useNavigate()
 
   useEffect(() => {
+
     const breadcrumb = {
-      genre: 'setting',
+      genre_slug: 'setting',
+      genre_name: 'Setting',
       name_book: ''
     }
+    dispatch(updateBreadcrumb(breadcrumb))
+
     const  getData = async()=>{
       const provinceData = await getProvinceData()
       console.log(provinceData)
       setProvinceData(provinceData)
     }
     getData();
-    dispatch(updateBreadcrumb(breadcrumb))
   }, [])
 
   useEffect(() => {
@@ -138,6 +142,9 @@ function SettingUser() {
 
   return (
     <div className="flex flex-col justify-center items-center w-full relative space-y-10">
+      <div className='w-[98%] flex'>
+        <BreadcrumbsUser />
+      </div>
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
         <div className="w-full lg:w-2/3 xl:w-1/2 px-6 ">
           <h2 className="text-xl font-semibold text-left mb-0">

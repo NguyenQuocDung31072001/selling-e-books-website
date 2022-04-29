@@ -15,14 +15,17 @@ import NotFound from './pages/not_found'
 import LayoutAdmin from './component/layout_admin'
 import TopUser from './component/top_user'
 import GenreBookUser from './pages/genre_book_user'
-import BreadcrumbsUser from './component/breadcrumbs_user'
 import DetailBookUser from './pages/detail_book_user'
 import Cart from './pages/cart'
 import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
+import AllBookAdmin from './pages/all_book_admin'
 import { useSelector } from 'react-redux'
 import OrderManage from './pages/order_admin'
+import { useEffect } from 'react'
+import DetailBookAdmin from './pages/detail_book_admin'
+import AllGenreBookAdmin from './pages/all_book_genre_admin'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
@@ -93,6 +96,23 @@ function App() {
               }
             />
             <Route
+              path="home/:genre/:slug"
+              element={
+                <ProtectRouterAdmin>
+                  <DetailBookAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
+             <Route path="home/:genre" element={<AllGenreBookAdmin />} />
+            <Route
+              path="all_book"
+              element={
+                <ProtectRouterAdmin>
+                  <AllBookAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
               path="setting"
               element={
                 <ProtectRouterAdmin>
@@ -129,7 +149,7 @@ function App() {
               }
             />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </BrowserRouter>
     </div>
@@ -151,7 +171,7 @@ function UserComponent() {
     <div>
       <TopUser />
       <div className="mt-[100px]">
-        <BreadcrumbsUser />
+        {/* <BreadcrumbsUser /> */}
         <Outlet />
       </div>
     </div>

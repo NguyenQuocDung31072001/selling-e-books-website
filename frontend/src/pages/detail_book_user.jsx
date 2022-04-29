@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { Typography, Rate, Progress, Button } from 'antd'
-import { CheckCircleFilled } from '@ant-design/icons'
-import { getBook,addBookToCart} from '../redux/api_request'
+import { Typography, Rate, Progress, Button, notification, Spin } from 'antd'
+import { CheckCircleFilled, ConsoleSqlOutlined } from '@ant-design/icons'
+import { getBook, addBookToCart } from '../redux/api_request'
+import BreadcrumbsUser from '../component/breadcrumbs_user'
+import { numberFormat } from '../utils/formatNumber'
+import { PATH_NAME } from '../config/pathName'
 
 const { Title } = Typography
 
@@ -12,81 +15,112 @@ function DetailBookUser() {
   const { genre, slug } = useParams()
   const dispatch = useDispatch()
   const [book, setBook] = useState()
-  const currentUser=useSelector(state=>state.auth.login.currentUser)
-  // console.log(genre,slug)
-  // từ id_book lấy ra name_book rồi bỏ vào breadcrumb @@
+  const [loading, setLoading] = useState(false)
+  const currentUser = useSelector(state => state.auth.login.currentUser)
+  const navigate = useNavigate()
+
   useEffect(() => {
+    setLoading(true)
+    const getBookFnc = async slug => {
+      let bookApi = await getBook(slug)
+      setBook(bookApi)
+      setLoading(false)
+    }
+    getBookFnc(slug)
+  }, [])
+
+  useEffect(()=>{
     const breadcrum = {
-      genre: genre,
+      genre_slug: genre,
+      genre_name:book?.genres[0].name,
       name_book: slug
     }
     dispatch(updateBreadcrumb(breadcrum))
-    getBookFnc(slug)
-  }, [])
-  // useEffect(()=>{
-  //   console.log(book?._id)
-  // },[book])
-  const getBookFnc = async slug => {
-    let bookApi = await getBook(slug)
-    setBook(bookApi)
-  }
-  const buyBookFnc=()=>{
-    const id_book=book._id
-    const id_account=currentUser._id
-    // console.log(id_book,id_account)
-    const data={
-      book:id_book,
-      account:id_account
+    console.log(book)
+  },[book])
+
+
+
+  const buyBookFnc = () => {
+    const id_book = book._id
+    const id_account = currentUser._id
+    const data = {
+      book: id_book,
+      account: id_account
     }
     addBookToCart(data)
+    openNotification()
+  }
+  const openNotification = () => {
+    notification.open({
+      message: 'Đã thêm vào giỏ hàng!',
+      description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+      className: 'bg-green-500',
+      style: {
+        width: 400
+      },
+      onClick: () => {
+        navigate('/user/cart')
+      }
+    })
   }
   return (
-    <div className="h-[1400px]">
-      <div className="m-auto w-[1000px] h-[500px]  flex">
-        <div className="w-[400px] h-[500px] flex items-center">
-          <img className="w-full object-cover " src={book?.coverUrl} alt="" />
+    <div className="w-screen flex flex-col justify-center items-center">
+      <div className="w-screen flex justify-start ml-[20px]">
+      <BreadcrumbsUser />
+      </div>
+      <div className="mt-[30px] w-[1000px] h-[500px] shadow-md shadow-zinc-200 flex relative">
+        {loading && (
+          <div className="fixed w-screen h-screen z-10">
+            <Spin tip="Loading..." />
+          </div>
+        )}
+        <div className="w-[450px] p-[20px] h-[500px] flex items-center shadow-md shadow-zinc-200">
+          <img
+            className="w-[400px] object-cover "
+            src={book?.coverUrl}
+            alt=""
+          />
         </div>
-        <div className="w-[800px] flex flex-col items-center">
+        <div className="w-[760px] flex flex-col items-center overflow-scroll overscroll-contain">
           <div className="w-full flex justify-center">
             <Title level={2}>{book?.name}</Title>
           </div>
-          <div className="w-[600px] flex items-center justify-between">
+          <div className="w-[500px] flex items-center justify-between">
             <div>
-              <Title level={4}>Tác giả:{book?.authors[0]}</Title>
+              <Title level={4}>Tác giả:{book?.authors[0].fullName}</Title>
             </div>
             <div>
-              <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
+              <Link to={`${PATH_NAME.DETAIL_BOOK_USER}/${book?.genres[0].slug}`}>
+                <Title level={4}>Thể loại:{book?.genres[0]?.name}</Title>
+              </Link>
             </div>
           </div>
           <div className="w-[500px] mt-[20px] flex ">
-            <Title level={1}>{book?.price}đ</Title>
+            <Title level={1}>
+            {numberFormat(book?.price)}
+              </Title>
           </div>
-          <div>
-            <span>Kí túc xá, thành phố thủ đức</span>
-            <Link to="/user/setting">Đổi địa chỉ</Link>
+          <div className="w-[500px] flex justify-between">
+            <div>
+              <Title level={4}>Nhà sản xuất:{book?.publishedBy}</Title>
+            </div>
+            <div>
+              <Title level={4}>
+                Ngày xuất bản:{book?.publishedDate?.split('T')[0]}
+              </Title>
+            </div>
           </div>
-          <div>
+          <div className="w-[500px] flex flex-col items-start">
+            <Title level={4}>Mô tả </Title>
+            <p className="text-[16px]">{book?.description}</p>
+          </div>
+          <div className="absolute bottom-5 right-20">
             <Button onClick={buyBookFnc}>Mua sách</Button>
           </div>
         </div>
       </div>
-      <div className="w-screen flex flex-col items-center">
-        <div className="w-[1200px] flex justify-between">
-          <div>
-            <Title level={4}>Nhà sản xuất:{book?.publishedBy}</Title>
-          </div>
-          <div>
-            <Title level={4}>
-              Ngày xuất bản:{book?.publishedDate?.split('T')[0]}
-            </Title>
-          </div>
-        </div>
-        <div className="w-[1200px] h-[100px] flex flex-col items-start">
-          <Title level={4}>Mô tả </Title>
-          <p className="text-[16px]">{book?.description}</p>
-        </div>
-      </div>
-      <div className="flex ml-[60px]">
+      <div className="w-[1000px] mt-[40px] flex">
         <div className="w-[500px]">
           <Title level={4}>Đánh giá- Nhận xét từ khách hàng</Title>
           <div className="ml-[100px]">
@@ -168,16 +202,20 @@ function DetailBookUser() {
         </div>
         <div>Tìm kiếm theo đánh giá</div>
       </div>
-      <div className="flex flex-col w-[1200px] m-auto mt-[50px]">
+      <div className="flex flex-col w-[1000px] mt-[50px]">
         <div className="flex">
           <div className="w-[350px] flex">
-            <img className="w-[50px] h-[50px] rounded-[50px] " src="https://res.cloudinary.com/dwrg88vkg/image/upload/v1647597016/mni8r7ibwvam4muh3uea.jpg" alt="" />
+            <img
+              className="w-[50px] h-[50px] rounded-[50px] "
+              src="https://res.cloudinary.com/dwrg88vkg/image/upload/v1647597016/mni8r7ibwvam4muh3uea.jpg"
+              alt=""
+            />
             <div className="flex flex-col">
               <Title level={4}>Nguyễn Quốc Dũng</Title>
               <p>Đã mua hàng ngày 13-02-2021</p>
             </div>
           </div>
-          <div className='flex flex-col'>
+          <div className="flex flex-col">
             <div className="flex items-center">
               <Rate style={{ fontSize: 15 }} disabled defaultValue={4} />
               <span>Hài lòng</span>
@@ -186,7 +224,7 @@ function DetailBookUser() {
               <CheckCircleFilled />
               <span>Đã mua hàng</span>
             </div>
-            <div className='flex'>
+            <div className="flex">
               <p>sản phẩm quá tốt!</p>
             </div>
           </div>

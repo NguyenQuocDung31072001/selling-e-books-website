@@ -4,7 +4,11 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import DeletedGenreTable from '../component/genre/deleted_genre_table'
 import GenreTable from '../component/genre/genre_table'
-import { getAllAuthor, getAllGenres, getDeletedGenres } from '../redux/api_request'
+import {
+  getAllAuthor,
+  getAllGenres,
+  getDeletedGenres
+} from '../redux/api_request'
 
 function GenreManage() {
   const genreState = useSelector(state => state.genre)
@@ -26,7 +30,11 @@ function GenreManage() {
     <>
       {genreState.loading && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full  bg-gray-400 bg-opacity-30 flex justify-center items-center z-10">
-          <Spin spinning={genreState.loading} size="large" tip="Loading..."></Spin>
+          <Spin
+            spinning={genreState.loading}
+            size="large"
+            tip="Loading..."
+          ></Spin>
         </div>
       )}
 
