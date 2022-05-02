@@ -23,6 +23,14 @@ const createPayment = async (orderId, res) => {
       }
     })
 
+    items.push({
+      name: 'Phí vận chuyển',
+      sku: 'item',
+      price: order.shippingCost,
+      currency: 'USD',
+      quantity: 1
+    })
+
     var address = order.address
     var name = order.user.username
 
@@ -40,9 +48,9 @@ const createPayment = async (orderId, res) => {
           item_list: {
             shipping_address: {
               recipient_name: name,
-              line1: address.district,
-              city: address.ward,
-              state: address.province,
+              line1: address.ward.WardName,
+              city: address.district.DistrictName,
+              state: address.province.ProvinceName,
               country_code: 'VN'
             },
             items: items
@@ -58,17 +66,36 @@ const createPayment = async (orderId, res) => {
 
     paypal.payment.create(create_payment_json, async function (error, payment) {
       if (error) {
-        await updateOrderById(orderId, -1)
-        throw error
+        const updateOrderById = require('../common/updateOrder')
+        await updateOrderById(orderId, -1, (error, response) => {
+          res.status(200).json({
+            success: false,
+            redirect: true,
+            redirectTo: `http://localhost:3000/user/home`,
+            order: null
+          })
+        })
       } else {
         payment.links.forEach(link => {
-          if (link.rel == 'approval_url') res.status(200).json(link.href)
+          if (link.rel == 'approval_url') {
+            res.status(200).json({
+              success: true,
+              redirect: true,
+              redirectTo: link.href,
+              order: null
+            })
+          }
         })
       }
     })
   } catch (error) {
     console.log(error)
-    res.json(error)
+    res.status(503).json({
+      success: false,
+      redirect: true,
+      redirectTo: `http://localhost:3000/user/home`,
+      order: null
+    })
   }
 }
 
@@ -97,9 +124,13 @@ const successOrder = async (req, res) => {
     execute_payment_json,
     async function (error, payment) {
       if (error) {
+        const updateOrderById = require('../common/updateOrder')
         order.paid = false
-        await Promise.all([order.save, updateOrderById(order._id, -1)])
-        res.status(400).json(error)
+        await Promise.all([
+          order.save(),
+          updateOrderById(order._id, -1, () => {})
+        ])
+        res.redirect(`http://localhost:3000/user/purchase`)
       } else {
         const id = payment.id
         const refundId = payment.transactions[0].related_resources[0].sale.id
@@ -110,7 +141,7 @@ const successOrder = async (req, res) => {
         order.paid = true
         order.paypal = paypalInfo
         await order.save()
-        res.status(200).json(order)
+        res.redirect(`http://localhost:3000/user/purchase`)
       }
     }
   )

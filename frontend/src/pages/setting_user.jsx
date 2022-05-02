@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { getDistrictData, getProvinceData, getWardData, updateAccountAdmin, updateAccountPassword } from '../redux/api_request'
+import {
+  getDistrictData,
+  getProvinceData,
+  getWardData,
+  updateAccountAdmin,
+  updateAccountPassword
+} from '../redux/api_request'
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image, Select } from 'antd'
@@ -18,9 +24,10 @@ function SettingUser() {
   const [birthDate, setBirthDate] = useState(currentUser?.birthDate || '')
   const [image, setImage] = useState()
   const [imageBase64, setImageBase64] = useState()
-  const [province, setProvince] = useState(currentUser.address.province||'')
-  const [district, setDistrict] = useState(currentUser.address.district||'')
-  const [ward, setWard] = useState(currentUser.address.ward||'')
+  const [province, setProvince] = useState(currentUser.address.province || {})
+  const [district, setDistrict] = useState(currentUser.address.district || {})
+  const [ward, setWard] = useState(currentUser.address.ward || {})
+  const [street, setStreet] = useState(currentUser.address.street || '')
 
   const [provinceData, setProvinceData] = useState([])
   const [districtData, setDistrictData] = useState([])
@@ -34,7 +41,6 @@ function SettingUser() {
   const navigate = useNavigate()
 
   useEffect(() => {
-
     const breadcrumb = {
       genre_slug: 'setting',
       genre_name: 'Setting',
@@ -42,12 +48,12 @@ function SettingUser() {
     }
     dispatch(updateBreadcrumb(breadcrumb))
 
-    const  getData = async()=>{
+    const getData = async () => {
       const provinceData = await getProvinceData()
       console.log(provinceData)
       setProvinceData(provinceData)
     }
-    getData();
+    getData()
   }, [])
 
   useEffect(() => {
@@ -86,13 +92,23 @@ function SettingUser() {
       email: email,
       username: username,
       address: {
-        province: province,
-        district: district,
-        ward: ward
+        province: {
+          ProvinceID: province.ProvinceID,
+          ProvinceName: province.ProvinceName
+        },
+        district: {
+          DistrictID: district.DistrictID,
+          DistrictName: district.DistrictName
+        },
+        ward: {
+          WardCode: ward.WardCode,
+          WardName: ward.WardName
+        },
+        street: street
       },
       phoneNumber: phoneNumber,
       birthDate: birthDate,
-      avatarBase64: imageBase64,
+      avatarBase64: imageBase64
     }
     console.log(account)
     updateAccountAdmin(currentUser, account, dispatch)
@@ -115,34 +131,35 @@ function SettingUser() {
     }
   }
 
-  const updateProvince = (value)=> {
-    console.log(value)
-    const _province = provinceData.find(pro=>pro.code == value)
-    setProvince(_province.name);
-    const fetchDistrict = async ()=>{
-      const districts = await getDistrictData(_province.code)
+  const updateProvince = value => {
+    const _province = provinceData.find(
+      province => province.ProvinceID == value
+    )
+    setProvince(_province)
+    const fetchDistrict = async () => {
+      const districts = await getDistrictData(_province.ProvinceID)
       setDistrictData(districts)
     }
-    fetchDistrict();
+    fetchDistrict()
   }
 
-  const updateDistrict = (value)=> {
-    const _district = districtData.find(dis=>dis.code == value)
-    setDistrict(_district.name);
-    const fetchWard = async ()=>{
-      const wards = await getWardData(_district.code)
+  const updateDistrict = value => {
+    const _district = districtData.find(dis => dis.DistrictID == value)
+    setDistrict(_district)
+    const fetchWard = async () => {
+      const wards = await getWardData(_district.DistrictID)
       setWardData(wards)
     }
-    fetchWard();
-  } 
-  const updateWard = (value)=> {
-      const _ward = wardData.find(war=>war.code == value)
-      setWard(_ward.name)
+    fetchWard()
+  }
+  const updateWard = value => {
+    const _ward = wardData.find(war => war.WardCode == value)
+    setWard(_ward)
   }
 
   return (
     <div className="flex flex-col justify-center items-center w-full relative space-y-10">
-      <div className='w-[98%] flex'>
+      <div className="w-[98%] flex">
         <BreadcrumbsUser />
       </div>
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
@@ -181,7 +198,7 @@ function SettingUser() {
               onChange={changeImage}
             />
           </div>
-          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-9 w-full lg:w-2/3 order-2 lg:order-1 ">
+          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-6 w-full lg:w-2/3 order-2 lg:order-1 ">
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
                 <label className="text-right whitespace-nowrap text-gray-600">
@@ -237,34 +254,84 @@ function SettingUser() {
               />
             </div>
 
-            <div className="flex flex-row items-center space-x-4">
-              <div className="w-24 min-w-[6rem] text-right ">
-                <label className="text-right whitespace-nowrap text-gray-600">
-                  Địa chỉ
-                </label>
+            <div className="flex flex-col  space-y-3">
+              <div className="flex flex-row items-center space-x-4">
+                <div className="w-24 min-w-[6rem] text-right ">
+                  <label className="text-right whitespace-nowrap text-gray-600">
+                    Địa chỉ
+                  </label>
+                </div>
+                <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 relative w-full">
+                  <Select
+                    size="large"
+                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    name="provice"
+                    id=""
+                    onChange={updateProvince}
+                    placeholder={province.ProvinceName || 'Chọn Tỉnh/Thành Phố'}
+                  >
+                    {provinceData.map(province => {
+                      return (
+                        <Select.Option
+                          key={province.ProvinceID}
+                          value={province.ProvinceID}
+                        >
+                          {province.ProvinceName}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                  <Select
+                    size="large"
+                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    name="district"
+                    id=""
+                    onChange={updateDistrict}
+                    placeholder={district.DistrictName || 'Chọn Quận/Huyện'}
+                  >
+                    {districtData.map(district => {
+                      return (
+                        <Select.Option
+                          key={district.DistrictID}
+                          value={district.DistrictID}
+                        >
+                          {district.DistrictName}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                  <Select
+                    size="large"
+                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    name="ward"
+                    id=""
+                    onChange={updateWard}
+                    placeholder={ward.WardName || 'Chọn Phường/Xã'}
+                  >
+                    {wardData.map(ward => {
+                      return (
+                        <Select.Option
+                          key={ward.WardCode}
+                          value={ward.WardCode}
+                        >
+                          {ward.WardName}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                </div>
               </div>
-              <div className='flex flex-row space-x-3 relative'>
-                <Select  style={{ width: '150px' }} name="provice" id="" onChange={updateProvince} placeholder={province||"Chọn Tỉnh/Thành Phố"}>
-                  {
-                    provinceData.map(province=>{
-                      return <Select.Option key={province.code} value={province.code}>{province.name}</Select.Option>
-                    })
-                    }
-                </Select>
-                <Select  style={{ width: '150px' }} name="district" id="" onChange={updateDistrict} placeholder={district||"Chọn Quận/Huyện"}>
-                  {
-                    districtData.map(district=>{
-                      return <Select.Option key={district.code} value={district.code}>{district.name}</Select.Option>
-                    })
-                    }
-                </Select>
-                <Select  style={{ width: '150px' }} name="ward" id="" onChange={updateWard} placeholder={ward||"Chọn Phường/Xã"}>
-                  {
-                    wardData.map(ward=>{
-                      return <Select.Option key={ward.code} value={ward.code}>{ward.name}</Select.Option>
-                    })
-                    }
-                </Select>
+
+              <div className="flex flex-row items-start space-x-4">
+                <div className="w-24 min-w-[6rem] text-right "></div>
+                <Input
+                  size="large"
+                  name="street"
+                  type="text"
+                  placeholder="Địa chỉ cụ thể ( Ví dụ: 52, đường Trần Hưng Đạo )"
+                  value={street}
+                  onChange={e => setStreet(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -296,7 +363,7 @@ function SettingUser() {
           <hr className="my-3" />
         </div>
 
-        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 flex flex-col space-y-8">
+        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 flex flex-col space-y-6">
           <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
             <div className="w-40 min-w-[8rem] text-right">
               <label className="text-right whitespace-nowrap text-gray-600">

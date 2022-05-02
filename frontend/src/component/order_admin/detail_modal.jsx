@@ -118,7 +118,7 @@ export default function DetailModal(props) {
             }}
           >
             <Text strong>
-              {`${data.address.ward} - ${data.address.district} - ${data.address.province}`}
+              {`${data.address.ward.WardName} - ${data.address.district.DistrictName} - ${data.address.province}`}
             </Text>
           </Col>
 
@@ -157,6 +157,46 @@ export default function DetailModal(props) {
           <Col span={24}>
             <BooksTable data={data.books} />
           </Col>
+          <Col span={12}>
+            <Text strong>Tạm tính:</Text>
+          </Col>
+          <Col
+            span={12}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'end',
+              paddingRight: '1rem'
+            }}
+          >
+            <Text strong>
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(data.total - data.shippingCost)}
+            </Text>
+          </Col>
+
+          <Col span={12}>
+            <Text strong>Phí vận chuyển:</Text>
+          </Col>
+          <Col
+            span={12}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'end',
+              paddingRight: '1rem'
+            }}
+          >
+            <Text strong>
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(data.shippingCost)}
+            </Text>
+          </Col>
+
           <Col span={12}>
             <Text strong>Tổng cộng:</Text>
           </Col>

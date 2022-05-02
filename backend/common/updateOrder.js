@@ -20,7 +20,7 @@ const updateOrderById = async (id, status, callback = null) => {
       ) {
         refundPayment(currentOrder.paypal.refund, async (error, response) => {
           if (error) {
-            callback(error, null)
+            if (callback != null) callback(error, null)
           } else {
             const updatedOrder = await Order.findOneAndUpdate(
               { _id: id },
@@ -42,7 +42,7 @@ const updateOrderById = async (id, status, callback = null) => {
             await restoreBooks(currentOrder.books)
             updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
             updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
-            callback(null, updatedOrder)
+            if (callback != null) callback(null, updatedOrder)
           }
         })
       } else {
@@ -67,11 +67,11 @@ const updateOrderById = async (id, status, callback = null) => {
           await restoreBooks(currentOrder.books)
         updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
         updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
-        callback(null, updatedOrder)
+        if (callback != null) callback(null, updatedOrder)
       }
     }
   } catch (error) {
-    callback(error, null)
+    if (callback != null) callback(error, null)
   }
 }
 

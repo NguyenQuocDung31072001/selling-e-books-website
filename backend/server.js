@@ -17,6 +17,7 @@ const bookRouter = require('./router/book.router')
 const reviewRouter = require('./router/review.router')
 const collectionRouter = require('./router/collection.router')
 const orderRouter = require('./router/order.router')
+const shippingRouter = require('./router/shipping.router')
 
 dotenv.config()
 
@@ -39,10 +40,8 @@ db.once('open', () => console.log('connected to mongoose'))
 //Paypal configuration
 paypal.configure({
   mode: 'sandbox', //sandbox or live
-  client_id:
-    'AcUD-OTEl1jI3EXjRfUNe5olTXuTGO5jUoTXmGN6XJmMvGpFerVUyTG--CDA4muZcwfZCngghMaL2gzb',
-  client_secret:
-    'EEybBz7wFWwcplQCtLqJOV-3hzYsXJgxqDbx8H1ZcXgd6kNoofkkE20f3F8URfdYpzzaA_1Ko5LoO6sG'
+  client_id: process.env.PAYPAL_CLIENT_ID,
+  client_secret: process.env.PAYPAL_CLIENT_SECRET
 })
 
 app.use('/v1/selling_e_books/auth', authRouter)
@@ -53,6 +52,7 @@ app.use('/v1/selling_e_books/book', bookRouter)
 app.use('/v1/selling_e_books/review', reviewRouter)
 app.use('/v1/selling_e_books/collection', collectionRouter)
 app.use('/v1/selling_e_books/order', orderRouter)
+app.use('/v1/selling_e_books/shipping', shippingRouter)
 app.listen(5000, () => {
   console.log('server start success')
 })

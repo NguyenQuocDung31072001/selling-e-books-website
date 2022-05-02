@@ -30,17 +30,42 @@ const accountUser = new mongoose.Schema(
       type: String
     },
     address: {
-      district: {
+      street: {
         type: String,
-        default: ''
+        required: true
       },
       ward: {
-        type: String,
-        default: ''
+        WardCode: {
+          type: Number,
+          required: true
+        },
+        WardName: {
+          type: String,
+          required: true,
+          default: ''
+        }
+      },
+      district: {
+        DistrictID: {
+          type: Number,
+          required: true
+        },
+        DistrictName: {
+          type: String,
+          required: true,
+          default: ''
+        }
       },
       province: {
-        type: String,
-        default: ''
+        ProvinceID: {
+          type: Number,
+          required: true
+        },
+        ProvinceName: {
+          type: String,
+          required: true,
+          default: ''
+        }
       }
     },
     birthDate: {
@@ -84,10 +109,10 @@ const accountUser = new mongoose.Schema(
     reviews: {
       type: [
         {
-          type: mongoose.ObjectId, 
+          type: mongoose.ObjectId,
           ref: 'Review'
         }
-      ], 
+      ],
       default: []
     }
   },

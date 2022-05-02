@@ -6,6 +6,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       ref: 'account'
     },
+    customer: {
+      type: String,
+      required: true
+    },
     books: [
       {
         book: {
@@ -47,22 +51,51 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    shippingCost: {
+      type: Number,
+      required: true
+    },
     total: {
       type: Number,
       required: true
     },
     address: {
-      district: {
+      street: {
         type: String,
-        default: ''
+        required: true
       },
       ward: {
-        type: String,
-        default: ''
+        WardCode: {
+          type: Number,
+          required: true
+        },
+        WardName: {
+          type: String,
+          required: true,
+          default: ''
+        }
+      },
+      district: {
+        DistrictID: {
+          type: Number,
+          required: true
+        },
+        DistrictName: {
+          type: String,
+          required: true,
+          default: ''
+        }
       },
       province: {
-        type: String,
-        default: ''
+        ProvinceID: {
+          type: Number,
+          required: true
+        },
+        ProvinceName: {
+          type: String,
+          required: true,
+          default: ''
+        }
       }
     },
     phone: {
