@@ -1,11 +1,19 @@
 const { default: mongoose } = require('mongoose')
-const { ORDER_STATUS_NAME } = require('../common/constant')
+const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('../common/constant')
 const updateOrderById = require('../common/updateOrder')
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const order = require('../model/order.model')
 const Order = require('../model/order.model')
 const { createPayment, refundPayment } = require('./payment.controller')
+const {
+  calShippingCost,
+  getProvince,
+  getDistrict,
+  getWard
+} = require('../controller/shipping.controller')
+
+const pageLimit = 10
 
 const checkOut = async (req, res) => {
   try {
@@ -42,27 +50,19 @@ const createNewOrder = async (req, res) => {
   try {
     const bookIds = req.body.books
     const accountId = req.body.account
-    const district = req.body.district
-    const ward = req.body.ward
-    const province = req.body.province
+    const addressTo = req.body.address
+    const customer = req.body.customer
     const paymentMethod = req.body.payment
+    const phone = req.body.phone
 
-    if (accountId !== req.params.userId)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'account not match' })
-      )
+    if (accountId !== req.params.userId) throw new Error('account not match')
 
     const account = await Account.findById(accountId).populate('cart.book')
 
-    if (!account)
-      throw new Error(
-        JSON.stringify({ code: 404, message: 'Account does not exist' })
-      )
+    if (!account) throw new Error('Account does not exist')
 
     if (paymentMethod != 'cod' && paymentMethod != 'paypal')
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
-      )
+      throw new Error('Invalid payment method')
 
     let total = 0
     const orderBooks = bookIds.map(bookId => {
@@ -70,13 +70,7 @@ const createNewOrder = async (req, res) => {
         item => item.book._id.toString() == bookId
       )
 
-      if (!cartItem)
-        throw new Error(
-          JSON.stringify({
-            code: 400,
-            message: 'Book and account are not valid'
-          })
-        )
+      if (!cartItem) throw new Error('Book and account are not valid')
       if (cartItem.book.amount < cartItem.amount) throw new Error('Not enough')
 
       total += cartItem.book.price * cartItem.amount
@@ -88,17 +82,42 @@ const createNewOrder = async (req, res) => {
       }
     })
 
+    let shippingCost = await calShippingCost(accountId, addressTo, bookIds)
+    total += shippingCost.total
+    const province = await getProvince(addressTo.ProvinceID)
+    if (!province) throw new Error('Invalid address')
+    const district = await getDistrict(
+      addressTo.ProvinceID,
+      addressTo.DistrictID
+    )
+    if (!district) throw new Error('Invalid address')
+    const ward = await getWard(addressTo.DistrictID, addressTo.WardCode)
+    if (!ward) throw new Error('Invalid address')
+
     const newOrder = new Order({
       user: account._id,
+      customer: customer ? customer : account.username,
       books: orderBooks,
       status: 0,
       paid: false,
+      shippingCost: shippingCost.total,
       total: total,
       address: {
-        district,
-        ward,
-        province
-      }
+        street: addressTo.street,
+        ward: {
+          WardCode: ward.WardCode,
+          WardName: ward.WardName
+        },
+        district: {
+          DistrictID: district.DistrictID,
+          DistrictName: district.DistrictName
+        },
+        province: {
+          ProvinceID: province.ProvinceID,
+          ProvinceName: province.ProvinceName
+        }
+      },
+      phone: phone
     })
 
     const asyncUpdateBooks = orderBooks.map(orderItem => {
@@ -122,19 +141,21 @@ const createNewOrder = async (req, res) => {
     //COD
     if (paymentMethod == 'cod') {
       newOrder.payment = 0
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       const savedOrder = await newOrder.save()
-      res.json({ success: true, order: savedOrder })
+      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
+      res.json({
+        success: true,
+        redirect: true,
+        redirectTo: 'http://localhost:3000/user/purchase',
+        order: savedOrder
+      })
     } else if (paymentMethod == 'paypal') {
       //Payment by Paypal
       newOrder.payment = 1
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       const savedOrder = await newOrder.save()
+      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       await createPayment(savedOrder._id, res)
-    } else
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid payment method' })
-      )
+    } else throw new Error('Invalid payment method')
   } catch (error) {
     console.log(error)
     res.status(error.code || 500).json({ success: false, error: error })
@@ -143,16 +164,35 @@ const createNewOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
-    const statusQuery = req.query.status || 0
-    const all = await Order.find({ status: statusQuery })
-      .populate({ path: 'user', select: 'username email avatar_url address' })
-      .populate({ path: 'books.book', select: '_id slug name coverUrl' })
+    const statusQuery = req.query.status
+    const page = req.body.page
+    const sorterField = req.query.sorterField
+
+    const queryObj = {}
+    if (statusQuery != undefined) queryObj.status = statusQuery
+
+    const sorter = {}
+    if (sorterField && req.query.sorterOrder) {
+      sorter[sorterField] = req.query.sorterOrder
+    }
+    const all = await Order.find(queryObj)
+      .populate({
+        path: 'user',
+        select: 'username email avatar_url address',
+        option: sorterField == 'user' ? sorter : {}
+      })
+      .populate({
+        path: 'books.book',
+        select: '_id slug name coverUrl'
+      })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
+      .sort(sorterField && sorterField != 'user' ? sorter : {})
       .lean()
     all.forEach(order => {
       order.statusName = ORDER_STATUS_NAME[order.status]
+      order.paymentMethod = PAYMENT_METHOD[order.payment]
     })
     res.status(200).json(all)
   } catch (error) {
@@ -168,7 +208,7 @@ const getOrderById = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url address' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
       .lean()
     res.status(200).json(order)
@@ -186,7 +226,7 @@ const getOrderOfUser = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
     order.statusName = ORDER_STATUS_NAME[order.status]
     res.status(200).json(order)
@@ -199,8 +239,8 @@ const getOrderOfUser = async (req, res) => {
 const updateOrder = async (req, res) => {
   try {
     const id = req.parmas.id
-    let currentStatus = parseInt(req.body.current)
-    let newStatus = parseInt(req.body.new)
+    let currentStatus = parseInt(req.body.currentStatus)
+    let newStatus = parseInt(req.body.newStatus)
     if (newStatus != -1) newStatus = currentStatus + 1
     if (newStatus > 0) {
       const result = await updateOrderById(id, newStatus)
@@ -208,16 +248,15 @@ const updateOrder = async (req, res) => {
     } else {
       await updateOrderById(id, newStatus, (error, order) => {
         if (error) {
-          const errorObj = JSON.parse(error.message)
-          return res.status(errorObj.code || 500).json(errorObj)
+          return res.status(500).json(error)
         } else {
+          console.log(order)
           res.status(200).json(order)
         }
       })
     }
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    return res.status(500).json(error)
   }
 }
 
@@ -226,20 +265,18 @@ const updateOrderByAdmin = async (req, res) => {
     const id = req.params.id
     const newStatus = req.body.newStatus
     if (newStatus > 3 || newStatus < -3 || newStatus == -2)
-      throw new Error(
-        JSON.stringify({ code: 400, message: 'Invalid new status' })
-      )
+      throw new Error('Invalid new status')
+
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        const errorObj = JSON.parse(error.message)
-        return res.status(errorObj.code || 500).json(errorObj)
+        return res.status(500).json(error)
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    console.log(error)
+    return res.status(500).json(errorObj)
   }
 }
 
@@ -250,29 +287,60 @@ const updateOrderOfUser = async (req, res) => {
     if (newStatus !== 4 && newStatus !== -2) throw new Error('Invalid status')
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        const errorObj = JSON.parse(error.message)
-        return res.status(errorObj.code || 500).json(errorObj)
+        return res.status(500).json(error)
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
-    const errorObj = JSON.parse(error.message)
-    return res.status(errorObj.code || 500).json(errorObj)
+    return res.status(500).json(error)
   }
 }
 
 const getAllOrderOfUser = async (req, res) => {
   try {
-    const userID = req.params.id
-    if (!mongoose.isValidObjectId(userID)) throw new Error('Invalid user id')
-    const orders = await Order.find({ user: userID })
-      .populate({ path: 'books.book', select: '_id slug name coverUrl' })
+    const userId = req.params.id
+    const statusQuery = req.query.status
+    const page = req.body.page
+    const sorterField = req.query.sorterField
+
+    const queryObj = { user: new mongoose.Types.ObjectId(userId) }
+    if (statusQuery != undefined) {
+      const status = parseInt(statusQuery)
+      if (statusQuery <= -1) {
+        queryObj.status = { $lte: status }
+      } else if (status >= 3) {
+        queryObj.status = { $gte: status }
+      } else queryObj.status = status
+    }
+
+    const sorter = {}
+    if (sorterField && req.query.sorterOrder) {
+      sorter[sorterField] = req.query.sorterOrder
+    }
+
+    console.log(queryObj)
+
+    const all = await Order.find(queryObj)
+      .populate({
+        path: 'user',
+        select: 'username email avatar_url address',
+        option: sorterField == 'user' ? sorter : {}
+      })
+      .populate({
+        path: 'books.book',
+        select: '_id slug name coverUrl'
+      })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
+      .sort({ createdAt: 'descending' })
       .lean()
-    res.json(orders)
+    all.forEach(order => {
+      order.statusName = ORDER_STATUS_NAME[order.status]
+      order.paymentMethod = PAYMENT_METHOD[order.payment]
+    })
+    res.status(200).json(all)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)

@@ -38,9 +38,7 @@ function DetailBookUser() {
     dispatch(updateBreadcrumb(breadcrum))
     console.log(book)
   },[book])
-
-
-
+  
   const buyBookFnc = () => {
     const id_book = book._id
     const id_account = currentUser._id
@@ -75,9 +73,9 @@ function DetailBookUser() {
             <Spin tip="Loading..." />
           </div>
         )}
-        <div className="w-[40%] p-[20px] h-[500px] flex items-center justify-center shadow-md shadow-zinc-200">
+        <div className="w-[275px] h-[412px] p-[20px] h-[500px] flex items-center justify-center shadow-md shadow-zinc-200">
           <img
-            className="max-w-[100%] max-h-[100%] object-cover "
+            className="w-full h-full object-cover "
             src={book?.coverUrl}
             alt=""
           />
@@ -88,7 +86,7 @@ function DetailBookUser() {
           </div>
           <div className="w-[80%] flex items-center justify-between">
             <div>
-              <Title level={4}>Tác giả: {book?.authors[0].fullName}</Title>
+              <Title level={4}>Tác giả: {book?.authors[0]?.fullName}</Title>
             </div>
             <div>
               <Link to={`${PATH_NAME.DETAIL_BOOK_USER}/${book?.genres[0].slug}`}>

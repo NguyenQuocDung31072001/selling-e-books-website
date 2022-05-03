@@ -128,7 +128,7 @@ const pullBookFromCart = async (req, res) => {
     res.status(200).json(updatedAccount)
   } catch (error) {
     console.log('bok error roi', error)
-    res.status(error)
+    res.status(503).json('Error')
   }
 }
 
@@ -161,10 +161,24 @@ const updateCartAccount = async (accountId, bookId, amount, deleteBook) => {
   return updatedAccount
 }
 
+const getAccountShipping = async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const userAddress = await Account.findById(userId).select(
+      'username phoneNumber address'
+    )
+    res.status(200).json(userAddress)
+  } catch (error) {
+    console.log(error)
+    res.status(503).json('Can not get user address')
+  }
+}
+
 module.exports = {
   getAccountCart,
   updateAccount,
   addBookToCart,
   pullBookFromCart,
-  updatePasswordAccount
+  updatePasswordAccount,
+  getAccountShipping
 }

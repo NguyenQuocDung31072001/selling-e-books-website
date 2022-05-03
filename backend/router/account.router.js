@@ -55,4 +55,6 @@ router.delete(
   collectionController.deleteCollection
 )
 
+router.get('/:userId/shipping', accountController.getAccountShipping)
+
 module.exports = router

@@ -66,7 +66,9 @@ function LayoutAdmin() {
         <Menu.Item icon={<LineChartOutlined />} key="author">
           <Link to="/admin/author">Tác giả</Link>
         </Menu.Item>
-        <Menu.Item icon={<CheckOutlined />} key="confirm">Phê duyệt</Menu.Item>
+        <Menu.Item key="confirm">
+          <Link to="/admin/confirm"> Phê duyệt</Link>
+        </Menu.Item>
       </Menu>
     </div>
   )
