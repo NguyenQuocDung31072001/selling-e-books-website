@@ -2,7 +2,9 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   search:{
-    query: '',
+    query:{
+      
+    },
     type:''
   },
 

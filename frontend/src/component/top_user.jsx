@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Image, Input, Typography } from 'antd'
-import { ShoppingCartOutlined } from '@ant-design/icons'
+import { SearchOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import LoginAndRegister from './login_register'
 import { updateQuery } from '../redux/search_slices'
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
@@ -33,7 +33,7 @@ function TopUser() {
 
   useEffect(() => {
     let search = {
-      query: query,
+      query: {name:query},
       type: 'name'
     }
     dispatch(updateQuery(search))
@@ -45,25 +45,20 @@ function TopUser() {
       <div className="flex justify-between items-center mt-[20px]">
         <Link to="/user/home">
           <div className="ml-[20px] text-[25px] text-black">
-            <Title level={2}>BOOKSTO</Title>
+            <Title level={2}>BOOKSTORE</Title>
           </div>
         </Link>
         <div className="w-[50%] flex items-center bg-white rounded-[5px]">
           <Input
             size="large"
             placeholder="Tìm kiếm"
+            style={{width:500}}
             value={query}
             onChange={e => setQuery(e.target.value)}
+            prefix={<SearchOutlined />}
           />
-          <div className="flex items-center w-[140px] h-[40px] bg-cyan-800  rounded-r-[5px] px-[10px]">
-            <i className="fa-solid fa-magnifying-glass pr-[10px]"></i>
-            <button>Tìm kiếm</button>
-          </div>
         </div>
         <div className="flex justify-between items-center mr-[40px]">
-          <div className='text-gray-700 text-[30px] '>
-            <i className="fa-solid fa-bell"></i>
-          </div>
           <Link to="/user/cart">
             <ShoppingCartOutlined
               style={{ fontSize: '45px', color: '#7f8c8d' }}

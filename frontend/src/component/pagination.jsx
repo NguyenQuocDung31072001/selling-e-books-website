@@ -21,7 +21,8 @@ export default function PaginationFunc(props) {
   return (
     <div>
       {/* <Pagination count={count} shape="rounded" onChange={pageChange}/> */}
-      <Pagination itemRender={itemRender} total={total} onChange={pageChange} />
+      {/* <Pagination itemRender={itemRender} total={total} onChange={pageChange} /> */}
+      <Pagination defaultCurrent={1} total={total} onChange={pageChange}/>
     </div>
   )
 }
