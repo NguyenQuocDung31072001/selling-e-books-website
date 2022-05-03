@@ -6,6 +6,12 @@ const Book = require('../model/book.model')
 const order = require('../model/order.model')
 const Order = require('../model/order.model')
 const { createPayment, refundPayment } = require('./payment.controller')
+const {
+  calShippingCost,
+  getProvince,
+  getDistrict,
+  getWard
+} = require('../controller/shipping.controller')
 
 const pageLimit = 10
 
@@ -44,9 +50,8 @@ const createNewOrder = async (req, res) => {
   try {
     const bookIds = req.body.books
     const accountId = req.body.account
-    const district = req.body.district
-    const ward = req.body.ward
-    const province = req.body.province
+    const addressTo = req.body.address
+    const customer = req.body.customer
     const paymentMethod = req.body.payment
     const phone = req.body.phone
 
@@ -77,16 +82,40 @@ const createNewOrder = async (req, res) => {
       }
     })
 
+    let shippingCost = await calShippingCost(accountId, addressTo, bookIds)
+    total += shippingCost.total
+    const province = await getProvince(addressTo.ProvinceID)
+    if (!province) throw new Error('Invalid address')
+    const district = await getDistrict(
+      addressTo.ProvinceID,
+      addressTo.DistrictID
+    )
+    if (!district) throw new Error('Invalid address')
+    const ward = await getWard(addressTo.DistrictID, addressTo.WardCode)
+    if (!ward) throw new Error('Invalid address')
+
     const newOrder = new Order({
       user: account._id,
+      customer: customer ? customer : account.username,
       books: orderBooks,
       status: 0,
       paid: false,
+      shippingCost: shippingCost.total,
       total: total,
       address: {
-        district,
-        ward,
-        province
+        street: addressTo.street,
+        ward: {
+          WardCode: ward.WardCode,
+          WardName: ward.WardName
+        },
+        district: {
+          DistrictID: district.DistrictID,
+          DistrictName: district.DistrictName
+        },
+        province: {
+          ProvinceID: province.ProvinceID,
+          ProvinceName: province.ProvinceName
+        }
       },
       phone: phone
     })
@@ -112,14 +141,19 @@ const createNewOrder = async (req, res) => {
     //COD
     if (paymentMethod == 'cod') {
       newOrder.payment = 0
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       const savedOrder = await newOrder.save()
-      res.json({ success: true, order: savedOrder })
+      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
+      res.json({
+        success: true,
+        redirect: true,
+        redirectTo: 'http://localhost:3000/user/purchase',
+        order: savedOrder
+      })
     } else if (paymentMethod == 'paypal') {
       //Payment by Paypal
       newOrder.payment = 1
-      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       const savedOrder = await newOrder.save()
+      await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       await createPayment(savedOrder._id, res)
     } else throw new Error('Invalid payment method')
   } catch (error) {
@@ -152,7 +186,7 @@ const getOrders = async (req, res) => {
         select: '_id slug name coverUrl'
       })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
       .sort(sorterField && sorterField != 'user' ? sorter : {})
       .lean()
@@ -174,7 +208,7 @@ const getOrderById = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url address' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
       .lean()
     res.status(200).json(order)
@@ -192,7 +226,7 @@ const getOrderOfUser = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
     order.statusName = ORDER_STATUS_NAME[order.status]
     res.status(200).json(order)
@@ -265,15 +299,48 @@ const updateOrderOfUser = async (req, res) => {
 
 const getAllOrderOfUser = async (req, res) => {
   try {
-    const userID = req.params.id
-    if (!mongoose.isValidObjectId(userID)) throw new Error('Invalid user id')
-    const orders = await Order.find({ user: userID })
-      .populate({ path: 'books.book', select: '_id slug name coverUrl' })
+    const userId = req.params.id
+    const statusQuery = req.query.status
+    const page = req.body.page
+    const sorterField = req.query.sorterField
+
+    const queryObj = { user: new mongoose.Types.ObjectId(userId) }
+    if (statusQuery != undefined) {
+      const status = parseInt(statusQuery)
+      if (statusQuery <= -1) {
+        queryObj.status = { $lte: status }
+      } else if (status >= 3) {
+        queryObj.status = { $gte: status }
+      } else queryObj.status = status
+    }
+
+    const sorter = {}
+    if (sorterField && req.query.sorterOrder) {
+      sorter[sorterField] = req.query.sorterOrder
+    }
+
+    console.log(queryObj)
+
+    const all = await Order.find(queryObj)
+      .populate({
+        path: 'user',
+        select: 'username email avatar_url address',
+        option: sorterField == 'user' ? sorter : {}
+      })
+      .populate({
+        path: 'books.book',
+        select: '_id slug name coverUrl'
+      })
       .select(
-        '_id user books status paid total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
       )
+      .sort({ createdAt: 'descending' })
       .lean()
-    res.json(orders)
+    all.forEach(order => {
+      order.statusName = ORDER_STATUS_NAME[order.status]
+      order.paymentMethod = PAYMENT_METHOD[order.payment]
+    })
+    res.status(200).json(all)
   } catch (error) {
     console.log(error)
     res.status(500).json(error)

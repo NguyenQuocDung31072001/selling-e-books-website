@@ -145,7 +145,10 @@ export const addBook = async new_book => {
 }
 export const updateBook = async new_book => {
   try {
-    const res = await axios.put(API_URL + '/v1/selling_e_books/book/'+new_book.id, new_book)
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/book/' + new_book.id,
+      new_book
+    )
 
     // console.log(res.data)
     return res.data
@@ -153,7 +156,6 @@ export const updateBook = async new_book => {
     console.log(error)
   }
 }
-
 
 export const getAllGenresForAddBook = async () => {
   try {
@@ -384,7 +386,9 @@ export const addBookToCart = async data => {
 
 export const getProvinceData = async () => {
   try {
-    const res = await axios.get('https://provinces.open-api.vn/api/')
+    const res = await axios.get(
+      API_URL + `/v1/selling_e_books/shipping/province`
+    )
     return res.data
   } catch (error) {
     console.log(error)
@@ -394,10 +398,11 @@ export const getProvinceData = async () => {
 
 export const getDistrictData = async province => {
   try {
-    const res = await axios.get(
-      `https://provinces.open-api.vn/api/p/${province}?depth=2`
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/shipping/district`,
+      { province: province }
     )
-    return res.data.districts
+    return res.data
   } catch (error) {
     console.log(error)
     return []
@@ -406,10 +411,13 @@ export const getDistrictData = async province => {
 
 export const getWardData = async district => {
   try {
-    const res = await axios.get(
-      `https://provinces.open-api.vn/api/d/${district}?depth=2`
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/shipping/ward`,
+      {
+        district: district
+      }
     )
-    return res.data.wards
+    return res.data
   } catch (error) {
     console.log(error)
     return []
@@ -512,5 +520,76 @@ export const updateOrder = async order => {
     return res.data
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getShippingInfo = async account => {
+  try {
+    const address = await axios.get(
+      API_URL + `/v1/selling_e_books/account/${account}/shipping`
+    )
+    console.log(address.data)
+    return address.data
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+
+export const getShippingCost = async (user, address, books) => {
+  try {
+    const response = await axios.post(
+      API_URL + `/v1/selling_e_books/shipping/cost`,
+      {
+        user: user,
+        address: address,
+        books: books
+      }
+    )
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return 0
+  }
+}
+
+export const createNewOrder = async (
+  account,
+  customer,
+  address,
+  books,
+  payment
+) => {
+  try {
+    const response = await axios.post(
+      API_URL + `/v1/selling_e_books/account/${account}/yourOrder`,
+      {
+        account: account,
+        customer: customer,
+        address: address,
+        books: books,
+        payment: payment
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return 0
+  }
+}
+
+export const getUserOrders = async (account, status) => {
+  try {
+    const response = await axios.get(
+      API_URL +
+        `/v1/selling_e_books/account/${account}/yourOrder${
+          status != 5 ? `?status=${status}` : ''
+        }`
+    )
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return []
   }
 }

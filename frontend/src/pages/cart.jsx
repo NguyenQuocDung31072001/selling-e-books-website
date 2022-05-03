@@ -8,16 +8,21 @@ import {
   getCart,
   deleteCart,
   increaseCart,
-  decreaseCart
+  decreaseCart,
+  getShippingInfo
 } from '../redux/api_request'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { PATH_NAME } from '../config/pathName'
+import ShipModal from '../component/checkout/ship_modal'
 
 export default function Cart() {
   const [loading, setLoading] = useState(false)
   const [firstLoading, setFirstLoading] = useState(true)
   const [totalFinal, setTotalFinal] = useState(0)
   const [rowChecked, setRowChecked] = useState([])
+  const [selectedRows, setSelectedRows] = useState([])
+  const [shipData, setShipData] = useState({})
+  const [openShipModal, setOpenShipModal] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -104,7 +109,8 @@ export default function Cart() {
             image: cart[i].book.coverUrl,
             name: cart[i].book.name,
             genres: cart[i].book.genres,
-            slug: cart[i].book.slug
+            slug: cart[i].book.slug,
+            _id: cart[i].book._id
           },
           price: cart[i].book.price,
           count: {
@@ -120,6 +126,14 @@ export default function Cart() {
       setFirstLoading(false)
       setLoading(false)
     }
+
+    const getShippingInfoFnc = async () => {
+      const info = await getShippingInfo(currentUser._id)
+      console.log('shipping info', info)
+      setShipData(info)
+    }
+
+    getShippingInfoFnc()
     getCartFnc()
   }, [])
 
@@ -207,7 +221,7 @@ export default function Cart() {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setRowChecked(selectedRowKeys)
-
+      setSelectedRows(selectedRows)
       let tong_cong = 0
       for (let i = 0; i < selectedRows.length; i++) {
         tong_cong += selectedRows[i]?.total
@@ -216,68 +230,104 @@ export default function Cart() {
       setTotalFinal(tong_cong)
     }
   }
+
+  const closeShipModal = () => {
+    setOpenShipModal(false)
+  }
+
+  const saveShipInfo = data => {
+    setShipData({ ...data, username: data.customer })
+    setOpenShipModal(false)
+  }
+
+  const checkout = () => {
+    navigate('/user/checkout', {
+      state: {
+        shipData: shipData,
+        product: selectedRows
+      }
+    })
+  }
+
   return (
-    <div className="flex flex-col justify-center min-w-[1200px] mx-[20px]">
-      <div>
-        <BreadcrumbsUser />
-      </div>
-      <div className="flex justify-center min-w-[1200px] mx-[20px]">
-        {firstLoading && (
-          <div className="fixed w-screen h-screen z-10">
-            <Spin tip="Loading..." />
-          </div>
-        )}
-        {loading && (
-          <div className="fixed w-screen h-screen z-10">
-            <Spin tip="Loading..." />
-          </div>
-        )}
+    <>
+      {shipData.address && (
+        <ShipModal
+          visible={openShipModal}
+          shipData={shipData}
+          onCancel={closeShipModal}
+          onSave={saveShipInfo}
+        />
+      )}
+      <div className="flex flex-col justify-center min-w-[1200px] mx-[20px]">
         <div>
-          <Table
-            className="w-[800px]"
-            rowSelection={{
-              type: 'checkbox',
-              ...rowSelection
-            }}
-            columns={columns}
-            dataSource={data}
-          />
+          <BreadcrumbsUser />
         </div>
-        <div className="w-[400px] ml-[40px] h-[300px] flex justify-center bg-white ">
-          <div className="flex flex-col">
-            <div>
-              <div className="flex justify-between mb-[10px] mt-[15px]">
-                <span>Giao tới</span>
-                <Link to={`${PATH_NAME.USER_CART}`}>Thay đổi</Link>
-              </div>
-              <div className="flex ">
-                <h1>Nguyễn Quốc Dũng</h1>
-                <h1 className="ml-[10px]">0373110228</h1>
-              </div>
-              <div className="flex mb-[20px]">Kí túc xá, thành phố thủ đức</div>
+        <div className="flex justify-center min-w-[1200px] mx-[20px]">
+          {firstLoading && (
+            <div className="fixed w-screen h-screen z-10">
+              <Spin tip="Loading..." />
             </div>
-            <div className="flex justify-between">
-              <div>
-                <h1> Tạm tính</h1>
-              </div>
-              <div>
-                <h1>{totalFinal}</h1>
-              </div>
+          )}
+          {loading && (
+            <div className="fixed w-screen h-screen z-10">
+              <Spin tip="Loading..." />
             </div>
-            <div className="flex justify-between">
+          )}
+          <div>
+            <Table
+              className="w-[800px]"
+              rowSelection={{
+                type: 'checkbox',
+                ...rowSelection
+              }}
+              columns={columns}
+              dataSource={data}
+            />
+          </div>
+          <div className="w-[400px] ml-[40px] h-[300px] flex justify-center bg-white ">
+            <div className="flex flex-col">
               <div>
-                <h1>Tổng cộng</h1>
+                <div className="flex justify-between mb-[10px] mt-[15px]">
+                  <span>Giao tới</span>
+                  <Link
+                    to={`${PATH_NAME.USER_CART}`}
+                    onClick={() => {
+                      setOpenShipModal(true)
+                    }}
+                  >
+                    Thay đổi
+                  </Link>
+                </div>
+                <div className="flex ">
+                  <h1>{shipData.username}</h1>
+                  <h1 className="ml-[10px]">{shipData.phoneNumber}</h1>
+                </div>
+                <div className="flex mb-[20px]">{`${shipData.address?.street}, ${shipData.address?.ward.WardName}, ${shipData.address?.district.DistrictName}, ${shipData.address?.province.ProvinceName}`}</div>
               </div>
-              <div>
-                <h1>{totalFinal}</h1>
+              <div className="flex justify-between">
+                <div>
+                  <h1> Tạm tính</h1>
+                </div>
+                <div>
+                  <h1>{totalFinal}</h1>
+                </div>
               </div>
-            </div>
-            <div className="flex ml-[80px] w-[200px]">
-              <Button>Mua hàng</Button>
+              <div className="flex justify-between">
+                <div>
+                  <h1>Tổng cộng</h1>
+                </div>
+                <div>
+                  <h1>{totalFinal}</h1>
+                </div>
+              </div>
+              <div className="flex ml-[80px] w-[200px]">
+                <Button onClick={checkout}>Mua hàng</Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
