@@ -17,6 +17,7 @@ import {
   SearchOutlined,
   ShoppingCartOutlined
 } from '@ant-design/icons'
+import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 
 const { Title } = Typography
 const { Option } = Select
@@ -56,7 +57,7 @@ export default function CategoryUser() {
     ;(async function () {
       //load api lấy tất cả thể loại
       const allGenre = await getAllGenresForAddBook()
-      const allGenreName = []
+      const allGenreName = [' ']
       for (let i = 0; i < allGenre.length; i++) {
         allGenreName.push(allGenre[i].name)
       }
@@ -65,12 +66,19 @@ export default function CategoryUser() {
     ;(async function () {
       //load api lấy tất cả tác giả
       const allAuthor = await getAllAuthorForAddBook()
-      const allAuthorName = []
+      const allAuthorName = [' ']
       for (let i = 0; i < allAuthor.length; i++) {
         allAuthorName.push(allAuthor[i].fullName)
       }
+      
       setAllAuthors(allAuthorName)
     })()
+    const breadcrum = {
+      genre_slug: 'Home Pages',
+      genre_name:'Category Pages',
+      name_book: ''
+    }
+    dispatch(updateBreadcrumb(breadcrum))
   }, [])
 
   useEffect(() => {

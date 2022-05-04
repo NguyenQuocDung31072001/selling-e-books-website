@@ -15,7 +15,7 @@ import NotFound from './pages/not_found'
 import LayoutAdmin from './component/layout_admin'
 import TopUser from './component/top_user'
 import SideBar from './component/sidebar'
-import GenreBookUser from './pages/genre_book_user'
+import GenresAuthorsBookUser from './pages/genre_author_book_user'
 import DetailBookUser from './pages/detail_book_user'
 import Cart from './pages/cart'
 import AddBook from './pages/add_book'
@@ -128,7 +128,7 @@ function App() {
           </Route>
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
-            <Route path="home/:genre" element={<GenreBookUser />} />
+            <Route path="home/:slug" element={<GenresAuthorsBookUser />} />
             <Route
               path="home/:genre/:slug"
               element={

@@ -19,6 +19,7 @@ import {
   SearchOutlined,
   ShoppingCartOutlined
 } from '@ant-design/icons'
+import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 
 const { Title } = Typography
 const { Option } = Select
@@ -73,6 +74,13 @@ export default function HomePagesUser() {
       }
       setAllAuthors(allAuthorName)
     })()
+
+    const breadcrum = {
+      genre_slug: 'Home Pages',
+      genre_name: 'Home Pages',
+      name_book: ''
+    }
+    dispatch(updateBreadcrumb(breadcrum))
   }, [])
 
   useEffect(() => {
@@ -119,8 +127,8 @@ export default function HomePagesUser() {
           book.name.toLowerCase().includes(querySearch.query?.name)
       )
     }
-    if(querySearch.type==='all'){
-      dataQuery=bookData
+    if (querySearch.type === 'all') {
+      dataQuery = bookData
     }
     setBookFilter(dataQuery)
   }, [querySearch])
@@ -136,10 +144,9 @@ export default function HomePagesUser() {
     }
     dispatch(updateQuery(search))
   }
-  const allBookFnc=()=>{
+  const allBookFnc = () => {
     let search = {
-      query: {
-      },
+      query: {},
       type: 'all'
     }
     dispatch(updateQuery(search))

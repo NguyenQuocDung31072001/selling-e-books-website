@@ -159,9 +159,6 @@ function SettingUser() {
 
   return (
     <div className="flex flex-col justify-center items-center w-full relative space-y-10">
-      <div className="w-[98%] flex">
-        <BreadcrumbsUser />
-      </div>
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
         <div className="w-full lg:w-2/3 xl:w-1/2 px-6 ">
           <h2 className="text-xl font-semibold text-left mb-0">
@@ -198,7 +195,7 @@ function SettingUser() {
               onChange={changeImage}
             />
           </div>
-          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-6 w-full lg:w-2/3 order-2 lg:order-1 ">
+          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-6 w-full order-2 lg:order-1 ">
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
                 <label className="text-right whitespace-nowrap text-gray-600">

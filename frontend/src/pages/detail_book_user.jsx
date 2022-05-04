@@ -36,7 +36,6 @@ function DetailBookUser() {
       name_book: slug
     }
     dispatch(updateBreadcrumb(breadcrum))
-    console.log(book)
   },[book])
   
   const buyBookFnc = () => {
@@ -64,9 +63,6 @@ function DetailBookUser() {
   }
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="w-[95%] flex justify-start ">
-      <BreadcrumbsUser />
-      </div>
       <div className="mt-[30px] w-[70%] h-[500px] shadow-md shadow-zinc-200 flex relative">
         {loading && (
           <div className="fixed w-screen h-screen z-10">

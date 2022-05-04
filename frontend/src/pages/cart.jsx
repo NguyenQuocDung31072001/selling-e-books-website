@@ -239,7 +239,6 @@ export default function Cart() {
     setShipData({ ...data, username: data.customer })
     setOpenShipModal(false)
   }
-
   const checkout = () => {
     navigate('/user/checkout', {
       state: {
@@ -248,7 +247,6 @@ export default function Cart() {
       }
     })
   }
-
   return (
     <>
       {shipData.address && (
@@ -259,11 +257,8 @@ export default function Cart() {
           onSave={saveShipInfo}
         />
       )}
-      <div className="flex flex-col justify-center min-w-[1200px] mx-[20px]">
-        <div>
-          <BreadcrumbsUser />
-        </div>
-        <div className="flex justify-center min-w-[1200px] mx-[20px]">
+      <div className="flex flex-col justify-center mx-[20px]">
+        <div className="flex justify-center mx-[20px]">
           {firstLoading && (
             <div className="fixed w-screen h-screen z-10">
               <Spin tip="Loading..." />
@@ -276,7 +271,7 @@ export default function Cart() {
           )}
           <div>
             <Table
-              className="w-[800px]"
+              className="w-[750px]"
               rowSelection={{
                 type: 'checkbox',
                 ...rowSelection
@@ -285,7 +280,7 @@ export default function Cart() {
               dataSource={data}
             />
           </div>
-          <div className="w-[400px] ml-[40px] h-[300px] flex justify-center bg-white ">
+          <div className="w-[350px] ml-[20px] h-[300px] flex justify-center bg-white ">
             <div className="flex flex-col">
               <div>
                 <div className="flex justify-between mb-[10px] mt-[15px]">

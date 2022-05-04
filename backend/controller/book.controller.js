@@ -166,7 +166,10 @@ const GetBookOfGenre = async (req, res) => {
     const page = req.query.page || 1
     const genreSlug = req.params.slug
     const genre = await GenreModel.findOne({ slug: genreSlug, deleted: false })
-    if (!genre) throw new Error('Genre does not exist')
+    if (!genre) {
+      return res.status(200).json('')
+    }
+    // if (!genre) throw new Error('Genre does not exist')
     const maxItem = await BookModel.countDocuments({ genres: genre._id })
     const maxPage = Math.ceil(maxItem / perPage)
     const books = await getBooks(
@@ -195,11 +198,14 @@ const getBookOfAuthor = async (req, res) => {
       slug: authorSlug,
       deleted: false
     })
-    if (!author) throw new Error('Author does not exist')
+    if (!author) {
+      return res.status(200).json('')
+    }
+    // if (!author) throw new Error('Author does not exist')
     const maxItem = await BookModel.countDocuments({ author: author._id })
     const maxPage = Math.ceil(maxItem / perPage)
     const books = await getBooks(
-      { author: author._id, deleted: false },
+      { authors: author._id, deleted: false },
       page,
       perPage
     )
@@ -216,6 +222,7 @@ const getBookOfAuthor = async (req, res) => {
 }
 
 const getBooks = async (query, page, perPage) => {
+
   const books = await BookModel.find(query)
     .skip((page - 1) * perPage)
     .limit(perPage)
@@ -223,6 +230,7 @@ const getBooks = async (query, page, perPage) => {
     .populate({ path: 'authors', select: '_id slug fullName birthDate' })
     .populate('language')
     .lean()
+    console.log(books)
   return books
 }
 
