@@ -1,12 +1,19 @@
-import bookPicture from "../book.svg"
-import Icon from "../icon.png"
+import bookPicture from '../book.svg'
+import Icon from '../icon.png'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, Typography } from 'antd'
 import {
   SettingOutlined,
   AppstoreAddOutlined,
-  AreaChartOutlined
+  AreaChartOutlined,
+  ShoppingCartOutlined,
+  FilterOutlined,
+  HomeOutlined,
+  UserSwitchOutlined,
+  UserOutlined,
+  MedicineBoxOutlined,
+  ProfileOutlined
 } from '@ant-design/icons'
 import {
   getAllGenresForAddBook,
@@ -22,8 +29,7 @@ function SideBar() {
   }
   useEffect(() => {
     ;(async function () {
-      //load api lấy tất cả thể loại
-      const allGenre = await getAllGenresForAddBook()
+      const allGenre = await getAllGenresForAddBook()  //load api lấy tất cả thể loại
       const allGenreName = []
       for (let i = 0; i < allGenre.length; i++) {
         allGenreName.push({
@@ -32,10 +38,7 @@ function SideBar() {
         })
       }
       setAllGenres(allGenreName)
-    })()
-    ;(async function () {
-      //load api lấy tất cả tác giả
-      const allAuthor = await getAllAuthorForAddBook()
+      const allAuthor = await getAllAuthorForAddBook() //load api lấy tất cả tác giả
       const allAuthorName = []
       for (let i = 0; i < allAuthor.length; i++) {
         allAuthorName.push({
@@ -56,9 +59,7 @@ function SideBar() {
               <Title level={2} style={{ color: 'green', fontWeight: 800 }}>
                 BookStore
               </Title>
-
             </div>
-
           </div>
         </Link>
       </div>
@@ -70,19 +71,22 @@ function SideBar() {
         mode="inline"
         theme="light"
       >
-        <Menu.Item icon={<AreaChartOutlined />} key="dashboard">
+        <Menu.Item icon={<HomeOutlined />} key="dashboard">
           <Link to="/user/home">HomePage</Link>
         </Menu.Item>
-        <Menu.Item icon={<AreaChartOutlined />} key="category">
+        <Menu.Item icon={<FilterOutlined />} key="category">
           <Link to="/user/category">Category Book</Link>
         </Menu.Item>
+        <Menu.Item icon={<ShoppingCartOutlined />} key="cart">
+          <Link to="/user/cart">Giỏ hàng</Link>
+        </Menu.Item>
 
-        <SubMenu key="sub2" icon={<SettingOutlined />} title="Thể loại">
+        <SubMenu key="sub2" icon={<MedicineBoxOutlined />} title="Thể loại">
           {allGenres.length > 0 &&
             allGenres.map((genres, index) => {
               return (
                 <Menu.Item
-                  icon={<AppstoreAddOutlined />}
+                  icon={<ProfileOutlined />}
                   key={index + 'genres'}
                 >
                   <Link
@@ -95,14 +99,17 @@ function SideBar() {
               )
             })}
         </SubMenu>
-        <SubMenu key="sub3" icon={<SettingOutlined />} title="Tác Giả">
+        <SubMenu key="sub3" icon={<UserSwitchOutlined />} title="Tác Giả">
           {allAuthors.length > 0 &&
             allAuthors.map((authors, index) => (
-              <Menu.Item icon={<AppstoreAddOutlined />} key={index + 'authors'}>
+              <Menu.Item icon={<UserOutlined />} key={index + 'authors'}>
                 <Link to={`/user/home/${authors.slug}`}>{authors.name}</Link>
               </Menu.Item>
             ))}
         </SubMenu>
+        <Menu.Item icon={<SettingOutlined />} key="setting">
+          <Link to="/user/setting">Thông tin cá nhân</Link>
+        </Menu.Item>
       </Menu>
       <div className="mt-[40px]">
         <img src={bookPicture} alt="" />

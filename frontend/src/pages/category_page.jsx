@@ -1,15 +1,16 @@
 import logoFooter from "../logo_footer.svg"
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PaginationFunc from '../component/pagination'
 import SlideshowUser from '../component/slideshow_user'
 import {
   getAllBook,
   getAllGenresForAddBook,
-  getAllAuthorForAddBook
+  getAllAuthorForAddBook,
+  addBookToCart
 } from '../redux/api_request'
-import { Button, Spin, Typography, Select, Input ,Rate} from 'antd'
+import { Button, Spin, Typography, Select, Input ,Rate, notification} from 'antd'
 import { PATH_NAME } from '../config/pathName'
 import { numberFormat } from '../utils/formatNumber'
 import { updateQuery } from '../redux/search_slices'
@@ -24,7 +25,8 @@ const { Title } = Typography
 const { Option } = Select
 export default function CategoryUser() {
   const querySearch = useSelector(state => state.search.search)
-
+  const currentUser=useSelector(state=>state.auth.login.currentUser)
+  const navigate=useNavigate()
   const [bookData, setBookData] = useState([])
   const [bookFilter, setBookFilter] = useState([])
   const [bookRender, setBookRender] = useState([])
@@ -151,6 +153,28 @@ export default function CategoryUser() {
     }
     dispatch(updateQuery(search))
   }
+  const buyBookFnc = idOfBook => {
+    const id_book = idOfBook
+    const id_account = currentUser._id
+    const data = {
+      book: id_book,
+      account: id_account
+    }
+    addBookToCart(data)
+    openNotification()
+  }
+  const openNotification = () => {
+    notification.open({
+      message: 'Đã thêm vào giỏ hàng!',
+      description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+      style: {
+        width: 400
+      },
+      onClick: () => {
+        navigate('/user/cart')
+      }
+    })
+  }
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-wrap w-full justify-center">
@@ -245,9 +269,10 @@ export default function CategoryUser() {
                       <p className='text-lg font-bold'>{numberFormat(book.price)}</p>
                     </div>
                     <div>
-                      <Link to={`${PATH_NAME.USER_CART}`}>
-                        <ShoppingCartOutlined style={{ color: '#27ae60',fontSize:30 }} />
-                      </Link>
+                    
+                        <ShoppingCartOutlined style={{ color: '#27ae60',fontSize:30 }} 
+                        onClick={()=>buyBookFnc(book._id)} />
+                     
                     </div>
                   </div>
                 </div>

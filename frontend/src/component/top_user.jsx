@@ -34,7 +34,7 @@ function TopUser() {
         <div className="ml-[20px] text-black">
           <BreadcrumbsUser />
         </div>
-        <div className="w-[50%] flex items-center rounded-[5px]">
+        <div className="flex items-center rounded-[5px]">
           <Input
             size="large"
             placeholder="Tìm kiếm"
@@ -46,17 +46,22 @@ function TopUser() {
         </div>
         <div className="flex justify-between items-center  mr-[40px]">
           <Link to="/user/cart">
-            <ShoppingCartOutlined
-              style={{ fontSize: '45px', color: '#7f8c8d' }}
-            />
+            <div className='mr-4'>
+              <ShoppingCartOutlined
+                style={{ fontSize: '45px', color: '#2c3e50' }}
+              />
+            </div>
           </Link>
           {currentUser && (
             <Link to="/user/setting">
-              <img
-                className="h-[50px] w-[50px] object-cover cursor-pointer rounded-[50px]"
-                src={image ? currentUser?.avatar_url : IMAGE_URL}
-                alt=""
-              />
+              <div className='flex items-center text-xl text-black'>
+                <img
+                  className="h-[50px] w-[50px] object-cover cursor-pointer rounded-[50px]"
+                  src={image ? currentUser?.avatar_url : IMAGE_URL}
+                  alt=""
+                />
+                <p className='font-bold ml-4'>{currentUser.username}</p>
+              </div>
             </Link>
           )}
           {!currentUser && (

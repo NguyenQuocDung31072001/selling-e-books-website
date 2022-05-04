@@ -1,15 +1,24 @@
 import logoFooter from '../logo_footer.svg'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PaginationFunc from '../component/pagination'
 import SlideshowUser from '../component/slideshow_user'
 import {
   getAllBook,
   getAllGenresForAddBook,
-  getAllAuthorForAddBook
+  getAllAuthorForAddBook,
+  addBookToCart
 } from '../redux/api_request'
-import { Button, Spin, Typography, Select, Input, Rate } from 'antd'
+import {
+  Button,
+  Spin,
+  Typography,
+  Select,
+  Input,
+  Rate,
+  notification
+} from 'antd'
 import { PATH_NAME } from '../config/pathName'
 import GenreBookUser from '../component/genre_book_user'
 import AuthorBookUser from '../component/author_book_user'
@@ -26,7 +35,8 @@ const { Title } = Typography
 const { Option } = Select
 export default function HomePagesUser() {
   const querySearch = useSelector(state => state.search.search)
-
+  const currentUser = useSelector(state => state.auth.login.currentUser)
+  const navigate = useNavigate()
   const [bookData, setBookData] = useState([])
   const [bookFilter, setBookFilter] = useState([])
   const [bookRender, setBookRender] = useState([])
@@ -75,13 +85,17 @@ export default function HomePagesUser() {
       }
       setAllAuthors(allAuthorName)
     })()
-
     const breadcrum = {
       genre_slug: 'Home Pages',
       genre_name: 'Home Pages',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrum))
+    return () => {
+      setAllAuthors([])
+      setAllGenres([])
+      setBookData([])
+    }
   }, [])
 
   useEffect(() => {
@@ -134,23 +148,27 @@ export default function HomePagesUser() {
     setBookFilter(dataQuery)
   }, [querySearch])
 
-  const searchFnc = () => {
-    let search = {
-      query: {
-        genres: genresSearch,
-        authors: authorSearch,
-        name: inputSearch
-      },
-      type: 'many'
+  const buyBookFnc = idOfBook => {
+    const id_book = idOfBook
+    const id_account = currentUser._id
+    const data = {
+      book: id_book,
+      account: id_account
     }
-    dispatch(updateQuery(search))
+    addBookToCart(data)
+    openNotification()
   }
-  const allBookFnc = () => {
-    let search = {
-      query: {},
-      type: 'all'
-    }
-    dispatch(updateQuery(search))
+  const openNotification = () => {
+    notification.open({
+      message: 'Đã thêm vào giỏ hàng!',
+      description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+      style: {
+        width: 400
+      },
+      onClick: () => {
+        navigate('/user/cart')
+      }
+    })
   }
   return (
     <div className="flex flex-col justify-center items-center">
@@ -173,6 +191,7 @@ export default function HomePagesUser() {
                 key={key}
                 className="group w-[260px] h-[182px] m-4 p-2  flex flex-col items-center justify-center  overflow-hidden "
               >
+                {console.log(book)}
                 <div className="w-full h-full flex ">
                   <div className=" w-[130px] h-[182px] mr-2 relative ">
                     <img
@@ -186,8 +205,10 @@ export default function HomePagesUser() {
                           to={`${PATH_NAME.USER_HOME_PAGE}/${book.genres[0]?.slug}/${book.slug}`}
                           className="cursor-pointer"
                         >
-                          <div className=''>
-                            <button className='hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-none px-3 py-2 rounded-md duration-700' >Xem sách</button>
+                          <div className="">
+                            <button className="hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-none px-3 py-2 rounded-md duration-700">
+                              Xem sách
+                            </button>
                           </div>
                         </Link>
                       </div>
@@ -202,13 +223,16 @@ export default function HomePagesUser() {
                       defaultValue={2.5}
                       style={{ fontSize: 12 }}
                     />
-                    <div className=''>
-                      <p className='text-lg font-bold'>{numberFormat(book.price)}</p>
+                    <div className="">
+                      <p className="text-lg font-bold">
+                        {numberFormat(book.price)}
+                      </p>
                     </div>
                     <div>
-                      <Link to={`${PATH_NAME.USER_CART}`}>
-                        <ShoppingCartOutlined style={{ color: '#27ae60',fontSize:30 }} />
-                      </Link>
+                      <ShoppingCartOutlined
+                        style={{ color: '#27ae60', fontSize: 30 }}
+                        onClick={() => buyBookFnc(book._id)}
+                      />
                     </div>
                   </div>
                 </div>
