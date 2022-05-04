@@ -1,3 +1,4 @@
+import logoFooter from '../logo_footer.svg'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -8,7 +9,7 @@ import {
   getAllGenresForAddBook,
   getAllAuthorForAddBook
 } from '../redux/api_request'
-import { Button, Spin, Typography, Select, Input } from 'antd'
+import { Button, Spin, Typography, Select, Input, Rate } from 'antd'
 import { PATH_NAME } from '../config/pathName'
 import GenreBookUser from '../component/genre_book_user'
 import AuthorBookUser from '../component/author_book_user'
@@ -170,22 +171,24 @@ export default function HomePagesUser() {
             ) => (
               <div
                 key={key}
-                className="group w-[260px] h-[182px] m-[10px] mx-4 p-4 flex flex-col items-center justify-center  overflow-hidden"
+                className="group w-[260px] h-[182px] m-4 p-2  flex flex-col items-center justify-center  overflow-hidden "
               >
                 <div className="w-full h-full flex ">
-                  <div className=" w-[130px] h-[182px] relative ">
+                  <div className=" w-[130px] h-[182px] mr-2 relative ">
                     <img
                       src={book.coverUrl}
                       className="w-full h-full object-cover"
                       alt=""
                     />
-                    <div className="group-hover:w-full group-hover:h-full group-hover:flex group-hover:items-center group-hover:justify-center group-hover:absolute group-hover:top-0 group-hover:left-0 group-hover:bg-[#00000090] ">
+                    <div className="w-full h-full duration-[0.5s] flex items-center justify-center absolute top-0 left-0 right-0 opacity-0 group-hover:opacity-100 group-hover:bg-[#00000090] ">
                       <div>
                         <Link
                           to={`${PATH_NAME.USER_HOME_PAGE}/${book.genres[0]?.slug}/${book.slug}`}
                           className="cursor-pointer"
                         >
-                          <Button type="primary">Xem sách</Button>
+                          <div className=''>
+                            <button className='hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-none px-3 py-2 rounded-md duration-700' >Xem sách</button>
+                          </div>
                         </Link>
                       </div>
                     </div>
@@ -193,16 +196,19 @@ export default function HomePagesUser() {
                   <div className="w-[130px] text-black">
                     <Title level={5}>{book.name}</Title>
                     <span>{book.authors[0]?.fullName}</span>
-                    <Title level={4}>{numberFormat(book.price)}</Title>
-                    <div className="flex items-center justify-around">
-                      <div className="text-[30px] cursor-pointer ">
-                        <Link to={`${PATH_NAME.USER_CART}`}>
-                          <ShoppingCartOutlined style={{ color: '#27ae60' }} />
-                        </Link>
-                      </div>
-                      <div className="text-red-300 text-[25px]">
-                        <HeartFilled />
-                      </div>
+                    <Rate
+                      allowHalf
+                      disabled
+                      defaultValue={2.5}
+                      style={{ fontSize: 12 }}
+                    />
+                    <div className=''>
+                      <p className='text-lg font-bold'>{numberFormat(book.price)}</p>
+                    </div>
+                    <div>
+                      <Link to={`${PATH_NAME.USER_CART}`}>
+                        <ShoppingCartOutlined style={{ color: '#27ae60',fontSize:30 }} />
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -226,7 +232,21 @@ export default function HomePagesUser() {
           <h1>Sách nổi bật</h1>
         </div>
       </div>
-      <div className="w-full mt-[50px] h-[200px] bg-black"></div>
+      <div className="w-full mt-[50px] h-[200px] bg-black flex justify-around items-center">
+        <div>
+          <img
+            className="w-[200px] h-[200px] object-cover"
+            src={logoFooter}
+            alt=""
+          />
+        </div>
+        <div className="">
+          <h1 className="text-white">Nguyễn Quốc Dũng</h1>
+        </div>
+        <div className="text-white">
+          <h1 className="text-white">Trần Lương Ngyên</h1>
+        </div>
+      </div>
     </div>
   )
 }

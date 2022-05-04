@@ -29,12 +29,12 @@ function TopUser() {
   }, [query])
   //currentUser.avatar_url  
   return (
-    <div className="ml-[300px] w-[81%]   h-[80px] bg-white fixed top-0 text-white z-50">
+    <div className="ml-[300px] w-[81%]  h-[80px] bg-[#ecf0f1] fixed top-0 text-white border-b-[1px] border-slate-300 z-50">
       <div className="flex justify-between items-center mt-[20px]">
         <div className="ml-[20px] text-black">
           <BreadcrumbsUser />
         </div>
-        <div className="w-[50%] flex items-center bg-white rounded-[5px]">
+        <div className="w-[50%] flex items-center rounded-[5px]">
           <Input
             size="large"
             placeholder="Tìm kiếm"

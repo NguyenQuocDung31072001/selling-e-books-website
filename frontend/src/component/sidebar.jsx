@@ -1,3 +1,5 @@
+import bookPicture from "../book.svg"
+import Icon from "../icon.png"
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, Typography } from 'antd'
@@ -46,11 +48,18 @@ function SideBar() {
   }, [])
   return (
     <div className="w-[300px] h-full bg-white overflow-y-auto fixed top-0 left-0 z-40">
-      <div className="text-green-500">
+      <div className=" text-green-500">
         <Link to="/user/home">
-          <Title level={3} style={{ color: 'green', fontWeight: 800 }}>
-            Book Sto
-          </Title>
+          <div className="flex items-center justify-start ml-4 p-8">
+            <img className="w-[60px] object-cover" src={Icon} alt="" />
+            <div className="mt-3">
+              <Title level={2} style={{ color: 'green', fontWeight: 800 }}>
+                BookStore
+              </Title>
+
+            </div>
+
+          </div>
         </Link>
       </div>
       <Menu
@@ -95,6 +104,9 @@ function SideBar() {
             ))}
         </SubMenu>
       </Menu>
+      <div className="mt-[40px]">
+        <img src={bookPicture} alt="" />
+      </div>
     </div>
   )
 }
