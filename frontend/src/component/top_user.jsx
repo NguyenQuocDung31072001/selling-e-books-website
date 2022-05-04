@@ -41,7 +41,7 @@ function TopUser() {
 
   //currentUser.avatar_url
   return (
-    <div className="w-full h-[80px] min-w-max bg-white fixed top-0 text-white z-50">
+    <div className="ml-[300px] w-[81%]   h-[80px] bg-white fixed top-0 text-white z-50">
       <div className="flex justify-between items-center mt-[20px]">
         <Link to="/user/home">
           <div className="ml-[20px] text-[25px] text-black">
@@ -52,13 +52,13 @@ function TopUser() {
           <Input
             size="large"
             placeholder="Tìm kiếm"
-            style={{width:500}}
+            style={{width:300}}
             value={query}
             onChange={e => setQuery(e.target.value)}
             prefix={<SearchOutlined />}
           />
         </div>
-        <div className="flex justify-between items-center mr-[40px]">
+        <div className="flex justify-between items-center  mr-[40px]">
           <Link to="/user/cart">
             <ShoppingCartOutlined
               style={{ fontSize: '45px', color: '#7f8c8d' }}

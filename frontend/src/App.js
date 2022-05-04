@@ -14,6 +14,7 @@ import HomePagesUser from './pages/home_user'
 import NotFound from './pages/not_found'
 import LayoutAdmin from './component/layout_admin'
 import TopUser from './component/top_user'
+import SideBar from './component/sidebar'
 import GenreBookUser from './pages/genre_book_user'
 import DetailBookUser from './pages/detail_book_user'
 import Cart from './pages/cart'
@@ -23,6 +24,7 @@ import AuthorManage from './pages/author_admin'
 import AllBookAdmin from './pages/all_book_admin'
 import { useSelector } from 'react-redux'
 import OrderManage from './pages/order_admin'
+import CategoryUser from "./pages/category_page"
 import { useEffect } from 'react'
 import DetailBookAdmin from './pages/detail_book_admin'
 import AllGenreBookAdmin from './pages/all_book_genre_admin'
@@ -151,10 +153,11 @@ function App() {
                 </ProtectRouterUser>
               }
             />
+            <Route path="category" element={<CategoryUser />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="purchase" element={<UserPurchase />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </BrowserRouter>
     </div>
@@ -175,7 +178,8 @@ function UserComponent() {
   return (
     <div>
       <TopUser />
-      <div className="mt-[100px]">
+      <SideBar/>
+      <div className="mt-[100px] ml-[300px]">
         {/* <BreadcrumbsUser /> */}
         <Outlet />
       </div>

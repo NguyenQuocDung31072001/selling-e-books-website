@@ -10,8 +10,6 @@ import {
 } from '../redux/api_request'
 import { Button, Spin, Typography, Select, Input } from 'antd'
 import { PATH_NAME } from '../config/pathName'
-import GenreBookUser from '../component/genre_book_user'
-import AuthorBookUser from '../component/author_book_user'
 import { numberFormat } from '../utils/formatNumber'
 import { updateQuery } from '../redux/search_slices'
 import {
@@ -22,7 +20,7 @@ import {
 
 const { Title } = Typography
 const { Option } = Select
-export default function HomePagesUser() {
+export default function CategoryUser() {
   const querySearch = useSelector(state => state.search.search)
 
   const [bookData, setBookData] = useState([])
@@ -146,15 +144,55 @@ export default function HomePagesUser() {
   }
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="w-full h-[350px]">
-        <SlideshowUser />
-      </div>
       <div className="flex flex-wrap w-full justify-center">
         {bookData.length === 0 && (
           <div className="w-full h-full flex items-center justify-center">
             <Spin tip="Loading..." />
           </div>
         )}
+        <div className="w-full flex flex-col justify-center items-center mb-10">
+          <div>
+            <Title level={2}>Tìm kiếm sách</Title>
+          </div>
+          <div className="w-[70%] flex justify-between">
+            <Button onClick={allBookFnc}>Tất cả sách</Button>
+            <Select
+              placeholder="Thể loại"
+              style={{ width: 230 }}
+              onChange={value => setGenresSearch(value)}
+            >
+              {allGenres.length > 0 &&
+                allGenres.map((genres, index) => {
+                  return (
+                    <Option key={index} value={genres}>
+                      {genres}
+                    </Option>
+                  )
+                })}
+            </Select>
+            <Select
+              placeholder="Tác giả"
+              style={{ width: 230 }}
+              onChange={value => setAuthorsSearch(value)}
+            >
+              {allAuthors.length > 0 &&
+                allAuthors.map((authors, index) => {
+                  return (
+                    <Option key={index} value={authors}>
+                      {authors}
+                    </Option>
+                  )
+                })}
+            </Select>
+            <Input
+              placeholder="Nhập tên sách"
+              style={{ width: 320 }}
+              prefix={<SearchOutlined />}
+              onChange={e => setInputSearch(e.target.value)}
+            />
+            <Button onClick={searchFnc}>Tìm kiếm</Button>
+          </div>
+        </div>
         <div className="flex flex-wrap bg-white h-fit w-[97%]">
           {bookRender.map(
             (
@@ -219,7 +257,7 @@ export default function HomePagesUser() {
           <h1>Sách nổi bật</h1>
         </div>
       </div>
-      <div className="w-full mt-[50px] h-[200px] bg-black"></div>
+      <div className="w-full mt-[50px] h-[100px] bg-white"></div>
     </div>
   )
 }
