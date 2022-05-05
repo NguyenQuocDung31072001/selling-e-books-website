@@ -30,6 +30,8 @@ import DetailBookAdmin from './pages/detail_book_admin'
 import AllGenreBookAdmin from './pages/all_book_genre_admin'
 import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
+import DashboardAdmin from './pages/dashboard_admin'
+import TopAdmin from './component/top_admin'
 
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
@@ -89,6 +91,14 @@ function App() {
               element={
                 <ProtectRouterAdmin>
                   <HomePagesAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="dashboard"
+              element={
+                <ProtectRouterAdmin>
+                  <DashboardAdmin />
                 </ProtectRouterAdmin>
               }
             />
@@ -167,6 +177,7 @@ function AdminComponent() {
   return (
     <div>
       <LayoutAdmin />
+      <TopAdmin/>
       <div className="ml-[256px]">
         <Outlet />
       </div>
