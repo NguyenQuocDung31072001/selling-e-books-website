@@ -100,6 +100,7 @@ const orderSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: true,
       default: ''
     },
     message: {

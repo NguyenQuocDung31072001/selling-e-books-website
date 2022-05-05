@@ -4,6 +4,7 @@ const Genres = require('../model/genres.model')
 const Collection = require('../model/collection.model')
 const { cloudinary } = require('../utils/cloudinary')
 const { default: mongoose } = require('mongoose')
+const createHttpError = require('http-errors')
 
 const updateAccount = async (req, res) => {
   //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
@@ -12,7 +13,14 @@ const updateAccount = async (req, res) => {
     if (req.body.email) account.email = req.body.email
     if (req.body.username) account.username = req.body.username
     if (req.body.password) account.password = req.body.password
-    if (req.body.birthDate) account.birthDate = req.body.birthDate
+    if (req.body.birthDate) {
+      if (checkDate(req.body.birthDate)) {
+        account.birthDate = req.body.birthDate
+      } else {
+        throw createHttpError.BadRequest('Invalid birthDate')
+      }
+    }
+
     if (req.body.address) account.address = req.body.address
     if (req.body.phoneNumber) account.phoneNumber = req.body.phoneNumber
     if (req.body.address) account.address = req.body.address
@@ -41,6 +49,17 @@ const updateAccount = async (req, res) => {
     console.log(error)
     res.status(500).json(error)
   }
+}
+
+function checkDate(dateString) {
+  var q = new Date()
+  var m = q.getMonth()
+  var d = q.getDate()
+  var y = q.getFullYear()
+
+  var toDate = new Date(y, m, d)
+  var date = new Date(dateString + ' GMT+0700')
+  return date <= toDate
 }
 
 const updatePasswordAccount = async (req, res) => {
@@ -149,6 +168,8 @@ const updateCartAccount = async (accountId, bookId, amount, deleteBook) => {
 
   if (amount > 0) {
     if (book.amount == 0) throw new Error('Sold out')
+    if (indexOfBook !== -1 && book.amount == account.cart[indexOfBook].amount)
+      throw new Error('shortage')
     if (indexOfBook == -1) account.cart.push({ book: bookId, amount: 1 })
     else account.cart[indexOfBook].amount++
   } else {
@@ -174,11 +195,42 @@ const getAccountShipping = async (req, res) => {
   }
 }
 
+const updateAccountLibrary = async (accountID, books) => {
+  try {
+    const bookIDs = books.map(item => item.book.toString())
+    const account = await Account.findById(accountID)
+    const newBooks = bookIDs.filter(item => {
+      return account.library.indexOf(item) === -1
+    })
+    const updatedAccount = await Account.findByIdAndUpdate(accountID, {
+      $push: { library: { $each: newBooks } }
+    })
+    return updatedAccount
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const getAccountLibraries = async (req, res) => {
+  try {
+    console.log(req.params)
+    const accountID = req.params.id
+    const account = await Account.findById(accountID).select('library').lean()
+    res.json(account.library)
+  } catch (error) {
+    console.log(error)
+    res.status(500)
+  }
+}
+
 module.exports = {
   getAccountCart,
   updateAccount,
   addBookToCart,
   pullBookFromCart,
   updatePasswordAccount,
-  getAccountShipping
+  getAccountShipping,
+  updateAccountLibrary,
+  getAccountLibraries
 }

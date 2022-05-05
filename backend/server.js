@@ -53,6 +53,15 @@ app.use('/v1/selling_e_books/review', reviewRouter)
 app.use('/v1/selling_e_books/collection', collectionRouter)
 app.use('/v1/selling_e_books/order', orderRouter)
 app.use('/v1/selling_e_books/shipping', shippingRouter)
+app.use((error, req, res, next) => {
+  res.json({
+    success: false,
+    error: true,
+    status: error.status || 500,
+    message: error.message
+  })
+})
+
 app.listen(5000, () => {
   console.log('server start success')
 })

@@ -1,16 +1,26 @@
 const mongoose = require('mongoose')
-
+const bcrypt = require('bcrypt')
 const accountUser = new mongoose.Schema(
   {
     username: {
-      type: String,
-      required: true,
-      unique: true
+      type: String
+      // lowercase: true,
+      // required: true,
+      // unique: true
     },
     email: {
       type: String,
+      lowercase: true,
       required: true,
       unique: true
+    },
+    verifyToken: {
+      type: String,
+      default: ''
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     },
     password: {
       type: String,
@@ -31,39 +41,32 @@ const accountUser = new mongoose.Schema(
     },
     address: {
       street: {
-        type: String,
-        required: true
+        type: String
       },
       ward: {
         WardCode: {
-          type: Number,
-          required: true
+          type: Number
         },
         WardName: {
           type: String,
-          required: true,
           default: ''
         }
       },
       district: {
         DistrictID: {
-          type: Number,
-          required: true
+          type: Number
         },
         DistrictName: {
           type: String,
-          required: true,
           default: ''
         }
       },
       province: {
         ProvinceID: {
-          type: Number,
-          required: true
+          type: Number
         },
         ProvinceName: {
           type: String,
-          required: true,
           default: ''
         }
       }
@@ -121,4 +124,11 @@ const accountUser = new mongoose.Schema(
   }
 )
 
+accountUser.methods.isCheckPassword = async function (password) {
+  try {
+    return await bcrypt.compare(password, this.password)
+  } catch (error) {
+    console.log(error)
+  }
+}
 module.exports = mongoose.model('account', accountUser, 'account')
