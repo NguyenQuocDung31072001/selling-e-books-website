@@ -12,6 +12,8 @@ const {
   getDistrict,
   getWard
 } = require('../controller/shipping.controller')
+const { orderValidate } = require('../utils/validation')
+const createHttpError = require('http-errors')
 
 const pageLimit = 10
 
@@ -53,16 +55,27 @@ const createNewOrder = async (req, res) => {
     const addressTo = req.body.address
     const customer = req.body.customer
     const paymentMethod = req.body.payment
-    const phone = req.body.phone
+    const phone = req.body.phoneNumber
 
-    if (accountId !== req.params.userId) throw new Error('account not match')
+    if (accountId !== req.params.userId) {
+      const error = new Error('account not match')
+      error.status = 0
+      throw error
+    }
 
     const account = await Account.findById(accountId).populate('cart.book')
 
-    if (!account) throw new Error('Account does not exist')
+    if (!account) {
+      const error = new Error('Account does not exist')
+      error.status = 1
+      throw error
+    }
 
-    if (paymentMethod != 'cod' && paymentMethod != 'paypal')
-      throw new Error('Invalid payment method')
+    if (paymentMethod != 'cod' && paymentMethod != 'paypal') {
+      const error = new Error('Invalid payment method')
+      error.status = 2
+      throw error
+    }
 
     let total = 0
     const orderBooks = bookIds.map(bookId => {
@@ -70,8 +83,17 @@ const createNewOrder = async (req, res) => {
         item => item.book._id.toString() == bookId
       )
 
-      if (!cartItem) throw new Error('Book and account are not valid')
-      if (cartItem.book.amount < cartItem.amount) throw new Error('Not enough')
+      if (!cartItem) {
+        const error = new Error('Book and account are not valid')
+        error.status = 3
+        throw error
+      }
+
+      if (cartItem.book.amount < cartItem.amount) {
+        const error = new Error(`Books does not enough`)
+        error.status = 4
+        throw error
+      }
 
       total += cartItem.book.price * cartItem.amount
 
@@ -81,18 +103,45 @@ const createNewOrder = async (req, res) => {
         price: cartItem.book.price
       }
     })
+    const { error } = orderValidate({
+      user: accountId,
+      customer: customer,
+      books: bookIds,
+      status: 0,
+      payment: paymentMethod,
+      street: addressTo.street,
+      ward: addressTo.WardCode,
+      district: addressTo.DistrictID,
+      province: addressTo.ProvinceID,
+      phone: phone
+    })
+
+    if (error) throw createHttpError.BadRequest(error)
 
     let shippingCost = await calShippingCost(accountId, addressTo, bookIds)
     total += shippingCost.total
     const province = await getProvince(addressTo.ProvinceID)
-    if (!province) throw new Error('Invalid address')
+    if (!province) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
     const district = await getDistrict(
       addressTo.ProvinceID,
       addressTo.DistrictID
     )
-    if (!district) throw new Error('Invalid address')
+    if (!district) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
+
     const ward = await getWard(addressTo.DistrictID, addressTo.WardCode)
-    if (!ward) throw new Error('Invalid address')
+    if (!ward) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
 
     const newOrder = new Order({
       user: account._id,
@@ -155,10 +204,29 @@ const createNewOrder = async (req, res) => {
       const savedOrder = await newOrder.save()
       await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       await createPayment(savedOrder._id, res)
-    } else throw new Error('Invalid payment method')
+    }
   } catch (error) {
+    /*
+      Error status: 
+      + 0 - ID trong req.params và ID Account trong body không trùng khớp 
+      + 1 - Không tìm thấy account tương ứng với ID
+      + 2 - Phương thức thanh toán không phù hợp
+      + 3 - Sách không nằm trong giỏ hàng của account
+      + 4 - Số lượng sách còn lại không đủ
+      + 5 - Địa chỉ đặt hàng không phù hợp
+    */
+
     console.log(error)
-    res.status(error.code || 500).json({ success: false, error: error })
+    if (error.status) {
+      res.json({
+        success: false,
+        error: true,
+        status: error.status,
+        message: error.message
+      })
+    } else {
+      res.status(500).json({ success: false, error: true })
+    }
   }
 }
 
@@ -248,15 +316,35 @@ const updateOrder = async (req, res) => {
     } else {
       await updateOrderById(id, newStatus, (error, order) => {
         if (error) {
-          return res.status(500).json(error)
+          console.log(error)
+          if (error.status) {
+            res.json({
+              success: false,
+              error: true,
+              status: error.status,
+              message: error.message
+            })
+          } else {
+            res.status(500).json({ success: false, error: error })
+          }
         } else {
-          console.log(order)
+          // console.log(order)
           res.status(200).json(order)
         }
       })
     }
   } catch (error) {
-    return res.status(500).json(error)
+    console.log(error)
+    if (error.status) {
+      res.json({
+        success: false,
+        error: true,
+        status: error.status,
+        message: error.message
+      })
+    } else {
+      res.status(500).json({ success: false, error: error })
+    }
   }
 }
 
@@ -264,19 +352,36 @@ const updateOrderByAdmin = async (req, res) => {
   try {
     const id = req.params.id
     const newStatus = req.body.newStatus
-    if (newStatus > 3 || newStatus < -3 || newStatus == -2)
-      throw new Error('Invalid new status')
 
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        return res.status(500).json(error)
+        console.log(error)
+        if (error.status) {
+          res.json({
+            success: false,
+            error: true,
+            status: error.status,
+            message: error.message
+          })
+        } else {
+          res.status(500).json({ success: false, error: error })
+        }
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
     console.log(error)
-    return res.status(500).json(errorObj)
+    if (error.status) {
+      res.json({
+        success: false,
+        error: true,
+        status: error.status,
+        message: error.message
+      })
+    } else {
+      res.status(500).json({ success: false, error: error })
+    }
   }
 }
 
@@ -284,16 +389,40 @@ const updateOrderOfUser = async (req, res) => {
   try {
     const id = req.params.id
     let newStatus = parseInt(req.body.newStatus)
-    if (newStatus !== 4 && newStatus !== -2) throw new Error('Invalid status')
+    if (newStatus !== 4 && newStatus !== -2) {
+      const error = new Error('Invalid status')
+      error.status = 6
+      throw error
+    }
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
-        return res.status(500).json(error)
+        console.log(error)
+        if (error.status) {
+          res.json({
+            success: false,
+            error: true,
+            status: error.status,
+            message: error.message
+          })
+        } else {
+          res.status(500).json({ success: false, error: error })
+        }
       } else {
         res.status(200).json(order)
       }
     })
   } catch (error) {
-    return res.status(500).json(error)
+    console.log(error)
+    if (error.status) {
+      res.json({
+        success: false,
+        error: true,
+        status: error.status,
+        message: error.message
+      })
+    } else {
+      res.status(500).json({ success: false, error: error })
+    }
   }
 }
 
@@ -318,8 +447,6 @@ const getAllOrderOfUser = async (req, res) => {
     if (sorterField && req.query.sorterOrder) {
       sorter[sorterField] = req.query.sorterOrder
     }
-
-    console.log(queryObj)
 
     const all = await Order.find(queryObj)
       .populate({

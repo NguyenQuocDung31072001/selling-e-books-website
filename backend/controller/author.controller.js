@@ -200,6 +200,16 @@ const Restore = async (req, res) => {
   }
 }
 
+const searchAuthor = async query => {
+  try {
+    const genres = await AuthorModel.find(query).select('_id').lean()
+    return genres
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
 module.exports = {
   GetAuthor,
   GetDeletedAuthor,
@@ -208,5 +218,6 @@ module.exports = {
   UpdateAuthor,
   SoftDelete,
   Delete,
-  Restore
+  Restore,
+  searchAuthor
 }

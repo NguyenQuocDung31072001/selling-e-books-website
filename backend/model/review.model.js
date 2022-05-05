@@ -10,8 +10,7 @@ const ReviewSchema = new mongoose.Schema({
     ref: 'account'
   },
   rating: {
-    type: Number,
-    required: true
+    type: Number
   },
   content: {
     type: String
