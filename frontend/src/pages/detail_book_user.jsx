@@ -29,15 +29,15 @@ function DetailBookUser() {
     getBookFnc(slug)
   }, [])
 
-  useEffect(()=>{
+  useEffect(() => {
     const breadcrum = {
       genre_slug: genre,
-      genre_name:book?.genres[0].name,
+      genre_name: book?.genres[0].name,
       name_book: slug
     }
     dispatch(updateBreadcrumb(breadcrum))
-  },[book])
-  
+  }, [book])
+
   const buyBookFnc = () => {
     const id_book = book._id
     const id_account = currentUser._id
@@ -62,59 +62,85 @@ function DetailBookUser() {
     })
   }
   return (
-    <div className="flex flex-col justify-center items-center">
-      <div className="mt-[30px] w-[70%] h-[500px] shadow-md shadow-zinc-200 flex relative">
+    <div className="flex flex-col justify-center items-center ">
+      <div className="mt-[10px] w-[90%] bg-white shadow-md shadow-zinc-200 flex flex-col pb-4 relative">
         {loading && (
           <div className="fixed w-screen h-screen z-10">
             <Spin tip="Loading..." />
           </div>
         )}
-        <div className="w-[275px] h-[412px] p-[20px] h-[500px] flex items-center justify-center shadow-md shadow-zinc-200">
-          <img
-            className="w-full h-full object-cover "
-            src={book?.coverUrl}
-            alt=""
-          />
+        <div className="w-full h-[75px] border-b-[1px] border-solid border-gray-300 mb-8 flex items-center justify-start p-4">
+          <h1 className="text-xl">Thông tin sách</h1>
         </div>
-        <div className="w-[60%] flex flex-col items-center">
-          <div className="w-full flex justify-center">
-            <Title level={2}>{book?.name}</Title>
+        <div className="flex">
+          <div className="w-[500px] h-[600px] px-[20px] flex items-center justify-center shadow-md shadow-zinc-200">
+            <img
+              className="w-full h-full object-cover "
+              src={book?.coverUrl}
+              alt=""
+            />
           </div>
-          <div className="w-[80%] flex items-center justify-between">
-            <div>
-              <Title level={4}>Tác giả: {book?.authors[0]?.fullName}</Title>
+          <div className=" flex flex-col items-start px-4">
+            <div className="">
+              <Title level={1}>{book?.name}</Title>
             </div>
+
             <div>
-              <Link to={`${PATH_NAME.DETAIL_BOOK_USER}/${book?.genres[0].slug}`}>
-                <Title level={4}>Thể loại: {book?.genres[0]?.name}</Title>
-              </Link>
-            </div>
-          </div>
-          <div className="w-[80%] mt-[20px] flex ">
-            <Title level={1}>
-            {numberFormat(book?.price)}
+              <Title level={4}>
+                <span className="text-green-500">Tác giả: </span>
+                {book?.authors[0]?.fullName}
               </Title>
-          </div>
-          <div className="w-[80%] flex flex-col items-start">
-            <div>
-              <Title level={4}>Nhà sản xuất: {book?.publishedBy}</Title>
             </div>
             <div>
               <Title level={4}>
-                Ngày xuất bản: {book?.publishedDate?.split('T')[0]}
+                <span className="text-green-500">Thể loại: </span>
+                {book?.genres[0]?.name}
               </Title>
             </div>
-          </div>
-          <div className="w-[80%] flex flex-col items-start">
-            <Title level={4}>Mô tả </Title>
-            <p className="text-[16px]">{book?.description}</p>
-          </div>
-          <div className="absolute bottom-5 right-20">
-            <Button onClick={buyBookFnc}>Mua sách</Button>
+
+            <div className="mt-[20px] flex ">
+              <Title level={1}>{numberFormat(book?.price)}</Title>
+            </div>
+            <div className="mb-4">
+              <Rate
+                allowHalf
+                disabled
+                defaultValue={2.5}
+                style={{ fontSize: 25 }}
+              />
+            </div>
+
+            <div className='py-4'>
+              <span className="text-2xl text-gray-800">Nhà sản xuất:</span>
+              <span className="text-2xl text-gray-500">
+                {' '}
+                {book?.publishedBy}
+              </span>
+            </div>
+            <div>
+              <p className="text-2xl text-gray-500">
+                {' '}
+                Ngày xuất bản: {book?.publishedDate?.split('T')[0]}
+              </p>
+            </div>
+
+            <div className="w-[80%] flex flex-col items-start">
+              <Title level={4}>Mô tả </Title>
+              <p className="text-[16px]">{book?.description}</p>
+            </div>
+            <div className="absolute bottom-5 right-20">
+              {/* <Button onClick={buyBookFnc}></Button> */}
+              <button 
+                onClick={buyBookFnc}
+                className="hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-[1px] border-solid border-green-500 px-3 py-2 rounded-md duration-700">
+                Mua sách
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <div className="w-[70%] mt-[40px] flex">
+
+      <div className="w-[90%] bg-white py-8 flex">
         <div className="w-[40%]">
           <Title level={4}>Đánh giá- Nhận xét từ khách hàng</Title>
           <div className="ml-[50px]">
@@ -196,7 +222,7 @@ function DetailBookUser() {
         </div>
         <div>Tìm kiếm theo đánh giá</div>
       </div>
-      <div className="flex flex-col w-[70%] mt-[50px]">
+      <div className="flex flex-col w-[90%] bg-white py-8 mb-10">
         <div className="flex">
           <div className="w-[350px] flex ml-[50px]">
             <img

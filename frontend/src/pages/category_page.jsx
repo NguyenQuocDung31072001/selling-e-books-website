@@ -1,4 +1,4 @@
-import logoFooter from "../logo_footer.svg"
+import logoFooter from '../logo_footer.svg'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
@@ -10,7 +10,15 @@ import {
   getAllAuthorForAddBook,
   addBookToCart
 } from '../redux/api_request'
-import { Button, Spin, Typography, Select, Input ,Rate, notification} from 'antd'
+import {
+  Button,
+  Spin,
+  Typography,
+  Select,
+  Input,
+  Rate,
+  notification
+} from 'antd'
 import { PATH_NAME } from '../config/pathName'
 import { numberFormat } from '../utils/formatNumber'
 import { updateQuery } from '../redux/search_slices'
@@ -25,8 +33,8 @@ const { Title } = Typography
 const { Option } = Select
 export default function CategoryUser() {
   const querySearch = useSelector(state => state.search.search)
-  const currentUser=useSelector(state=>state.auth.login.currentUser)
-  const navigate=useNavigate()
+  const currentUser = useSelector(state => state.auth.login.currentUser)
+  const navigate = useNavigate()
   const [bookData, setBookData] = useState([])
   const [bookFilter, setBookFilter] = useState([])
   const [bookRender, setBookRender] = useState([])
@@ -73,12 +81,12 @@ export default function CategoryUser() {
       for (let i = 0; i < allAuthor.length; i++) {
         allAuthorName.push(allAuthor[i].fullName)
       }
-      
+
       setAllAuthors(allAuthorName)
     })()
     const breadcrum = {
       genre_slug: 'Home Pages',
-      genre_name:'Category Pages',
+      genre_name: 'Category Pages',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrum))
@@ -128,8 +136,8 @@ export default function CategoryUser() {
           book.name.toLowerCase().includes(querySearch.query?.name)
       )
     }
-    if(querySearch.type==='all'){
-      dataQuery=bookData
+    if (querySearch.type === 'all') {
+      dataQuery = bookData
     }
     setBookFilter(dataQuery)
   }, [querySearch])
@@ -145,10 +153,9 @@ export default function CategoryUser() {
     }
     dispatch(updateQuery(search))
   }
-  const allBookFnc=()=>{
+  const allBookFnc = () => {
     let search = {
-      query: {
-      },
+      query: {},
       type: 'all'
     }
     dispatch(updateQuery(search))
@@ -249,14 +256,16 @@ export default function CategoryUser() {
                           to={`${PATH_NAME.USER_HOME_PAGE}/${book.genres[0]?.slug}/${book.slug}`}
                           className="cursor-pointer"
                         >
-                          <div className=''>
-                            <button className='hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-none px-3 py-2 rounded-md duration-700' >Xem sách</button>
+                          <div className="">
+                            <button className="hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-none px-3 py-2 rounded-md duration-700">
+                              Xem sách
+                            </button>
                           </div>
                         </Link>
                       </div>
                     </div>
                   </div>
-                  <div className="w-[130px] text-black">
+                  <div className="relative w-[130px] text-black">
                     <Title level={5}>{book.name}</Title>
                     <span>{book.authors[0]?.fullName}</span>
                     <Rate
@@ -265,14 +274,17 @@ export default function CategoryUser() {
                       defaultValue={2.5}
                       style={{ fontSize: 12 }}
                     />
-                    <div className=''>
-                      <p className='text-lg font-bold'>{numberFormat(book.price)}</p>
+                    <div className="">
+                      <p className="text-lg font-bold">
+                        {numberFormat(book.price)}
+                      </p>
                     </div>
-                    <div>
-                    
-                        <ShoppingCartOutlined style={{ color: '#27ae60',fontSize:30 }} 
-                        onClick={()=>buyBookFnc(book._id)} />
-                     
+
+                    <div className="absolute bottom-0 left-4">
+                      <ShoppingCartOutlined
+                        style={{ color: '#27ae60', fontSize: 30 }}
+                        onClick={() => buyBookFnc(book._id)}
+                      />
                     </div>
                   </div>
                 </div>

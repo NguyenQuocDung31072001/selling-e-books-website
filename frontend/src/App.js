@@ -183,6 +183,7 @@ function UserComponent() {
         {/* <BreadcrumbsUser /> */}
         <Outlet />
       </div>
+     
     </div>
   )
 }

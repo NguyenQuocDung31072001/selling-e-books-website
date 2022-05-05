@@ -214,7 +214,7 @@ export default function HomePagesUser() {
                       </div>
                     </div>
                   </div>
-                  <div className="w-[130px] text-black">
+                  <div className="relative w-[130px] text-black">
                     <Title level={5}>{book.name}</Title>
                     <span>{book.authors[0]?.fullName}</span>
                     <Rate
@@ -228,7 +228,7 @@ export default function HomePagesUser() {
                         {numberFormat(book.price)}
                       </p>
                     </div>
-                    <div>
+                    <div className="absolute bottom-0 left-4">
                       <ShoppingCartOutlined
                         style={{ color: '#27ae60', fontSize: 30 }}
                         onClick={() => buyBookFnc(book._id)}
