@@ -124,7 +124,7 @@ function ActionContainer(props) {
         step={data.status}
         action={openModal.action}
       />
-      {console.log(data)}
+      {/* {console.log(data)} */}
     </Space>
   )
 }

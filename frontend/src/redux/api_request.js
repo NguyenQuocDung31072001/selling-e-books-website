@@ -41,9 +41,16 @@ export const registerApi = async (user, dispatch) => {
       API_URL + '/v1/selling_e_books/auth/register',
       user
     )
-    dispatch(registerSuccess())
+    const data = res.data
+    if (data.error) {
+      dispatch(registerFailed())
+    } else {
+      dispatch(registerSuccess())
+    }
+    return data
   } catch (error) {
     dispatch(registerFailed())
+    return { success: false, error: true, data: null }
   }
 }
 
@@ -54,6 +61,11 @@ export const loginApi = async (user, dispatch, navigate) => {
       API_URL + '/v1/selling_e_books/auth/login',
       user
     )
+    if (res.data.error) {
+      dispatch(loginFailed())
+      return res.data
+    }
+
     dispatch(loginSuccess(res.data))
     if (res.data.role === 'admin') {
       navigate('/admin/home')
@@ -557,6 +569,7 @@ export const getShippingCost = async (user, address, books) => {
 export const createNewOrder = async (
   account,
   customer,
+  phoneNumber,
   address,
   books,
   payment
@@ -567,6 +580,7 @@ export const createNewOrder = async (
       {
         account: account,
         customer: customer,
+        phoneNumber: phoneNumber,
         address: address,
         books: books,
         payment: payment

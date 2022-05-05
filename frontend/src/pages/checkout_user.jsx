@@ -1,4 +1,4 @@
-import { Button, Row, Col, Table } from 'antd'
+import { Button, Row, Col, Table, notification } from 'antd'
 import Text from 'antd/lib/typography/Text'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -34,7 +34,7 @@ export default function Checkout(props) {
       const shippingCost = await getShippingCost(user, address, books)
       setShippingCost(shippingCost)
     }
-    getShippingCostFnc()
+    if (shipData.address.province.ProvinceID) getShippingCostFnc()
   }, [shipData])
 
   const closeShipModal = () => {
@@ -42,24 +42,92 @@ export default function Checkout(props) {
   }
 
   const saveShipInfo = data => {
+    console.log(data)
     setShipData({ ...data, username: data.customer })
     setOpenShipModal(false)
   }
 
+  const openNotification = message => {
+    notification.error({
+      message: `Không thành công`,
+      description: message,
+      placement: 'topRight'
+    })
+  }
+
+  const checkData = () => {
+    const shipAddress = shipData.address
+    const phoneNumber = shipData.phoneNumber
+    const books = state.product.map(item => item.product._id)
+    if (
+      !shipAddress.province.ProvinceID ||
+      !shipAddress.district.DistrictID ||
+      !shipAddress.ward.WardCode ||
+      !shipAddress.street ||
+      !shipData.username ||
+      !phoneNumber
+    ) {
+      openNotification('Vui lòng nhập đầy đủ thông tin nhận hàng')
+      return false
+    }
+
+    if (books.length == 0) {
+      openNotification('Đơn hàng phải gồm ít nhất một sản phẩm!')
+      return false
+    }
+
+    return true
+  }
+
   const createNewOrderFnc = async () => {
+    if (!checkData()) return
     const address = {
       ProvinceID: shipData.address.province.ProvinceID,
       DistrictID: shipData.address.district.DistrictID,
-      WardCode: shipData.address.ward.WardCode.toString(),
+      WardCode: shipData.address.ward.WardCode?.toString(),
       street: shipData.address.street
     }
+    const phoneNumber = shipData.phoneNumber
     const customer = shipData.username
     const books = state.product.map(item => item.product._id)
     const user = currentUser._id
-    const result = await createNewOrder(user, customer, address, books, payment)
-    if (result.redirect) {
-      window.location.replace(result.redirectTo)
-      // navigate(result.redirectTo)
+    const result = await createNewOrder(
+      user,
+      customer,
+      phoneNumber,
+      address,
+      books,
+      payment
+    )
+    if (result.error) {
+      switch (result.status) {
+        case 1: {
+          openNotification('Tài khoản không hợp lệ')
+          break
+        }
+        case 2: {
+          openNotification('Phương thức thanh toán không hợp lệ')
+          break
+        }
+        case 4: {
+          openNotification('Số lượng sách còn lại không đủ')
+          break
+        }
+        case 5: {
+          openNotification('Địa chỉ đặt hàng không phù hợp')
+          break
+        }
+        default: {
+          openNotification(
+            'Đã xảy ra lỗi trong quá trình tạo đơn hàng, vui lòng kiểm tra và thử lại'
+          )
+          break
+        }
+      }
+    } else {
+      if (result.redirect) {
+        window.location.replace(result.redirectTo)
+      }
     }
   }
 
@@ -127,8 +195,19 @@ export default function Checkout(props) {
               Địa Chỉ Nhận Hàng
             </Text>
             <div className="flex flex-row items-center space-x-6">
-              <Text className="text-base font-medium capitalize">{`${shipData.username} - ${shipData.phoneNumber}`}</Text>
-              <Text className="text-base capitalize">{`${shipData.address?.street}, ${shipData.address?.ward.WardName}, ${shipData.address?.district.DistrictName}, ${shipData.address?.province.ProvinceName}`}</Text>
+              {shipData.username && (
+                <Text className="text-base font-medium capitalize">{`${shipData.username} - ${shipData.phoneNumber}`}</Text>
+              )}
+
+              {shipData.address?.street && (
+                <Text className="text-base capitalize">{`${shipData.address?.street}, ${shipData.address?.ward.WardName}, ${shipData.address?.district.DistrictName}, ${shipData.address?.province.ProvinceName}`}</Text>
+              )}
+              {!shipData.address?.street && (
+                <span className="text-base font-medium text-orange-600">
+                  Vui lòng điền đầy đủ thông tin liên hệ trước khi tiến hành đặt
+                  hàng!
+                </span>
+              )}
               <Button
                 onClick={() => {
                   setOpenShipModal(true)
@@ -187,7 +266,7 @@ export default function Checkout(props) {
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
-                    }).format(shippingCost.total)}
+                    }).format(shippingCost.total || 0)}
                   </div>
                 </div>
                 <div className="w-full flex flex-row justify-end items-center">
@@ -196,7 +275,7 @@ export default function Checkout(props) {
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
-                    }).format(calTotal() + shippingCost.total)}
+                    }).format(calTotal() + shippingCost.total || 0)}
                   </div>
                 </div>
               </div>
