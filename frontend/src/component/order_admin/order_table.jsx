@@ -40,9 +40,11 @@ function OrderTable(props) {
   const columns = [
     {
       title: 'Khách hàng',
-      dataIndex: ['user', 'username'],
+      dataIndex: ['user', 'email'],
       key: 'user',
-      sorter: (a, b) => {},
+      sorter: (a, b) => {
+        return a.user.email > b.user.email ? 1 : -1
+      },
       sortOrder: sortedInfo.columnKey === 'user' && sortedInfo.order,
       ellipsis: true
     },
@@ -69,9 +71,11 @@ function OrderTable(props) {
     {
       title: 'Tình trạng',
       dataIndex: 'statusName',
-      key: 'status',
-      sorter: (a, b) => {},
-      sortOrder: sortedInfo.columnKey === 'status' && sortedInfo.order,
+      key: 'statusName',
+      sorter: (a, b) => {
+        return a.status - b.status
+      },
+      sortOrder: sortedInfo.columnKey === 'statusName' && sortedInfo.order,
       render: status => {
         let color = ''
         switch (status) {
@@ -110,7 +114,9 @@ function OrderTable(props) {
       title: 'Thanh toán',
       dataIndex: 'paymentMethod',
       key: 'payment',
-      sorter: (a, b) => {},
+      sorter: (a, b) => {
+        return a.payment - b.payment
+      },
       sortOrder: sortedInfo.columnKey === 'payment' && sortedInfo.order,
       ellipsis: true
     },
