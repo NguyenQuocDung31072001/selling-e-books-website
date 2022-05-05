@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Button, Input, Select } from 'antd'
+import { Modal, Button, Input, Select, Form } from 'antd'
 import {
   getDistrictData,
   getProvinceData,
@@ -20,10 +20,18 @@ function ShipModal(props) {
   const [wardData, setWardData] = useState([])
 
   useEffect(() => {
+    console.log(shipData)
     const getData = async () => {
       const provinceData = await getProvinceData()
-      console.log(provinceData)
       setProvinceData(provinceData)
+      if (province.ProvinceID) {
+        const [districts, wards] = await Promise.all([
+          getDistrictData(province.ProvinceID),
+          getWardData(district.DistrictID)
+        ])
+        setWardData(wards)
+        setDistrictData(districts)
+      }
     }
     getData()
   }, [])
@@ -80,13 +88,157 @@ function ShipModal(props) {
 
   return (
     <>
+      {/* {console.log(customer)} */}
       <Modal
         title="Thay đổi địa chỉ giao hàng"
         visible={visible}
-        onOk={saveShipInfo}
+        footer={null}
+        // onOk={saveShipInfo}
         onCancel={onCancel}
       >
-        <div className="flex flex-col h-full text-sm space-y-6 md:space-y-9 w-full">
+        <Form
+          name=""
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+          initialValues={{
+            customer: customer,
+            phoneNumber: phoneNumber,
+            street: street,
+            ward: ward.WardCode,
+            district: district.DistrictID,
+            province: province.ProvinceID
+          }}
+          onFinish={saveShipInfo}
+          // onFinishFailed={onFinishFailed}
+          autoComplete="off"
+        >
+          <Form.Item
+            label="Nguời nhận"
+            name="customer"
+            rules={[
+              { required: true, message: 'Vui lòng nhập tên người nhận!' }
+            ]}
+          >
+            <Input
+              size="large"
+              value={customer}
+              onChange={e => setCustomer(e.target.value)}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label=" Số điện thoại"
+            name="phoneNumber"
+            rules={[
+              { required: true, message: 'Vui lòng nhập số điện thoại!' }
+            ]}
+          >
+            <Input
+              size="large"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Tỉnh/Thành Phố"
+            name="province"
+            rules={[
+              { required: true, message: 'Vui lòng nhập Tỉnh/Thành phố!' }
+            ]}
+          >
+            <Select
+              size="large"
+              name="provice"
+              id=""
+              onChange={updateProvince}
+              placeholder={province.ProvinceName || 'Chọn Tỉnh/Thành Phố'}
+            >
+              {provinceData.map(province => {
+                return (
+                  <Select.Option
+                    key={province.ProvinceID}
+                    value={province.ProvinceID}
+                  >
+                    {province.ProvinceName}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Quận/Huyện"
+            name="district"
+            rules={[{ required: true, message: 'Vui lòng nhập Quận/Huyện!' }]}
+          >
+            <Select
+              size="large"
+              name="district"
+              id=""
+              onChange={updateDistrict}
+              placeholder={district.DistrictName || 'Chọn Quận/Huyện'}
+            >
+              {districtData.map(district => {
+                return (
+                  <Select.Option
+                    key={district.DistrictID}
+                    value={district.DistrictID}
+                  >
+                    {district.DistrictName}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Xã/Phường"
+            name="ward"
+            rules={[
+              { required: true, message: 'Vui lòng nhập tên Xã/Phường!' }
+            ]}
+          >
+            <Select
+              size="large"
+              name="ward"
+              id=""
+              onChange={updateWard}
+              placeholder={ward.WardName || 'Chọn Phường/Xã'}
+            >
+              {wardData.map(ward => {
+                return (
+                  <Select.Option key={ward.WardCode} value={ward.WardCode}>
+                    {ward.WardName}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Địa chỉ"
+            name="street"
+            rules={[{ required: true, message: 'Vui lòng nhập tên địa chỉ!' }]}
+          >
+            <Input
+              size="large"
+              value={street}
+              onChange={e => setStreet(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
+            <div className="flex flex-row justify-center space-x-4">
+              <Button type="primary" htmlType="submit">
+                Xong
+              </Button>
+              <Button type="" htmlType="button" onClick={onCancel}>
+                Hủy
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
+
+        {/* <div className="flex flex-col h-full text-sm space-y-6 md:space-y-9 w-full">
           <div className="flex flex-row items-center space-x-4">
             <div className="w-24 min-w-[6rem] text-right ">
               <label className="text-right whitespace-nowrap text-gray-600">
@@ -205,7 +357,7 @@ function ShipModal(props) {
               onChange={e => setStreet(e.target.value)}
             />
           </div>
-        </div>
+        </div> */}
       </Modal>
     </>
   )

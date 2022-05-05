@@ -6,16 +6,18 @@ const GenreModel = require('../model/genres.model')
 const generateSlug = require('../common/slug')
 const UpdateModel = require('../common/updateModel')
 const uploadImage = require('../common/uploadImage')
+const { searchAuthor } = require('./author.controller')
+const { searchGenres } = require('./genre.controller')
 
 const CreateNewBook = async (req, res) => {
   try {
     const slug = await generateSlug(BookModel, req.body.name)
-    const genre=await GenreModel.find({name:req.body.genres})
-    const genreIds=genre[0]._id
+    const genre = await GenreModel.find({ name: req.body.genres })
+    const genreIds = genre[0]._id
 
     // const genreIds = req.body.genres ? [].concat(req.body.genres) : []
-     const author=await AuthorModel.findOne({fullName:req.body.authors})
-    const authorIds=author._id
+    const author = await AuthorModel.findOne({ fullName: req.body.authors })
+    const authorIds = author._id
     // // const authorIds = req.body.authors ? [].concat(req.body.authors) : []
     // // console.log(authorIds._id)
     const newBook = new BookModel({
@@ -69,11 +71,11 @@ const UpdateBook = async (req, res) => {
   try {
     const bookId = req.params.id
 
-    const genre=await GenreModel.find({name:req.body.genres})
-    const genreIds=genre[0]._id
-    
-    const author=await AuthorModel.findOne({fullName:req.body.authors})
-    const authorIds=author._id
+    const genre = await GenreModel.find({ name: req.body.genres })
+    const genreIds = genre[0]._id
+
+    const author = await AuthorModel.findOne({ fullName: req.body.authors })
+    const authorIds = author._id
 
     const newName = req.body.name
     const updateInfo = {
@@ -121,7 +123,7 @@ const UpdateBook = async (req, res) => {
     }
 
     await updatedBook.save()
-    res.status(200).json({...updatedBook._doc,genre_slug:genre[0].slug})
+    res.status(200).json({ ...updatedBook._doc, genre_slug: genre[0].slug })
   } catch (error) {
     console.log({ CreateNewBookError: error })
     res.status(500).json(error)
@@ -130,11 +132,60 @@ const UpdateBook = async (req, res) => {
 
 const GetAllBook = async (req, res) => {
   try {
+    const queryObj = { deleted: false }
+
     const perPage = 20
     const page = req.query.page || 1
-    const maxItem = await BookModel.countDocuments({ deleted: false })
+
+    const { search, author, genre, maxPrice, minPrice } = req.query
+
+    if (author || genre) {
+      let regex = new RegExp(search, 'i')
+      queryObj.name = regex
+      if (author) {
+        const authors = await searchAuthor({ slug: author })
+        queryObj.authors = authors[0]._id
+      }
+      if (genre) {
+        const genres = await searchGenres({ slug: genre })
+        queryObj.genres = genres[0]._id
+      }
+
+      if (maxPrice || minPrice) queryObj['$and'] = []
+      if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
+      if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
+
+      console.log(queryObj)
+    } else {
+      if (search) {
+        let regex = new RegExp(search, 'i')
+        const authorQuery = {
+          deleted: false,
+          fullName: regex
+        }
+        const authors = await searchAuthor(authorQuery)
+        const genreQuery = {
+          deleted: false,
+          name: regex
+        }
+        const genres = await searchGenres(genreQuery)
+        queryObj['$or'] = [
+          { name: regex },
+          { genres: { $in: genres } },
+          { authors: { $in: authors } }
+        ]
+      }
+
+      if (maxPrice || minPrice) queryObj['$and'] = []
+      if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
+      if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
+
+      console.log(queryObj)
+    }
+
+    const maxItem = await BookModel.countDocuments(queryObj)
     const maxPage = Math.ceil(maxItem / perPage)
-    const books = await getBooks({ deleted: false }, page, perPage)
+    const books = await getBooks(queryObj, page, perPage)
 
     res.status(200).json({
       currentPage: page,
@@ -279,6 +330,20 @@ const restore = async (req, res) => {
   }
 }
 
+const GetTop = async (req, res) => {
+  try {
+    const { top, field } = req.query
+    console.log({ [field]: -1 })
+    const books = await BookModel.find({})
+      .sort({ [field]: -1 })
+      .limit(top)
+    res.json(books)
+  } catch (error) {
+    console.log(error)
+    res.status(500)
+  }
+}
+
 module.exports = {
   CreateNewBook,
   UpdateBook,
@@ -287,5 +352,6 @@ module.exports = {
   getBookOfAuthor,
   SoftDelete,
   DeleteBook,
-  GetBook
+  GetBook,
+  GetTop
 }

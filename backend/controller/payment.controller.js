@@ -11,7 +11,11 @@ const createPayment = async (orderId, res) => {
       .populate({ path: 'user', select: 'username address' })
       .lean()
 
-    if (!order) throw new Error('Order does not exist')
+    if (!order) {
+      const error = new Error('Order does not exist')
+      error.status = 7
+      throw error
+    }
 
     var items = order.books.map(item => {
       return {
@@ -105,7 +109,11 @@ const successOrder = async (req, res) => {
   const paymentId = req.query.paymentId
   const order = await Order.findById(orderId)
 
-  if (!order) throw new Error('Order does not exist!')
+  if (!order) {
+    const error = new Error('Order does not exist!')
+    error.status = 7
+    throw error
+  }
 
   const execute_payment_json = {
     payer_id: payerId,

@@ -39,7 +39,7 @@ export default function DetailModal(props) {
 
   return (
     <>
-      {console.log(action, step)}
+      {/* {console.log(action, step)} */}
       <Modal
         title="Đơn hàng"
         visible={visible}
@@ -118,7 +118,7 @@ export default function DetailModal(props) {
             }}
           >
             <Text strong>
-              {`${data.address.ward.WardName} - ${data.address.district.DistrictName} - ${data.address.province}`}
+              {`${data.address.ward.WardName} - ${data.address.district.DistrictName} - ${data.address.province.ProvinceName}`}
             </Text>
           </Col>
 

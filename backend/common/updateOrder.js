@@ -1,5 +1,8 @@
 const { default: mongoose } = require('mongoose')
-const { updateAccount } = require('../controller/account.controller')
+const {
+  updateAccount,
+  updateAccountLibrary
+} = require('../controller/account.controller')
 const { refundPayment } = require('../controller/payment.controller')
 const Book = require('../model/book.model')
 const Order = require('../model/order.model')
@@ -7,10 +10,18 @@ const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('./constant')
 
 const updateOrderById = async (id, status, callback = null) => {
   try {
-    if (!mongoose.isValidObjectId(id)) throw new Error('invalid order id')
+    if (!mongoose.isValidObjectId(id)) {
+      const error = new Error('invalid order id')
+      error.status = 8
+      throw error
+    }
 
     const currentOrder = await Order.findById(id)
-    if (!currentOrder) throw new Error('Order does not exist')
+    if (!currentOrder) {
+      const error = new Error('Order does not exist')
+      error.status = 7
+      throw error
+    }
 
     if (checkValidNewStatus(currentOrder.status, status)) {
       if (
@@ -22,6 +33,7 @@ const updateOrderById = async (id, status, callback = null) => {
           if (error) {
             if (callback != null) callback(error, null)
           } else {
+            await restoreBooks(currentOrder.books)
             const updatedOrder = await Order.findOneAndUpdate(
               { _id: id },
               { status: status, refund: true },
@@ -39,35 +51,43 @@ const updateOrderById = async (id, status, callback = null) => {
                 '_id user books status paid total address phone message payment createAt updateAt'
               )
               .lean()
-            await restoreBooks(currentOrder.books)
             updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
             updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
             if (callback != null) callback(null, updatedOrder)
           }
         })
       } else {
-        const updatedOrder = await Order.findOneAndUpdate(
-          { _id: id },
-          { status: status },
-          { new: true }
-        )
-          .populate({
-            path: 'user',
-            select: 'username email avatar_url address'
-          })
-          .populate({
-            path: 'books.book',
-            select: 'slug _id name avatarUrl'
-          })
-          .select(
-            '_id user books status paid total address phone message payment createAt updateAt'
+        try {
+          if (status == -1 || status == -2 || status == -3)
+            await restoreBooks(currentOrder.books)
+          if (status == 3) {
+            updateBooks(currentOrder.books)
+            updateAccountLibrary(currentOrder.user, currentOrder.books)
+          }
+          const updatedOrder = await Order.findOneAndUpdate(
+            { _id: id },
+            { status: status },
+            { new: true }
           )
-          .lean()
-        if (status == -1 || status == -2 || status == -3)
-          await restoreBooks(currentOrder.books)
-        updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
-        updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
-        if (callback != null) callback(null, updatedOrder)
+            .populate({
+              path: 'user',
+              select: 'username email avatar_url address'
+            })
+            .populate({
+              path: 'books.book',
+              select: 'slug _id name avatarUrl'
+            })
+            .select(
+              '_id user books status paid total address phone message payment createAt updateAt'
+            )
+            .lean()
+
+          updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
+          updatedOrder.paymentMethod = PAYMENT_METHOD[updatedOrder.payment]
+          if (callback != null) callback(null, updatedOrder)
+        } catch (error) {
+          if (callback != null) callback(error, null)
+        }
       }
     }
   } catch (error) {
@@ -76,19 +96,35 @@ const updateOrderById = async (id, status, callback = null) => {
 }
 
 const checkValidNewStatus = (currentStatus, newStatus) => {
-  if (newStatus < -2 || newStatus > 4 || parseInt(newStatus) != newStatus)
-    throw new Error('invalid status')
-  else if (newStatus == currentStatus) throw new Error('Invalid new status')
-  else if (newStatus > 0 && newStatus != currentStatus + 1)
-    throw new Error('Invalid new status')
-  else if (currentStatus < 0 || currentStatus == 4)
-    throw new Error('Can not change order status')
-  else if (currentStatus < 0) throw new Error('Can not change order status')
-  else if (currentStatus > 0 && newStatus < 0 && newStatus != -3)
-    throw new Error('Invalid new status')
-  else if (newStatus == -3 && currentStatus != 2)
-    throw new Error('Invalid new status')
-  else return true
+  if (newStatus < -3 || newStatus > 4 || parseInt(newStatus) != newStatus) {
+    const error = new Error('invalid new status')
+    error.status = 6
+    throw error
+  } else if (newStatus == currentStatus) {
+    const error = new Error('Invalid new status')
+    error.status = 6
+    throw error
+  } else if (newStatus > 0 && newStatus != currentStatus + 1) {
+    const error = new Error('Invalid new status')
+    error.status = 6
+    throw error
+  } else if (currentStatus < 0 || currentStatus == 4) {
+    const error = new Error('Can not change order status')
+    error.status = 9
+    throw error
+  } else if (currentStatus < 0) {
+    const error = new Error('Can not change order status')
+    error.status = 9
+    throw error
+  } else if (currentStatus > 0 && newStatus < 0 && newStatus != -3) {
+    const error = new Error('Invalid new status')
+    error.status = 6
+    throw error
+  } else if (newStatus == -3 && currentStatus != 2) {
+    const error = new Error('Invalid new status')
+    error.status = 6
+    throw error
+  } else return true
 }
 
 const restoreBooks = async books => {
@@ -96,6 +132,19 @@ const restoreBooks = async books => {
     const asyncUpdateBooks = books.map(bookItem => {
       return Book.findByIdAndUpdate(bookItem.book, {
         $inc: { amount: bookItem.amount }
+      })
+    })
+    return await Promise.all(asyncUpdateBooks)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateBooks = async books => {
+  try {
+    const asyncUpdateBooks = books.map(bookItem => {
+      return Book.findByIdAndUpdate(bookItem.book, {
+        $inc: { historicalSold: bookItem.amount }
       })
     })
     return await Promise.all(asyncUpdateBooks)

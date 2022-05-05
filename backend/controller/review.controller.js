@@ -3,40 +3,62 @@ const Book = require('../model/book.model')
 const Review = require('../model/review.model')
 const Order = require('../model/order.model')
 const mongoose = require('mongoose')
+const createHttpError = require('http-errors')
 const createNewReview = async (req, res) => {
   try {
-    const reviewInfo = {
+    let reviewInfo = {
       book: req.body.book,
       account: req.body.account,
-      content: req.body.content,
-      rating: req.body.rating
+      content: req.body.content || '',
+      rating: req.body.rating || -1
     }
-    const propNames = Object.getOwnPropertyNames(reviewInfo)
-    propNames.forEach(prop => {
-      if (reviewInfo[prop] == undefined || reviewInfo[prop] == null)
-        throw new Error(`${prop} is null`)
+    const existReview = await Review.findOne({
+      book: reviewInfo.book,
+      account: reviewInfo.account
     })
-
+    if (existReview)
+      throw createHttpError.Conflict('You have already reviewed ')
     const account = await Account.findById(reviewInfo.account)
-    if (!account) throw new Error('Account does not exist')
+    if (!account) throw createHttpError.NotFound('Account does not exist')
     const book = await Book.findById(reviewInfo.book)
-    if (!book) throw new Error('Book does not exist')
+    if (!book) throw createHttpError.NotFound('Book does not exist')
     const order = await Order.findOne({
       user: reviewInfo.account,
       'books.book': reviewInfo.book,
       status: { $in: [3, 4] }
     })
-    if (!order) throw new Error('You have not yet purchased.')
+    if (!order) throw createHttpError.BadRequest('You have not purchased yet.')
+
+    if (reviewInfo.rating != -1) {
+      book.rating =
+        (book.rating * book.reviews.length + newReview.rating) /
+        (book.reviews.length + 1)
+    } else {
+      delete reviewInfo.rating
+    }
 
     const newReview = new Review(reviewInfo)
     const savedReview = await newReview.save()
     account.reviews.push(savedReview._id)
     book.reviews.push(savedReview._id)
+
     await Promise.all([account.save(), book.save()])
-    res.status(200).json(savedReview)
+    res.status(200).json({
+      success: true,
+      error: false,
+      message: '',
+      status: 200,
+      review: savedReview
+    })
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res.json({
+      success: false,
+      error: true,
+      message: error.message,
+      status: error.status,
+      review: null
+    })
   }
 }
 
@@ -57,10 +79,14 @@ const updateReview = async (req, res) => {
     const updatedReview = await Review.findByIdAndUpdate(id, updateProp, {
       new: true
     })
-    res.status(500).json(updatedReview)
+    res
+      .status(200)
+      .json({ success: true, error: false, message: '', review: updatedReview })
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res
+      .status(500)
+      .json({ success: false, error: true, message: '', review: null })
   }
 }
 
@@ -82,7 +108,9 @@ const deleteReview = async (req, res) => {
       }
     )
     await Promise.all([asyncUpdateAccount, asyncDeleteReview, asyncUpdateBook])
-    res.status(200).json({ deleted: true })
+    res
+      .status(200)
+      .json({ success: true, error: false, message: '', deleted: true })
   } catch (error) {
     console.log(error)
     res.status(500).json(error)

@@ -232,6 +232,16 @@ const DeleteBooks = async bookIds => {
   }
 }
 
+const searchGenres = async query => {
+  try {
+    const genres = await GenreModel.find(query).select('_id').lean()
+    return genres
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
 module.exports = {
   GetGenre,
   GetAllGenre,
@@ -244,5 +254,6 @@ module.exports = {
   AddBook,
   AddBooks,
   DeleteBooks,
-  SoftDeleteBooks
+  SoftDeleteBooks,
+  searchGenres
 }

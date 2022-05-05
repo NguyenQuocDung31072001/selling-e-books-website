@@ -18,11 +18,13 @@ router.post('/payment/:id', refundPayment)
 
 router.get('/order/payment/:orderId/success', paymentController.successOrder)
 
+router.get('/:id/bought', accountController.getAccountLibraries)
+
 router.get('/:id/cart', accountController.getAccountCart)
 
-router.post('/:id/cart/', accountController.addBookToCart)
+router.post('/:id/cart', accountController.addBookToCart)
 
-router.delete('/:id/cart/', accountController.pullBookFromCart)
+router.delete('/:id/cart', accountController.pullBookFromCart)
 
 router.get('/:id/yourOrder', orderController.getAllOrderOfUser)
 
