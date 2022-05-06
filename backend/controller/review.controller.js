@@ -66,8 +66,6 @@ const updateReview = async (req, res) => {
   try {
     const id = req.params.id
     const review = {
-      book: req.body.book,
-      account: req.body.account,
       rating: req.body.rating,
       content: req.body.content
     }
@@ -76,9 +74,13 @@ const updateReview = async (req, res) => {
     propNames.forEach(prop => {
       if (review[prop] != undefined) updateProp[prop] = review[prop]
     })
-    const updatedReview = await Review.findByIdAndUpdate(id, updateProp, {
-      new: true
-    })
+    const updatedReview = await Review.findOneAndUpdate(
+      { book: req.body.book, account: req.body.account },
+      updateProp,
+      {
+        new: true
+      }
+    )
     res
       .status(200)
       .json({ success: true, error: false, message: '', review: updatedReview })

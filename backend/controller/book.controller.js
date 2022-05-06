@@ -154,8 +154,6 @@ const GetAllBook = async (req, res) => {
       if (maxPrice || minPrice) queryObj['$and'] = []
       if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
       if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
-
-      console.log(queryObj)
     } else {
       if (search) {
         let regex = new RegExp(search, 'i')
@@ -179,8 +177,6 @@ const GetAllBook = async (req, res) => {
       if (maxPrice || minPrice) queryObj['$and'] = []
       if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
       if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
-
-      console.log(queryObj)
     }
 
     const maxItem = await BookModel.countDocuments(queryObj)
@@ -193,7 +189,7 @@ const GetAllBook = async (req, res) => {
       books: books
     })
   } catch (error) {
-    console.log({ GetBookError: error })
+    // console.log({ GetBookError: error })
     res.status(500).json(error)
   }
 }
@@ -273,7 +269,6 @@ const getBookOfAuthor = async (req, res) => {
 }
 
 const getBooks = async (query, page, perPage) => {
-
   const books = await BookModel.find(query)
     .skip((page - 1) * perPage)
     .limit(perPage)
@@ -281,7 +276,6 @@ const getBooks = async (query, page, perPage) => {
     .populate({ path: 'authors', select: '_id slug fullName birthDate' })
     .populate('language')
     .lean()
-    console.log(books)
   return books
 }
 
