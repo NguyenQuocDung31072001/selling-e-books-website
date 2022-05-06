@@ -20,6 +20,8 @@ router.get('/order/payment/:orderId/success', paymentController.successOrder)
 
 router.get('/:id/bought', accountController.getAccountLibraries)
 
+router.get('/:id/review', accountController.getAllBookReview) //lấy các sách đã review
+
 router.get('/:id/cart', accountController.getAccountCart)
 
 router.post('/:id/cart', accountController.addBookToCart)

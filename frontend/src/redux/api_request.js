@@ -626,7 +626,31 @@ export const getAllBookUserBought = async (id_account) => {
       API_URL +
         `/v1/selling_e_books/account/${id_account}/bought`
     )
-    console.log('all book user bought : ',response.data)
+    // console.log('all book user bought : ',response.data)
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+export const getAllBookUserReview = async (id_account) => {
+  try {
+    const response = await axios.get(
+      API_URL +
+        `/v1/selling_e_books/account/${id_account}/review`
+    )
+    // console.log('all book user review : ',response.data)
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+export const getReviewOfBook = async (id_book) => {
+  try {
+    const response = await axios.get(
+      API_URL +`/v1/selling_e_books/review/book/${id_book}`
+    )
     return response.data
   } catch (error) {
     console.log(error)
@@ -640,7 +664,7 @@ export const postNewReview = async (id_account,id_book,rating,content) => {
     content:content,
     rating:rating
   }
-  console.log('review info',reviewInfo)
+  // console.log('review info',reviewInfo)
   try {
     const response = await axios.post(
       API_URL +`/v1/selling_e_books/review/`,{
@@ -650,11 +674,46 @@ export const postNewReview = async (id_account,id_book,rating,content) => {
         content:content
       }
     )
-    console.log(response.data)
+    // console.log(response.data)
     return response.data
   } catch (error) {
     console.log(error)
     return []
   }
 }
-
+export const updateReview = async (id_account,id_book,rating,content) => {
+  const reviewInfo={
+    book:id_book,
+    account:id_account,
+    content:content,
+    rating:rating
+  }
+  // console.log('review info',reviewInfo)
+  try {
+    const response = await axios.put(
+      API_URL +`/v1/selling_e_books/review/`,reviewInfo
+    )
+    // console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+export const deleteReview = async (id_account, id_book) => {
+  try {
+    const res = await axios.delete(
+      API_URL + `/v1/selling_e_books/review/`,
+      {
+        data: {
+          book: id_book,
+          account: id_account,
+        }
+      }
+    )
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}

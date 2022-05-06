@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-    allBook:[]
+    allBookBought:[],
+    allBookReview:[]
 }
 
 const bookBoughtSlice = createSlice({
@@ -9,10 +10,13 @@ const bookBoughtSlice = createSlice({
   initialState,
   reducers: {
     getAllBookBought: (state, actions) => {
-      state.allBook=actions.payload
+      state.allBookBought=actions.payload
+    },
+    getAllBookReview:(state,actions)=>{
+      state.allBookReview=actions.payload
     }
   }
 })
-export const { getAllBookBought } = bookBoughtSlice.actions
+export const { getAllBookBought,getAllBookReview} = bookBoughtSlice.actions
 
 export default bookBoughtSlice.reducer

@@ -1,6 +1,7 @@
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const Genres = require('../model/genres.model')
+const Review =require('../model/review.model')
 const Collection = require('../model/collection.model')
 const { cloudinary } = require('../utils/cloudinary')
 const { default: mongoose } = require('mongoose')
@@ -224,6 +225,24 @@ const getAccountLibraries = async (req, res) => {
   }
 }
 
+const getAllBookReview = async (req, res) => {
+  try {
+    console.log(req.params)
+    const accountID = req.params.id
+    const arrBookReview=[]
+    const bookReview=await Review.find({account:accountID})
+    console.log(bookReview)
+    bookReview.forEach((book)=>{
+      arrBookReview.push(book.book)
+    })
+    console.log(arrBookReview)
+    res.json(arrBookReview)
+  } catch (error) {
+    console.log(error)
+    res.status(500)
+  }
+}
+
 module.exports = {
   getAccountCart,
   updateAccount,
@@ -232,5 +251,6 @@ module.exports = {
   updatePasswordAccount,
   getAccountShipping,
   updateAccountLibrary,
-  getAccountLibraries
+  getAccountLibraries,
+  getAllBookReview
 }

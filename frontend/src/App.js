@@ -32,22 +32,25 @@ import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
 import DashboardAdmin from './pages/dashboard_admin'
 import TopAdmin from './component/top_admin'
-import { getAllBookBought } from './redux/book_bought_slices'
-import { getAllBookUserBought } from './redux/api_request'
+import { getAllBookBought, getAllBookReview } from './redux/book_bought_slices'
+import { getAllBookUserBought,getAllBookUserReview } from './redux/api_request'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const dispatch = useDispatch()
   const [bookBought, setBookBought] = useState([])
+  const [bookReview, setBookReview] = useState([])
   useEffect(() => {
     ;(async function () {
       let _bookBought = await getAllBookUserBought(currentUser?._id)
       setBookBought(_bookBought)
+      let _bookReview=await getAllBookUserReview(currentUser?._id)
+      setBookReview(_bookReview)
     })()
   }, [])
   useEffect(() => {
-    console.log('book bought ',bookBought)
     dispatch(getAllBookBought(bookBought))
-  }, [bookBought])
+    dispatch(getAllBookReview(bookReview))
+  }, [bookBought,bookReview])
 
 
   function ProtectRouterUser({ children }) {

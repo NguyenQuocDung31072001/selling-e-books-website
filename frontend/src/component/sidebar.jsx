@@ -24,7 +24,7 @@ function SideBar() {
   const [allGenres, setAllGenres] = useState([])
   const [allAuthors, setAllAuthors] = useState([])
   const handleClick = e => {
-    console.log(e)
+    // console.log(e)
   }
   useEffect(() => {
     ;(async function () {
