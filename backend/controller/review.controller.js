@@ -29,6 +29,7 @@ const createNewReview = async (req, res) => {
     })
     if (!order) throw createHttpError.BadRequest('You have not purchased yet.')
 
+    const newReview = new Review(reviewInfo)
     if (reviewInfo.rating != -1) {
       book.rating =
         (book.rating * book.reviews.length + newReview.rating) /
@@ -37,7 +38,6 @@ const createNewReview = async (req, res) => {
       delete reviewInfo.rating
     }
 
-    const newReview = new Review(reviewInfo)
     const savedReview = await newReview.save()
     account.reviews.push(savedReview._id)
     book.reviews.push(savedReview._id)
