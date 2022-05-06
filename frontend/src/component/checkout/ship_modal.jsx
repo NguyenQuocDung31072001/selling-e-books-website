@@ -29,8 +29,9 @@ function ShipModal(props) {
           getDistrictData(province.ProvinceID),
           getWardData(district.DistrictID)
         ])
-        setWardData(wards)
+        console.log(wards)
         setDistrictData(districts)
+        setWardData(wards)
       }
     }
     getData()
@@ -88,7 +89,7 @@ function ShipModal(props) {
 
   return (
     <>
-      {/* {console.log(customer)} */}
+      {console.log(ward)}
       <Modal
         title="Thay đổi địa chỉ giao hàng"
         visible={visible}
@@ -103,10 +104,10 @@ function ShipModal(props) {
           initialValues={{
             customer: customer,
             phoneNumber: phoneNumber,
-            street: street,
-            ward: ward.WardCode,
+            province: province.ProvinceID,
             district: district.DistrictID,
-            province: province.ProvinceID
+            ward: ward.WardCode?.toString(),
+            street: street
           }}
           onFinish={saveShipInfo}
           // onFinishFailed={onFinishFailed}

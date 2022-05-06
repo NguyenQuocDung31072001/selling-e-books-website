@@ -65,20 +65,19 @@ const createNewReview = async (req, res) => {
 const updateReview = async (req, res) => {
   try {
     const id = req.params.id
-    const review = {
-      book: req.body.book,
-      account: req.body.account,
-      rating: req.body.rating,
-      content: req.body.content
-    }
+    const review = { rating: req.body.rating, content: req.body.content }
     const propNames = Object.getOwnPropertyNames(review)
     const updateProp = {}
     propNames.forEach(prop => {
       if (review[prop] != undefined) updateProp[prop] = review[prop]
     })
-    const updatedReview = await Review.findByIdAndUpdate(id, updateProp, {
-      new: true
-    })
+    const updatedReview = await Review.findOneAndUpdate(
+      { book: req.body.book, account: req.body.account },
+      updateProp,
+      {
+        new: true
+      }
+    )
     res
       .status(200)
       .json({ success: true, error: false, message: '', review: updatedReview })
@@ -92,28 +91,31 @@ const updateReview = async (req, res) => {
 
 const deleteReview = async (req, res) => {
   try {
-    const id = req.params.id
-    if (!mongoose.isValidObjectId(id)) throw new Error('invalid review id')
-    const asyncDeleteReview = Review.deleteOne({ _id: id })
+    const deletedReview = await Review.findOneAndDelete({
+      book: req.body.book,
+      account: req.body.account
+    })
     const asyncUpdateAccount = Account.findOneAndUpdate(
-      { reviews: id },
+      { reviews: deletedReview._id },
       {
-        $pull: { reviews: id }
+        $pull: { reviews: deletedReview._id }
       }
     )
     const asyncUpdateBook = Book.findOneAndUpdate(
-      { reviews: id },
+      { reviews: deletedReview._id },
       {
-        $pull: { reviews: id }
+        $pull: { reviews: deletedReview._id }
       }
     )
-    await Promise.all([asyncUpdateAccount, asyncDeleteReview, asyncUpdateBook])
+    await Promise.all([asyncUpdateAccount, asyncUpdateBook])
     res
       .status(200)
       .json({ success: true, error: false, message: '', deleted: true })
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res
+      .status(500)
+      .json({ success: false, error: true, message: '', deleted: false })
   }
 }
 
