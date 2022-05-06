@@ -155,7 +155,7 @@ const GetAllBook = async (req, res) => {
       if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
       if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
 
-      console.log(queryObj)
+      // console.log(queryObj)
     } else {
       if (search) {
         let regex = new RegExp(search, 'i')
@@ -281,7 +281,7 @@ const getBooks = async (query, page, perPage) => {
     .populate({ path: 'authors', select: '_id slug fullName birthDate' })
     .populate('language')
     .lean()
-    console.log(books)
+    // console.log(books)
   return books
 }
 

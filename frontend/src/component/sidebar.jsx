@@ -5,15 +5,14 @@ import { Link } from 'react-router-dom'
 import { Menu, Typography } from 'antd'
 import {
   SettingOutlined,
-  AppstoreAddOutlined,
-  AreaChartOutlined,
   ShoppingCartOutlined,
   FilterOutlined,
   HomeOutlined,
   UserSwitchOutlined,
   UserOutlined,
   MedicineBoxOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  ShopOutlined
 } from '@ant-design/icons'
 import {
   getAllGenresForAddBook,
@@ -107,6 +106,9 @@ function SideBar() {
               </Menu.Item>
             ))}
         </SubMenu>
+        <Menu.Item icon={<ShopOutlined />} key="purchase">
+          <Link to="/user/purchase">Đơn hàng của bạn</Link>
+        </Menu.Item>
         <Menu.Item icon={<SettingOutlined />} key="setting">
           <Link to="/user/setting">Thông tin cá nhân</Link>
         </Menu.Item>

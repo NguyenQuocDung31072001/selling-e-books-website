@@ -5,6 +5,7 @@ const Order = require('../model/order.model')
 const mongoose = require('mongoose')
 const createHttpError = require('http-errors')
 const createNewReview = async (req, res) => {
+  console.log(req.body)
   try {
     let reviewInfo = {
       book: req.body.book,
@@ -36,7 +37,6 @@ const createNewReview = async (req, res) => {
     } else {
       delete reviewInfo.rating
     }
-
     const newReview = new Review(reviewInfo)
     const savedReview = await newReview.save()
     account.reviews.push(savedReview._id)
@@ -61,7 +61,6 @@ const createNewReview = async (req, res) => {
     })
   }
 }
-
 const updateReview = async (req, res) => {
   try {
     const id = req.params.id

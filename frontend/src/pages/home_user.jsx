@@ -191,7 +191,6 @@ export default function HomePagesUser() {
                 key={key}
                 className="group w-[260px] h-[182px] m-4 p-2  flex flex-col items-center justify-center  overflow-hidden "
               >
-                {console.log(book)}
                 <div className="w-full h-full flex ">
                   <div className=" w-[130px] h-[182px] mr-2 relative ">
                     <img

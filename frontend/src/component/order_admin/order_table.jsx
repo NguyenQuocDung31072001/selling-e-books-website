@@ -54,8 +54,8 @@ function OrderTable(props) {
       key: 'books',
       render: books => (
         <Anchor style={{ borderLeft: '0' }}>
-          {books.map(item => (
-            <Link href="/" title={`${item.book.name} - sl: ${item.amount}`} />
+          {books.map((item,index) => (
+            <Link key={index} href="/" title={`${item.book.name} - sl: ${item.amount}`} />
           ))}
         </Anchor>
       )

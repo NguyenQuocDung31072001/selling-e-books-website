@@ -50,7 +50,7 @@ function SettingUser() {
 
     const getData = async () => {
       const provinceData = await getProvinceData()
-      console.log(provinceData)
+      // console.log(provinceData)
       setProvinceData(provinceData)
     }
     getData()
@@ -110,7 +110,7 @@ function SettingUser() {
       birthDate: birthDate,
       avatarBase64: imageBase64
     }
-    console.log(account)
+    // console.log(account)
     updateAccountAdmin(currentUser, account, dispatch)
   }
 

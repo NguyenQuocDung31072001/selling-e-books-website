@@ -22,19 +22,33 @@ import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
 import AllBookAdmin from './pages/all_book_admin'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import OrderManage from './pages/order_admin'
-import CategoryUser from "./pages/category_page"
-import { useEffect } from 'react'
+import CategoryUser from './pages/category_page'
+import { useEffect, useState } from 'react'
 import DetailBookAdmin from './pages/detail_book_admin'
 import AllGenreBookAdmin from './pages/all_book_genre_admin'
 import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
 import DashboardAdmin from './pages/dashboard_admin'
 import TopAdmin from './component/top_admin'
-
+import { getAllBookBought } from './redux/book_bought_slices'
+import { getAllBookUserBought } from './redux/api_request'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
+  const dispatch = useDispatch()
+  const [bookBought, setBookBought] = useState([])
+  useEffect(() => {
+    ;(async function () {
+      let _bookBought = await getAllBookUserBought(currentUser?._id)
+      setBookBought(_bookBought)
+    })()
+  }, [])
+  useEffect(() => {
+    console.log('book bought ',bookBought)
+    dispatch(getAllBookBought(bookBought))
+  }, [bookBought])
+
 
   function ProtectRouterUser({ children }) {
     return currentUser?.role === 'user' ? (
@@ -177,7 +191,7 @@ function AdminComponent() {
   return (
     <div>
       <LayoutAdmin />
-      <TopAdmin/>
+      <TopAdmin />
       <div className="ml-[256px]">
         <Outlet />
       </div>
@@ -189,12 +203,11 @@ function UserComponent() {
   return (
     <div>
       <TopUser />
-      <SideBar/>
+      <SideBar />
       <div className="mt-[100px] ml-[300px]">
         {/* <BreadcrumbsUser /> */}
         <Outlet />
       </div>
-     
     </div>
   )
 }

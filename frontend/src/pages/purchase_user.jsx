@@ -1,11 +1,21 @@
 import { Spin, Tabs } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 import PurchaseTable from '../component/purchase_user/purchase_table'
 import { useDispatch, useSelector } from 'react-redux'
+import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 
 export default function UserPurchase() {
   const { TabPane } = Tabs
   const currentUser = useSelector(state => state.auth.login.currentUser)
+  const dispatch=useDispatch()
+  useEffect(() => {
+    const breadcrum = {
+      genre_slug: '',
+      genre_name: 'Đơn hàng',
+      name_book:'' 
+    }
+    dispatch(updateBreadcrumb(breadcrum))
+  }, [])
   return (
     <div className="w-full h-full bg-slate-100 flex flex-col items-center">
       <div className="max-w-screen-lg container py-10">
