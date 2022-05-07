@@ -48,7 +48,7 @@ export default function HomePagesUser() {
 
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 15,
+    limit: 16,
     total: bookData.length
   })
   const dispatch = useDispatch()
@@ -57,7 +57,7 @@ export default function HomePagesUser() {
     setPagination({
       ...pagination,
       page: current,
-      limit: 15
+      limit: 16
     })
   }
   useEffect(() => {
@@ -189,9 +189,9 @@ export default function HomePagesUser() {
             ) => (
               <div
                 key={key}
-                className="group w-[260px] h-[182px] m-4 p-2  flex flex-col items-center justify-center  overflow-hidden "
+                className="group w-[260px] h-[182px] m-4 p-2  flex items-center justify-center  overflow-hidden "
               >
-                <div className="w-full h-full flex ">
+                <div className="flex w-full h-full">
                   <div className=" w-[130px] h-[182px] mr-2 relative ">
                     <img
                       src={book.coverUrl}
@@ -235,13 +235,6 @@ export default function HomePagesUser() {
                     </div>
                   </div>
                 </div>
-
-                {/* <div className="flex flex-col h-[110px] transition translate-y-[60px] duration-[0.25s] group-hover:translate-y-[-60px] group-hover:text-white group-hover:bg-stone-600">
-                  <span>{book.name}</span>
-                  <span>Thể loại: {book.genres[0]?.name}</span>
-                  <span>Tác giả: {book.authors[0]?.fullName}</span>
-                  <span>Mô tả: {book.description}</span>
-                </div> */}
               </div>
             )
           )}

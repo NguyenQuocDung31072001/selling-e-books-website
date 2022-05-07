@@ -127,14 +127,14 @@ function App() {
                 </ProtectRouterAdmin>
               }
             />
-            <Route
+            {/* <Route
               path="home/:genre/:slug"
               element={
                 <ProtectRouterAdmin>
                   <DetailBookAdmin />
                 </ProtectRouterAdmin>
               }
-            />
+            /> */}
             <Route path="home/:genre" element={<AllGenreBookAdmin />} />
             <Route
               path="all_book"
@@ -184,7 +184,7 @@ function App() {
             <Route path="checkout" element={<Checkout />} />
             <Route path="purchase" element={<UserPurchase />} />
           </Route>
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </div>
@@ -194,7 +194,6 @@ function AdminComponent() {
   return (
     <div>
       <LayoutAdmin />
-      <TopAdmin />
       <div className="ml-[256px]">
         <Outlet />
       </div>

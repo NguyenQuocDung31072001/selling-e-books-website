@@ -22,7 +22,7 @@ export default function PaginationFunc(props) {
     <div>
       {/* <Pagination count={count} shape="rounded" onChange={pageChange}/> */}
       {/* <Pagination itemRender={itemRender} total={total} onChange={pageChange} /> */}
-      <Pagination defaultCurrent={1} total={total} onChange={pageChange}/>
+      <Pagination defaultCurrent={1} count={count} total={total} onChange={pageChange}/>
     </div>
   )
 }

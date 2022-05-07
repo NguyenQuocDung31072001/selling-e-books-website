@@ -46,7 +46,7 @@ export default function CategoryUser() {
 
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 15,
+    limit: 16,
     total: bookData.length
   })
   const dispatch = useDispatch()
@@ -55,7 +55,7 @@ export default function CategoryUser() {
     setPagination({
       ...pagination,
       page: current,
-      limit: 15
+      limit: 16
     })
   }
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function CategoryUser() {
     ;(async function () {
       //load api lấy tất cả thể loại
       const allGenre = await getAllGenresForAddBook()
-      const allGenreName = [' ']
+      const allGenreName = ['']
       for (let i = 0; i < allGenre.length; i++) {
         allGenreName.push(allGenre[i].name)
       }
@@ -77,11 +77,10 @@ export default function CategoryUser() {
     ;(async function () {
       //load api lấy tất cả tác giả
       const allAuthor = await getAllAuthorForAddBook()
-      const allAuthorName = [' ']
+      const allAuthorName = ['']
       for (let i = 0; i < allAuthor.length; i++) {
         allAuthorName.push(allAuthor[i].fullName)
       }
-
       setAllAuthors(allAuthorName)
     })()
     const breadcrum = {
@@ -118,10 +117,12 @@ export default function CategoryUser() {
       _bookRender = bookFilter.slice((_page - 1) * _limit, _page * _limit)
     }
     setBookRender(_bookRender)
+
   }, [pagination, bookFilter])
 
   useEffect(() => {
     //khi query thay đổi (khi đang nhập vào ô tìm kiếm) thì set lại bookFilter
+    console.log('querySearch',querySearch)
     let dataQuery
     if (querySearch.type === 'name') {
       dataQuery = bookData?.filter(book =>
@@ -288,13 +289,6 @@ export default function CategoryUser() {
                     </div>
                   </div>
                 </div>
-
-                {/* <div className="flex flex-col h-[110px] transition translate-y-[60px] duration-[0.25s] group-hover:translate-y-[-60px] group-hover:text-white group-hover:bg-stone-600">
-                  <span>{book.name}</span>
-                  <span>Thể loại: {book.genres[0]?.name}</span>
-                  <span>Tác giả: {book.authors[0]?.fullName}</span>
-                  <span>Mô tả: {book.description}</span>
-                </div> */}
               </div>
             )
           )}

@@ -20,6 +20,9 @@ function DetailBookAdmin() {
       setLoading(false)
     }
     getBookFnc(slug)
+    return ()=>{
+      setBook([])
+    }
   }, [])
 
   return (
@@ -46,7 +49,7 @@ function DetailBookAdmin() {
           </div>
           <div className="w-[500px] flex items-center justify-between">
             <div>
-              <Title level={4}>Tác giả:{book?.authors[0].fullName}</Title>
+              <Title level={4}>Tác giả:{book?.authors[0]?.fullName}</Title>
             </div>
             <div>
               <Link to={`${PATH_NAME.DETAIL_BOOK_ADMIN}/${book?.genres[0].slug}`}>
