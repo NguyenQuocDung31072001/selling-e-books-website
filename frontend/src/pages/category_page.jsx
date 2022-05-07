@@ -126,7 +126,8 @@ export default function CategoryUser() {
     let dataQuery
     if (querySearch.type === 'name') {
       dataQuery = bookData?.filter(book =>
-        book.name.toLowerCase().includes(querySearch.query.name)
+        book.name.toLowerCase().includes(querySearch.query.name)&&
+        book.name.includes(querySearch.query.name)
       )
     }
     if (querySearch.type === 'many') {
@@ -272,7 +273,7 @@ export default function CategoryUser() {
                     <Rate
                       allowHalf
                       disabled
-                      defaultValue={2.5}
+                      defaultValue={book.rating}
                       style={{ fontSize: 12 }}
                     />
                     <div className="">
@@ -296,11 +297,6 @@ export default function CategoryUser() {
       </div>
       <div className="my-[30px]">
         <PaginationFunc pagination={pagination} handlePageChange={pageChange} />
-      </div>
-      <div className="w-[97%] h-[200px] mb-8 bg-white relative">
-        <div className="absolute top-2 left-2 text-[25px]">
-          <h1>Sách nổi bật</h1>
-        </div>
       </div>
       <div className="w-full mt-[50px] h-[200px] bg-black flex justify-around items-center">
         <div>

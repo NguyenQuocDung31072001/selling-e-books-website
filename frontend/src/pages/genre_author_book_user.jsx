@@ -108,7 +108,7 @@ function GenresAuthorsBookUser() {
                     <Rate
                       allowHalf
                       disabled
-                      defaultValue={2.5}
+                      defaultValue={book.rating}
                       style={{ fontSize: 12 }}
                     />
                     <div className="">

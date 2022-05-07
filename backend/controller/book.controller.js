@@ -331,6 +331,8 @@ const GetTop = async (req, res) => {
     const books = await BookModel.find({})
       .sort({ [field]: -1 })
       .limit(top)
+      .populate('authors')
+      .populate('genres')
     res.json(books)
   } catch (error) {
     console.log(error)

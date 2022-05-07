@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import PaginationFunc from '../component/pagination'
 import SlideshowUser from '../component/slideshow_user'
+import TopRatingSlider from "../component/slider_home_user"
 import {
   getAllBook,
   getAllGenresForAddBook,
@@ -219,7 +220,7 @@ export default function HomePagesUser() {
                     <Rate
                       allowHalf
                       disabled
-                      defaultValue={2.5}
+                      defaultValue={book.rating}
                       style={{ fontSize: 12 }}
                     />
                     <div className="">
@@ -243,10 +244,8 @@ export default function HomePagesUser() {
       <div className="my-[30px]">
         <PaginationFunc pagination={pagination} handlePageChange={pageChange} />
       </div>
-      <div className="w-[97%] h-[200px] mb-8 bg-white relative">
-        <div className="absolute top-2 left-2 text-[25px]">
-          <h1>Sách nổi bật</h1>
-        </div>
+      <div className="w-[97%] p-4 mb-8 bg-white">
+        <TopRatingSlider/>
       </div>
       <div className="w-full mt-[50px] h-[200px] bg-black flex justify-around items-center">
         <div>

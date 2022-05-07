@@ -43,7 +43,6 @@ const register = async (req, res, next) => {
     next(error)
   }
 }
-
 function generateAccessToken(id) {
   return jwt.sign(
     {

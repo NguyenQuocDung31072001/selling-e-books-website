@@ -46,12 +46,15 @@ function App() {
       let _bookReview=await getAllBookUserReview(currentUser?._id)
       setBookReview(_bookReview)
     })()
+    return ()=>{
+      setBookBought()
+      setBookReview()
+    }
   }, [])
   useEffect(() => {
     dispatch(getAllBookBought(bookBought))
     dispatch(getAllBookReview(bookReview))
   }, [bookBought,bookReview])
-
 
   function ProtectRouterUser({ children }) {
     return currentUser?.role === 'user' ? (
