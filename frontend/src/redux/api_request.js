@@ -717,3 +717,19 @@ export const deleteReview = async (id_account, id_book) => {
     console.log(error)
   }
 }
+export const getTopBook = async (top,field) => {
+  try {
+    const res = await axios.get(
+      API_URL + `/v1/selling_e_books/book/top/`,{
+        params:{
+          top:top,
+          field:field
+        }
+      }
+    )
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
