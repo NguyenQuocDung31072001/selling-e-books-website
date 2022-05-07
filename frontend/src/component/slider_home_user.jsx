@@ -38,13 +38,13 @@ export default function TopRatingSlider() {
           topBookRating.map((book, index) => (
             <div key={index}>
               <div className="group flex items-center w-[356px] h-[209px] px-[15px]">
-                <div className="relative ">
+                <div className="relative w-[148px] h-[209px]">
                   <img
                     src={book.coverUrl}
-                    className="w-[148px] h-[209px] object-cover"
+                    className="w-full h-full object-cover"
                     alt=""
                   />
-                  <div className="w-[148px] h-[209px] duration-[0.5s] flex items-center justify-center absolute top-0 left-0 right-0 opacity-0 group-hover:opacity-100 group-hover:bg-[#00000090] ">
+                  <div className="w-full h-full duration-[0.5s] flex items-center justify-center absolute top-0 left-0 right-0 opacity-0 group-hover:opacity-100 group-hover:bg-[#00000090] ">
                     <div>
                       <Link
                         to={`${PATH_NAME.USER_HOME_PAGE}/${book.genres[0]?.slug}/${book.slug}`}
