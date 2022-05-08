@@ -13,36 +13,53 @@ const RenderBookComponent = ({ books }) => {
   const navigate = useNavigate()
   const [bookRender, setBookRender] = useState()
   useEffect(() => {
-    if(books){
+    if (books) {
       let limit = 16
       setBookRender(books.slice(0, limit))
     }
   }, [books])
 
-  const buyBookFnc = idOfBook => {
-    const id_book = idOfBook
-    const id_account = currentUser._id
-    const data = {
-      book: id_book,
-      account: id_account
-    }
-    addBookToCart(data)
-    openNotification()
-  }
-  const openNotification = () => {
-    notification.open({
-      message: 'Đã thêm vào giỏ hàng!',
-      description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
-      style: {
-        width: 400
-      },
-      onClick: () => {
-        navigate('/user/cart')
+  const buyBookFnc = (idOfBook,amount) => {
+    if(amount===0){
+      openNotification(amount)
+    }else{
+      const id_book = idOfBook
+      const id_account = currentUser._id
+      const data = {
+        book: id_book,
+        account: id_account
       }
-    })
+      addBookToCart(data)
+      openNotification(amount)
+    }
+  }
+  const openNotification = (amount) => {
+    if(amount===0){
+      notification.open({
+        message:'Đã hết sách!',
+        description: 'Bạn vui lòng chờ nhập thêm sách vào kho hàng!',
+        style: {
+          width: 400,
+          backgroundColor:'#ffbe76',
+          color:'#535c68'
+        },
+      })
+    }
+    else{
+        notification.open({
+          message:'Đã thêm vào giỏ hàng!',
+          description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+          style: {
+            width: 400
+          },
+          onClick: () => {
+            navigate('/user/cart')
+          }
+        })
+    }
   }
   const onChangePage = current => {
-    window.scrollTo(0,0)
+    window.scrollTo(0, 0)
     console.log(current)
     const limit = 16
     let _bookRender = [...books].slice(limit * (current - 1), limit * current)
@@ -55,9 +72,9 @@ const RenderBookComponent = ({ books }) => {
           bookRender.map((book, key) => (
             <div
               key={key}
-              className="group w-[260px] h-[182px] m-4 p-2  flex items-center justify-center  overflow-hidden "
+              className="group w-[260px] h-[220px] m-4 p-2 overflow-hidden "
             >
-              <div className="flex w-full h-full">
+              <div className="flex w-fullh-[182px]">
                 <div className=" w-[130px] h-[182px] mr-2 relative ">
                   <img
                     src={book.coverUrl}
@@ -96,10 +113,26 @@ const RenderBookComponent = ({ books }) => {
                   <div className="absolute bottom-0 left-4">
                     <ShoppingCartOutlined
                       style={{ color: '#27ae60', fontSize: 30 }}
-                      onClick={() => buyBookFnc(book._id)}
+                      onClick={() => buyBookFnc(book._id,book.amount)}
                     />
                   </div>
                 </div>
+              </div>
+              <div className="w-full h-[38px] ">
+                {book.amount === 0 && (
+                  <div className="w-full h-full bg-gradient-to-r from-sky-400 to-indigo-300">
+                    <p className="text-[18px] font-bold text-red-500">
+                      Đã hết sách
+                    </p>
+                  </div>
+                )}
+                {book.amount !== 0 && (
+                  <div className="w-full h-full bg-gradient-to-r from-violet-500 to-fuchsia-500">
+                  <p className="text-[18px] font-bold text-yellow-300">
+                    Còn {book.amount} cuốn
+                  </p>
+                  </div>
+                )}
               </div>
             </div>
           ))}

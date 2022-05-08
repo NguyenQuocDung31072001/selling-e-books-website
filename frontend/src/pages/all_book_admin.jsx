@@ -59,7 +59,7 @@ export default function AllBookAdmin() {
       key:'action',
       render:(action)=>{
         return (
-          <UpdateBookAdmin book={action}/>
+        <UpdateBookAdmin book={action}/>
         )
       }
     }

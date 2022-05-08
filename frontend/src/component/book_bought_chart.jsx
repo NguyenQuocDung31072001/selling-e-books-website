@@ -20,7 +20,7 @@ export default function BookBoughtChart() {
       topBook.forEach(book => {
         _book.push({
           name: book.name,
-          rate: book.rating
+          bought: book.historicalSold
         })
       })
       setData(_book)
@@ -46,7 +46,7 @@ export default function BookBoughtChart() {
         <YAxis />
         <Tooltip />
         <CartesianGrid strokeDasharray="3 3" />
-        <Bar dataKey="rate" fill="#2ecc71" />
+        <Bar dataKey="bought" fill="#2ecc71" />
       </BarChart>
     </ResponsiveContainer>
   )

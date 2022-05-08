@@ -114,27 +114,44 @@ function DetailBookUser() {
     }
   }, [allReview])
   const buyBookFnc = () => {
-    const id_book = book._id
-    const id_account = currentUser._id
-    const data = {
-      book: id_book,
-      account: id_account
+    if(book.amount===0){
+      openNotification()
     }
-    addBookToCart(data)
-    openNotification()
+    else{
+        const id_book = book._id
+        const id_account = currentUser._id
+        const data = {
+          book: id_book,
+          account: id_account
+        }
+        addBookToCart(data)
+        openNotification()
+    }
   }
   const openNotification = () => {
-    notification.open({
-      message: 'Đã thêm vào giỏ hàng!',
-      description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
-      className: 'bg-green-500',
-      style: {
-        width: 400
-      },
-      onClick: () => {
-        navigate('/user/cart')
-      }
-    })
+    if(book.amount===0){
+      notification.open({
+        message:'Đã hết sách!',
+        description: 'Bạn vui lòng chờ nhập thêm sách vào kho hàng!',
+        style: {
+          width: 400,
+          backgroundColor:'#ffbe76',
+          color:'#535c68'
+        },
+      })
+    }
+    else{
+        notification.open({
+          message:'Đã thêm vào giỏ hàng!',
+          description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+          style: {
+            width: 400
+          },
+          onClick: () => {
+            navigate('/user/cart')
+          }
+        })
+    }
   }
   //function of model
   const showModal = () => {

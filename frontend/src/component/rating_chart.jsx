@@ -43,7 +43,7 @@ export default function RatingChart() {
         barSize={40}
       >
         <XAxis dataKey="name" padding={{ left: 40, right: 40 }} />
-        <YAxis />
+        <YAxis type="number" ticks={[0,1,2,3,4,5]} domain={[0,5]}/>
         <Tooltip />
         <CartesianGrid strokeDasharray="3 3" />
         <Bar dataKey="rate" fill="#e74c3c" />
