@@ -32,30 +32,8 @@ import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
 import DashboardAdmin from './pages/dashboard_admin'
 import TopAdmin from './component/top_admin'
-import { getAllBookBought, getAllBookReview } from './redux/book_bought_slices'
-import { getAllBookUserBought,getAllBookUserReview } from './redux/api_request'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
-  const dispatch = useDispatch()
-  const [bookBought, setBookBought] = useState([])
-  const [bookReview, setBookReview] = useState([])
-  useEffect(() => {
-    ;(async function () {
-      let _bookBought = await getAllBookUserBought(currentUser?._id)
-      setBookBought(_bookBought)
-      let _bookReview=await getAllBookUserReview(currentUser?._id)
-      setBookReview(_bookReview)
-    })()
-    return ()=>{
-      setBookBought()
-      setBookReview()
-    }
-  }, [])
-  useEffect(() => {
-    dispatch(getAllBookBought(bookBought))
-    dispatch(getAllBookReview(bookReview))
-  }, [bookBought,bookReview])
-
   function ProtectRouterUser({ children }) {
     return currentUser?.role === 'user' ? (
       children
@@ -210,7 +188,6 @@ function UserComponent() {
       <TopUser />
       <SideBar />
       <div className="mt-[100px] ml-[300px]">
-        {/* <BreadcrumbsUser /> */}
         <Outlet />
       </div>
     </div>

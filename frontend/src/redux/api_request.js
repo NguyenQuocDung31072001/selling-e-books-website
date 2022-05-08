@@ -138,19 +138,16 @@ export const getBookOfGenres = async genres => {
     const res = await axios.get(
       API_URL + `/v1/selling_e_books/genre/${genres}/books`
     )
-    console.log('res data genres',res.data)
     return res.data
   } catch (error) {
     console.log(error)
   }
 }
 export const getBookOfAuthors = async authors => {
-  console.log('authors',authors)
   try {
     const res = await axios.get(
       API_URL + `/v1/selling_e_books/author/${authors}/books`
     )
-    console.log('res data author',res.data)
     return res.data
   } catch (error) {
     console.log(error)

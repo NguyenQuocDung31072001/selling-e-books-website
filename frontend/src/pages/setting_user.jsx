@@ -12,6 +12,7 @@ import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image, Select } from 'antd'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
+import Footer from '../component/footer'
 const { TextArea } = Input
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
@@ -41,6 +42,7 @@ function SettingUser() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    window.scrollTo(0,0)
     const breadcrumb = {
       genre_slug: 'setting',
       genre_name: 'Setting',
@@ -410,6 +412,7 @@ function SettingUser() {
           </Button>
         </div>
       </div>
+      <Footer/>
     </div>
   )
 }

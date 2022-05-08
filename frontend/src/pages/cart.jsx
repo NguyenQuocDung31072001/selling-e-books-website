@@ -14,6 +14,8 @@ import {
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { PATH_NAME } from '../config/pathName'
 import ShipModal from '../component/checkout/ship_modal'
+import { numberFormat } from '../utils/formatNumber'
+import Footer from '../component/footer'
 
 export default function Cart() {
   const [loading, setLoading] = useState(false)
@@ -43,7 +45,7 @@ export default function Cart() {
     {
       title: 'Đơn giá',
       dataIndex: 'price',
-      render: price => <p>{price}</p>
+      render: price => <p>{numberFormat(price)}</p>
     },
     {
       title: 'Số lượng',
@@ -51,24 +53,23 @@ export default function Cart() {
       render: (count, record) => {
         return (
           <div className="flex ">
-            <Button
-              size="small"
-              className="w-[20px] h-[20px]"
+            <button
+              className="w-[20px] h-[20px] text-center border-[1px] border-gray-300 hover:border-sky-500"
               onClick={() => decreaseFnc(record.key)}
               disabled={count.status}
             >
               -
-            </Button>
-            <div className="w-[30px]">
-              <Input value={count.value} size="small" />
+            </button>
+            <div className="text-center border-y-[1px] border-gray-300 h-[20px] w-[30px]">
+              {/* <Input value={count.value}  style={{width:20,height:20}}/> */}
+              <p>{count.value}</p>
             </div>
-            <Button
-              size="small"
-              className="w-[20px] h-[20px]"
+            <button
+              className="w-[20px] h-[20px] text-center border-[1px] border-gray-300 hover:border-sky-500"
               onClick={() => increaseFnc(record.key)}
             >
               +
-            </Button>
+            </button>
           </div>
         )
       }
@@ -76,7 +77,7 @@ export default function Cart() {
     {
       title: 'Thành tiền',
       dataIndex: 'total',
-      render: total => <p>{total}</p>
+      render: total => <p>{numberFormat(total)}</p>
     },
     {
       title: <DeleteFilled />,
@@ -90,6 +91,7 @@ export default function Cart() {
   ]
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     setLoading(true)
     const breadcrumb = {
       genre_slug: 'cart',
@@ -230,11 +232,9 @@ export default function Cart() {
       setTotalFinal(tong_cong)
     }
   }
-
   const closeShipModal = () => {
     setOpenShipModal(false)
   }
-
   const saveShipInfo = data => {
     setShipData({ ...data, username: data.customer })
     setOpenShipModal(false)
@@ -257,15 +257,15 @@ export default function Cart() {
           onSave={saveShipInfo}
         />
       )}
-      <div className="flex flex-col justify-center mx-[20px]">
+      <div className="flex flex-col justify-center ">
         <div className="flex justify-center mx-[20px]">
           {firstLoading && (
-            <div className="fixed w-screen h-screen z-10">
+            <div className="fixed w-full h-full z-10">
               <Spin tip="Loading..." />
             </div>
           )}
           {loading && (
-            <div className="fixed w-screen h-screen z-10">
+            <div className="fixed w-full h-full z-10">
               <Spin tip="Loading..." />
             </div>
           )}
@@ -280,47 +280,68 @@ export default function Cart() {
               dataSource={data}
             />
           </div>
-          <div className="w-[350px] ml-[20px] h-[300px] flex justify-center bg-white ">
-            <div className="flex flex-col">
+          <div className="w-[350px] ml-[20px] h-[330px] bg-white ">
+            <div className="flex flex-col p-4">
               <div>
-                <div className="flex justify-between mb-[10px] mt-[15px]">
-                  <span>Giao tới</span>
-                  <Link
-                    to={`${PATH_NAME.USER_CART}`}
-                    onClick={() => {
-                      setOpenShipModal(true)
-                    }}
-                  >
-                    Thay đổi
-                  </Link>
+                <div className="flex relative py-4">
+                  <span className="text-[15px] font-medium">Giao tới</span>
+                  <div className="absolute top-4 right-4">
+                    <Link
+                      to={`${PATH_NAME.USER_CART}`}
+                      onClick={() => {
+                        setOpenShipModal(true)
+                      }}
+                    >
+                      <span className="text-[15px] font-medium">Thay đổi</span>
+                    </Link>
+                  </div>
                 </div>
                 <div className="flex ">
-                  <h1>{shipData.username}</h1>
-                  <h1 className="ml-[10px]">{shipData.phoneNumber}</h1>
+                  <p className="text-[15px] font-medium">{shipData.username}</p>
+                  <p className="text-[15px] font-medium ml-16">
+                    {shipData.phoneNumber}
+                  </p>
                 </div>
-                <div className="flex mb-[20px]">{`${shipData.address?.street}, ${shipData.address?.ward.WardName}, ${shipData.address?.district.DistrictName}, ${shipData.address?.province.ProvinceName}`}</div>
+                <div className="flex flex-col items-start mb-[20px] text-gray-500">
+                  <p>{shipData.address?.street}</p>
+                  <div className="flex ">
+                    <p>{shipData.address?.ward.WardName}, </p>
+                    <p>{shipData.address?.district.DistrictName}, </p>
+                    <p>{shipData.address?.province.ProvinceName}</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between pr-4">
                 <div>
                   <h1> Tạm tính</h1>
                 </div>
                 <div>
-                  <h1>{totalFinal}</h1>
+                  <h1>{numberFormat(totalFinal)}</h1>
                 </div>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between pr-4">
                 <div>
                   <h1>Tổng cộng</h1>
                 </div>
                 <div>
-                  <h1>{totalFinal}</h1>
+                  <h1>{numberFormat(totalFinal)}</h1>
                 </div>
               </div>
-              <div className="flex ml-[80px] w-[200px]">
-                <Button onClick={checkout}>Mua hàng</Button>
+              <div className="flex w-full bg-red-400 relative">
+                <Button
+                  className="absolute right-[25%]"
+                  style={{ width: 170 }}
+                  onClick={checkout}
+                >
+                  Mua hàng
+                </Button>
               </div>
             </div>
           </div>
+        </div>
+        <div className='mt-[50px]'>
+        <Footer />
+
         </div>
       </div>
     </>

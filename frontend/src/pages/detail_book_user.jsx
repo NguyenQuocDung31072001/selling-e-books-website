@@ -24,11 +24,14 @@ import {
   postNewReview,
   getReviewOfBook,
   updateReview,
-  deleteReview
+  deleteReview,
+  getAllBookUserReview,
+  getAllBookUserBought
 } from '../redux/api_request'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { numberFormat } from '../utils/formatNumber'
 import { PATH_NAME } from '../config/pathName'
+import { getAllBookBought, getAllBookReview } from '../redux/book_bought_slices'
 
 const { Title } = Typography
 const { TextArea } = Input
@@ -45,42 +48,58 @@ function DetailBookUser() {
   const [allReview, setAllReview] = useState([])
   const [isModalVisible, setIsModalVisible] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
-  const allBookBought = useSelector(state => state.bookBought.allBookBought)
-  const allBookReview = useSelector(state => state.bookBought.allBookReview)
+  const allBookCurrentUserBought = useSelector(
+    state => state.bookBought.allBookBought
+  )
+  const allBookCurrentUserReview = useSelector(
+    state => state.bookBought.allBookReview
+  )
   const navigate = useNavigate()
 
   useEffect(() => {
+    window.scrollTo(0,0)
+    ;(async function () {
+      let _bookBought = await getAllBookUserBought(currentUser?._id)
+      dispatch(getAllBookBought(_bookBought))
+      let _bookReview = await getAllBookUserReview(currentUser?._id)
+      dispatch(getAllBookReview(_bookReview))
+    })()
     setLoading(true)
-    const getBookFnc = async slug => {
+    ;(async function () {
       let bookApi = await getBook(slug)
       setBook(bookApi)
       setLoading(false)
-    }
-    getBookFnc(slug)
+    })()
     return () => {
       setBook('')
     }
   }, [])
 
-  useEffect(() => {
-    const breadcrum = {
-      genre_slug: genre,
-      genre_name: book?.genres[0]?.name,
-      name_book: slug
-    }
-    dispatch(updateBreadcrumb(breadcrum))
+  const updateValueAllBookReviewOfRedux = async () => {
+    let bookReview = await getAllBookUserReview(currentUser?._id)
+    dispatch(getAllBookReview(bookReview))
+  }
+  const getData = () => {
     if (book) {
+      const breadcrum = {
+        genre_slug: genre,
+        genre_name: book.genres[0].name,
+        name_book: book.name
+      }
+      dispatch(updateBreadcrumb(breadcrum))
       ;(async function () {
         let _allBookReview = await getReviewOfBook(book?._id)
         setAllReview(_allBookReview)
       })()
     }
+  }
+  useEffect(() => {
+    getData()
     return () => {
       setAllReview([])
     }
   }, [book])
   useEffect(() => {
-    console.log(allReview.reviews)
     if (allReview.reviews?.length > 0) {
       allReview.reviews.forEach(review => {
         if (review.account._id === currentUser._id) {
@@ -117,6 +136,7 @@ function DetailBookUser() {
       }
     })
   }
+  //function of model
   const showModal = () => {
     setIsModalVisible(true)
   }
@@ -127,23 +147,33 @@ function DetailBookUser() {
   const handleCancel = () => {
     setIsModalVisible(false)
   }
+  //change rate and content when update review
   const onChangeValueRate = e => {
     setValueRate(e)
   }
   const onChangeContent = e => {
     setContent(e.currentTarget.value)
   }
+  //handle post,update,delete review
   const newReview = async () => {
     await postNewReview(currentUser._id, book._id, valueRate, content)
-    window.location.reload()
+    updateValueAllBookReviewOfRedux()
+    getData()
   }
   const updateReviewFnc = async () => {
-    await updateReview(currentUser._id, book._id, updateValueRate, updateContent)
-    window.location.reload()
+    await updateReview(
+      currentUser._id,
+      book._id,
+      updateValueRate,
+      updateContent
+    )
+    updateValueAllBookReviewOfRedux()
+    getData()
   }
   const deleteReviewFnc = async () => {
     await deleteReview(currentUser._id, book._id)
-    window.location.reload()
+    updateValueAllBookReviewOfRedux()
+    getData()
   }
   return (
     <div className="flex flex-col justify-center items-center ">
@@ -156,148 +186,149 @@ function DetailBookUser() {
         <div className="w-full h-[75px] border-b-[1px] border-solid border-gray-300 mb-8 flex items-center justify-start p-4">
           <h1 className="text-xl">Thông tin sách</h1>
         </div>
-        <div className="flex">
-          <div className="w-[500px] h-[600px] px-[20px] flex items-center justify-center shadow-md shadow-zinc-200">
-            <img
-              className="w-full h-full object-cover "
-              src={book?.coverUrl}
-              alt=""
-            />
-          </div>
-          <div className=" flex flex-col items-start px-4">
-            <div className="">
-              <Title level={1}>{book?.name}</Title>
-            </div>
-            <div>
-              <Title level={4}>
-                <span className="text-green-500">Tác giả: {book?.authors[0]?.fullName}</span>
-              </Title>
-            </div>
-            <div>
-              <Title level={4}>
-                <span className="text-green-500">Thể loại: {book?.genres[0]?.name}</span>
-              </Title>
-            </div>
-            <div className="mt-[20px] flex ">
-              <Title level={1}>{numberFormat(book?.price)}</Title>
-            </div>
-            <div className="mb-4 flex items-center ">
-              <Rate
-                allowHalf
-                disabled
-                defaultValue={2.5}
-                style={{ fontSize: 25 }}
+        {book && (
+          <div className="flex">
+            <div className="w-[500px] h-[600px] px-[20px] flex items-center justify-center shadow-md shadow-zinc-200">
+              <img
+                className="w-full h-full object-cover "
+                src={book.coverUrl}
+                alt=""
               />
-              <span className="mx-4 text-lg font-normal">3 đánh giá</span>
-              <span className="text-lg font-normal">5 người mua</span>
             </div>
+            <div className=" flex flex-col items-start px-4">
+              <div className="">
+                <Title level={1}>{book.name}</Title>
+              </div>
+              <div>
+                <Title level={4}>
+                  <span className="text-green-500">
+                    Tác giả: {book.authors[0].fullName}
+                  </span>
+                </Title>
+              </div>
+              <div>
+                <Title level={4}>
+                  <span className="text-green-500">
+                    Thể loại: {book.genres[0].name}
+                  </span>
+                </Title>
+              </div>
+              <div className="mt-[20px] flex ">
+                <Title level={1}>{numberFormat(book.price)}</Title>
+              </div>
+              <div className="mb-4 flex items-center ">
+                <Rate
+                  allowHalf
+                  disabled
+                  defaultValue={book.rating}
+                  style={{ fontSize: 25 }}
+                />
+                <span className="mx-4 text-lg font-normal">3 đánh giá</span>
+                <span className="text-lg font-normal">5 người mua</span>
+              </div>
+              <div className="py-4">
+                <span className="text-2xl text-gray-800">Nhà sản xuất:</span>
+                <span className="text-2xl text-gray-500">
+                  {' '}
+                  {book.publishedBy}
+                </span>
+              </div>
+              <div>
+                <p className="text-2xl text-gray-500">
+                  {' '}
+                  Ngày xuất bản: {book.publishedDate.split('T')[0]}
+                </p>
+              </div>
 
-            <div className="py-4">
-              <span className="text-2xl text-gray-800">Nhà sản xuất:</span>
-              <span className="text-2xl text-gray-500">
-                {' '}
-                {book?.publishedBy}
+              <div className="w-[80%] flex flex-col items-start">
+                <Title level={4}>Mô tả </Title>
+                <p className="text-[16px]">{book.description}</p>
+              </div>
+              <div className="absolute bottom-5 right-20">
+                <button
+                  onClick={buyBookFnc}
+                  className="hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-[1px] border-solid border-green-500 px-3 py-2 rounded-md duration-700"
+                >
+                  Thêm vào giỏ hàng
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      {allBookCurrentUserBought.includes(book?._id) &&
+        !allBookCurrentUserReview.includes(book?._id) && (
+          <div className="mt-4 p-4 w-[90%] bg-white py-4 border-b-[1px] border-solid border-gray-300">
+            <div className="w-full flex justify-start border-b-[1px] border-solid border-gray-300">
+              <span className="text-xl font-medium">Đánh giá sản phẩm</span>
+              <span className="pl-[100px]">
+                <Rate
+                  tooltips={desc}
+                  onChange={onChangeValueRate}
+                  value={valueRate}
+                />
+                {valueRate ? (
+                  <span className="ml-4 text-xl font-normal">
+                    {desc[valueRate - 1]}
+                  </span>
+                ) : (
+                  ''
+                )}
               </span>
             </div>
             <div>
-              <p className="text-2xl text-gray-500">
-                {' '}
-                Ngày xuất bản: {book?.publishedDate?.split('T')[0]}
-              </p>
-            </div>
-
-            <div className="w-[80%] flex flex-col items-start">
-              <Title level={4}>Mô tả </Title>
-              <p className="text-[16px]">{book?.description}</p>
-            </div>
-            <div className="absolute bottom-5 right-20">
-              <button
-                onClick={buyBookFnc}
-                className="hover:bg-green-500 hover:text-white bg-[#fafafa] text-green-600 border-[1px] border-solid border-green-500 px-3 py-2 rounded-md duration-700"
-              >
-                Mua sách
-              </button>
+              <div className="flex justify-start border-b-[1px] border-solid border-gray-300 mt-4 ">
+                <p className="text-xl font-medium">Nhận xét</p>
+              </div>
+              <div className="flex p-4">
+                <img
+                  className="w-[50px] h-[50px] object-cover rounded-[50px] mr-4"
+                  src={currentUser?.avatar_url}
+                  alt=""
+                />
+                <TextArea
+                  rows={4}
+                  placeholder="maxLength is 100"
+                  maxLength={100}
+                  onChange={onChangeContent}
+                />
+              </div>
+              <div className="w-full flex justify-end px-4">
+                <button
+                  className="bg-sky-500 px-4 py-2 rounded-sm text-white"
+                  onClick={newReview}
+                >
+                  Nhận xét
+                </button>
+              </div>
             </div>
           </div>
+        )}
+      <div className="mt-4 flex flex-col w-[90%] bg-white py-8 mb-10">
+        <div className="flex justify-start px-4 border-b-[1px] border-solid border-gray-300">
+          <p className="text-xl font-medium">Tất cả nhận xét</p>
         </div>
-      </div>
-      {allBookBought.includes(book?._id) && !allBookReview.includes(book?._id) && (
-        <div className="mt-4 p-4 w-[90%] bg-white py-4 border-b-[1px] border-solid border-gray-300">
-          <div className="w-full flex justify-start border-b-[1px] border-solid border-gray-300">
-            <span className="text-xl font-medium">Đánh giá sản phẩm</span>
-            <span className="pl-[100px]">
-              <Rate
-                tooltips={desc}
-                onChange={onChangeValueRate}
-                value={valueRate}
-              />
-              {valueRate ? (
-                <span className="ml-4 text-xl font-normal">
-                  {desc[valueRate - 1]}
-                </span>
-              ) : (
-                ''
-              )}
-            </span>
-          </div>
-          <div>
-            <div className="flex justify-start border-b-[1px] border-solid border-gray-300 mt-4 ">
-              <p className="text-xl font-medium">Nhận xét</p>
-            </div>
-            <div className="flex p-4">
-              <img
-                className="w-[50px] h-[50px] object-cover rounded-[50px] mr-4"
-                src={currentUser?.avatar_url}
-                alt=""
-              />
-              <TextArea
-                rows={4}
-                placeholder="maxLength is 100"
-                maxLength={100}
-                onChange={onChangeContent}
-              />
-            </div>
-            <div className="w-full flex justify-end px-4">
-              <button
-                className="bg-sky-500 px-4 py-2 rounded-sm text-white"
-                onClick={newReview}
-              >
-                Nhận xét
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {allReview?.reviews?.length > 0 &&
-        allReview?.reviews.map((review, index) => (
-          <div
-            key={index}
-            className="mt-4 flex flex-col w-[90%] bg-white py-8 mb-10"
-          >
-            <div className="flex justify-start px-4 border-b-[1px] border-solid border-gray-300">
-              <p className="text-xl font-medium">Tất cả nhận xét</p>
-            </div>
-            <div className="flex mt-4 items-center justify-around">
-              <div className="w-[100px] flex justify-between items-center ml-[50px]">
+        {allReview?.reviews?.length > 0 &&
+          allReview?.reviews.map((review, index) => (
+            <div key={index} className="flex mt-4 items-center justify-start border-b-[1px] border-solid border-gray-300">
+              <div className="w-[35%] flex items-center ml-[50px]">
                 <img
                   className="w-[50px] h-[50px] rounded-[50px] object-cover"
                   src={review.account.avatar_url}
                   alt=""
                 />
-                <div className="">
+                <div className="ml-4">
                   <Title level={4}>{review.account.username}</Title>
                 </div>
               </div>
-              <div className="flex flex-col">
+              <div className="w-[40%] flex flex-col">
                 <div className="flex items-center">
                   <Rate
                     style={{ fontSize: 15 }}
                     disabled
-                    defaultValue={review.rating}
+                    value={review.rating}
                   />
-                  <span className="">
-                    {desc[review.rating - 1]}
-                  </span>                
+                  <span className="">{desc[review.rating - 1]}</span>
                 </div>
                 <div className=" flex items-center text-emerald-500">
                   <CheckCircleFilled />
@@ -307,24 +338,26 @@ function DetailBookUser() {
                   <p>{review.content}</p>
                 </div>
               </div>
-              <div className="ml-32">
-                <button
-                  className="px-4 py-2 border-[1px] border-solid border-green-400 duration-500 
-                text-green-400 rounded-xl hover:bg-green-500 hover:text-white"
-                  onClick={showModal}
-                >
-                  Sửa đánh giá
-                </button>
-                <button
-                  className="ml-4 px-4 py-2 border-[1px] border-solid border-green-400 duration-500 text-green-400 rounded-xl hover:bg-green-500 hover:text-white"
-                  onClick={deleteReviewFnc}
-                >
-                  Xóa đánh giá
-                </button>
-              </div>
+              {review.account._id === currentUser._id && (
+                <div className="w-[25%]">
+                  <button
+                    className="px-4 py-2 border-[1px] border-solid border-green-400 duration-500 
+                  text-green-400 rounded-xl hover:bg-green-500 hover:text-white"
+                    onClick={showModal}
+                  >
+                    Sửa đánh giá
+                  </button>
+                  <button
+                    className="ml-4 px-4 py-2 border-[1px] border-solid border-green-400 duration-500 text-green-400 rounded-xl hover:bg-green-500 hover:text-white"
+                    onClick={deleteReviewFnc}
+                  >
+                    Xóa đánh giá
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          ))}
+      </div>
       <Modal
         title="Sửa đánh giá"
         visible={isModalVisible}
@@ -333,7 +366,7 @@ function DetailBookUser() {
       >
         <div className="flex items-center w-full p-4 border-b-[1px] border-solid border-gray-300">
           <span className="text-xl font-medium">Đánh giá</span>
-          <span className='ml-8'>
+          <span className="ml-8">
             <Rate
               tooltips={desc}
               onChange={e => setUpdateValueRate(e)}

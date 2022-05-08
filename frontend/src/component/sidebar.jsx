@@ -1,7 +1,7 @@
 import bookPicture from '../book.svg'
 import Icon from '../icon.png'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Menu, Typography } from 'antd'
 import {
   SettingOutlined,
@@ -23,12 +23,13 @@ const { Title } = Typography
 function SideBar() {
   const [allGenres, setAllGenres] = useState([])
   const [allAuthors, setAllAuthors] = useState([])
+  const navigate = useNavigate()
   const handleClick = e => {
     // console.log(e)
   }
   useEffect(() => {
     ;(async function () {
-      const allGenre = await getAllGenresForAddBook()  //load api lấy tất cả thể loại
+      const allGenre = await getAllGenresForAddBook() //load api lấy tất cả thể loại
       const allGenreName = []
       for (let i = 0; i < allGenre.length; i++) {
         allGenreName.push({
@@ -82,21 +83,12 @@ function SideBar() {
 
         <SubMenu key="sub2" icon={<MedicineBoxOutlined />} title="Thể loại">
           {allGenres.length > 0 &&
-            allGenres.map((genres, index) => {
-              return (
-                <Menu.Item
-                  icon={<ProfileOutlined />}
-                  key={index + 'genres'}
-                >
-                  <Link
-                    key={index + 'link genres'}
-                    to={`/user/home/${genres.slug}`}
-                  >
-                    {genres.name}
-                  </Link>
+            allGenres.map((genres, index) => (
+                <Menu.Item icon={<ProfileOutlined />} key={index + 'genres'} >
+                  <Link to={`/user/home/${genres.slug}`}>{genres.name}</Link>
                 </Menu.Item>
               )
-            })}
+            )}
         </SubMenu>
         <SubMenu key="sub3" icon={<UserSwitchOutlined />} title="Tác Giả">
           {allAuthors.length > 0 &&
