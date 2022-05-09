@@ -375,7 +375,6 @@ function SettingUser() {
               onChange={e => setOldPassword(e.target.value)}
             />
           </div>
-
           <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
             <div className="w-40 min-w-[8rem] text-right">
               <label className="text-right whitespace-nowrap text-gray-600">

@@ -22,26 +22,28 @@ export default function CategoryUser() {
   const [genresSearch, setGenresSearch] = useState('')
   const [authorSearch, setAuthorsSearch] = useState('')
   const [inputSearch, setInputSearch] = useState('')
-
   const dispatch = useDispatch()
-
   useEffect(() => {
     window.scrollTo(0, 0)
     ;(async function () {
-      let data = await getAllBook()
-      setBookData(data)
-      const allGenre = await getAllGenresForAddBook()
-      const allGenreName = ['']
-      for (let i = 0; i < allGenre.length; i++) {
-        allGenreName.push(allGenre[i].name)
-      }
-      const allAuthor = await getAllAuthorForAddBook()
-      const allAuthorName = ['']
-      for (let i = 0; i < allAuthor.length; i++) {
-        allAuthorName.push(allAuthor[i].fullName)
-      }
-      setAllGenres(allGenreName)
-      setAllAuthors(allAuthorName)
+      const _data = getAllBook()
+      const _allGenre = getAllGenresForAddBook()
+      const _allAuthor = getAllAuthorForAddBook()
+      Promise.all([_data, _allGenre, _allAuthor]).then(
+        ([data, allGenre, allAuthor]) => {
+          setBookData(data)
+          const allGenreName = ['']
+          for (let i = 0; i < allGenre.length; i++) {
+            allGenreName.push(allGenre[i].name)
+          }
+          const allAuthorName = ['']
+          for (let i = 0; i < allAuthor.length; i++) {
+            allAuthorName.push(allAuthor[i].fullName)
+          }
+          setAllGenres(allGenreName)
+          setAllAuthors(allAuthorName)
+        }
+      )
     })()
     const breadcrum = {
       genre_slug: 'Home Pages',

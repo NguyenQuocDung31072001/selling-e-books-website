@@ -3,21 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import {
-  Typography,
-  Rate,
-  Progress,
-  Button,
-  notification,
-  Spin,
-  Input,
-  Modal
-} from 'antd'
-import {
-  CheckCircleFilled,
-  ConsoleSqlOutlined,
-  DeleteFilled
-} from '@ant-design/icons'
+import { Typography, Rate, notification, Spin, Input, Modal } from 'antd'
+import { CheckCircleFilled } from '@ant-design/icons'
 import {
   getBook,
   addBookToCart,
@@ -28,9 +15,7 @@ import {
   getAllBookUserReview,
   getAllBookUserBought
 } from '../redux/api_request'
-import BreadcrumbsUser from '../component/breadcrumbs_user'
 import { numberFormat } from '../utils/formatNumber'
-import { PATH_NAME } from '../config/pathName'
 import { getAllBookBought, getAllBookReview } from '../redux/book_bought_slices'
 
 const { Title } = Typography
@@ -57,18 +42,20 @@ function DetailBookUser() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    window.scrollTo(0,0)
-    ;(async function () {
-      let _bookBought = await getAllBookUserBought(currentUser?._id)
-      dispatch(getAllBookBought(_bookBought))
-      let _bookReview = await getAllBookUserReview(currentUser?._id)
-      dispatch(getAllBookReview(_bookReview))
-    })()
+    window.scrollTo(0, 0)
     setLoading(true)
     ;(async function () {
-      let bookApi = await getBook(slug)
-      setBook(bookApi)
-      setLoading(false)
+      let _bookApi = getBook(slug)
+      let _bookBought = getAllBookUserBought(currentUser?._id)
+      let _bookReview = getAllBookUserReview(currentUser?._id)
+      Promise.all([_bookBought, _bookReview, _bookApi]).then(
+        ([bookBought, bookReview, bookApi]) => {
+          dispatch(getAllBookBought(bookBought))
+          dispatch(getAllBookReview(bookReview))
+          setBook(bookApi)
+          setLoading(false)
+        }
+      )
     })()
     return () => {
       setBook('')
@@ -114,43 +101,41 @@ function DetailBookUser() {
     }
   }, [allReview])
   const buyBookFnc = () => {
-    if(book.amount===0){
+    if (book.amount === 0) {
       openNotification()
-    }
-    else{
-        const id_book = book._id
-        const id_account = currentUser._id
-        const data = {
-          book: id_book,
-          account: id_account
-        }
-        addBookToCart(data)
-        openNotification()
+    } else {
+      const id_book = book._id
+      const id_account = currentUser._id
+      const data = {
+        book: id_book,
+        account: id_account
+      }
+      addBookToCart(data)
+      openNotification()
     }
   }
   const openNotification = () => {
-    if(book.amount===0){
+    if (book.amount === 0) {
       notification.open({
-        message:'Đã hết sách!',
+        message: 'Đã hết sách!',
         description: 'Bạn vui lòng chờ nhập thêm sách vào kho hàng!',
         style: {
           width: 400,
-          backgroundColor:'#ffbe76',
-          color:'#535c68'
-        },
+          backgroundColor: '#ffbe76',
+          color: '#535c68'
+        }
       })
-    }
-    else{
-        notification.open({
-          message:'Đã thêm vào giỏ hàng!',
-          description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
-          style: {
-            width: 400
-          },
-          onClick: () => {
-            navigate('/user/cart')
-          }
-        })
+    } else {
+      notification.open({
+        message: 'Đã thêm vào giỏ hàng!',
+        description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+        style: {
+          width: 400
+        },
+        onClick: () => {
+          navigate('/user/cart')
+        }
+      })
     }
   }
   //function of model
@@ -327,7 +312,10 @@ function DetailBookUser() {
         </div>
         {allReview?.reviews?.length > 0 &&
           allReview?.reviews.map((review, index) => (
-            <div key={index} className="flex mt-4 items-center justify-start border-b-[1px] border-solid border-gray-300">
+            <div
+              key={index}
+              className="flex mt-4 items-center justify-start border-b-[1px] border-solid border-gray-300"
+            >
               <div className="w-[35%] flex items-center ml-[50px]">
                 <img
                   className="w-[50px] h-[50px] rounded-[50px] object-cover"

@@ -89,7 +89,6 @@ export default function Cart() {
       )
     }
   ]
-
   useEffect(() => {
     window.scrollTo(0, 0)
     setLoading(true)
@@ -102,7 +101,7 @@ export default function Cart() {
 
     const getCartFnc = async () => {
       const cart = await getCart(currentUser._id)
-      console.log(cart)
+      // console.log(cart)
       let cartDataRender = []
       for (let i = 0; i < cart.length; i++) {
         let dataCart = {
@@ -138,10 +137,6 @@ export default function Cart() {
     getShippingInfoFnc()
     getCartFnc()
   }, [])
-
-  useEffect(() => {
-    console.log(loading)
-  }, [loading])
 
   const increaseFnc = key => {
     setLoading(true)
@@ -208,9 +203,7 @@ export default function Cart() {
         break
       }
     }
-
     setTotalFinal(prev => prev - data[indexKeyOfArray].total)
-
     const deleteCartFnc = async (id_account, id_book) => {
       await deleteCart(id_account, id_book)
       setLoading(false)
@@ -228,7 +221,6 @@ export default function Cart() {
       for (let i = 0; i < selectedRows.length; i++) {
         tong_cong += selectedRows[i]?.total
       }
-
       setTotalFinal(tong_cong)
     }
   }
@@ -339,9 +331,8 @@ export default function Cart() {
             </div>
           </div>
         </div>
-        <div className='mt-[50px]'>
-        <Footer />
-
+        <div className="mt-[50px]">
+          <Footer />
         </div>
       </div>
     </>
