@@ -25,44 +25,17 @@ export default function UpdateBookAdmin({ book }) {
   const [allGenres, setAllGenres] = useState([])
   const [allAuthor, setAllAuthor] = useState([])
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const updateBookFunction = () => {
-    const bookData = {
-      id: book._id,
-      name: nameBook ,
-      genres: genre ,
-      authors: author ,
-      description: description ,
-      format: 1,
-      language: '6229dc343a2e43c8cd9dbd65',
-      pages: page ,
-      publishedBy: publishedBy ,
-      publishedDate: publishedDate
-       ,
-      amount: amount,
-      price: price,
-      base64Image: imageBase64
-    }
-    const refreshPageAfterUpdateBook= async()=>{
-      const res=await updateBook(bookData)
-      console.log(res)
-      window.location.replace(`${PATH_NAME.LOCAL}${PATH_NAME.DETAIL_BOOK_ADMIN}/${res.genre_slug}/${res.slug}`)
-    }
-    refreshPageAfterUpdateBook()
-    
-    // console.log(bookData)
-  }
 
   useEffect(() => {
     setNameBook(book.name)
-    setAuthor(book.authors[0].fullName)
-    setGenre(book.genres[0].name)
+    setAuthor(book.authors[0]?.fullName)
+    setGenre(book.genres[0]?.name)
     setDescription(book.description)
     setPage(book.pages)
     setPublishedBy(book.publishedBy)
     setPublishedDate(book.publishedDate.split('T')[0])
     setAmount(book.amount)
     setPrice(book.price)
-
     const getAllGenresFnc = async () => {
       const allGenre = await getAllGenresForAddBook()
       const allGenreName = []
@@ -81,15 +54,45 @@ export default function UpdateBookAdmin({ book }) {
     }
     getAllGenresFnc()
     getAllAuthorFnc()
+    return ()=>{
+      setNameBook('')
+      setAuthor('')
+      setGenre('')
+      setDescription('')
+      setPage('')
+      setPublishedBy('')
+      setPublishedDate('')
+      setAmount('')
+      setPrice('')
+    }
   }, [])
-
   const showModal = () => {
     setIsModalVisible(true)
   }
-
   const handleOk = () => {
     setIsModalVisible(false)
-    updateBookFunction()
+    ;(function(){
+      const bookData = {
+        id: book._id,
+        name: nameBook ,
+        genres: genre ,
+        authors: author ,
+        description: description ,
+        format: 1,
+        language: '6229dc343a2e43c8cd9dbd65',
+        pages: page ,
+        publishedBy: publishedBy ,
+        publishedDate: publishedDate
+         ,
+        amount: amount,
+        price: price,
+        base64Image: imageBase64
+      }
+      ;(async function(){
+        await updateBook(bookData)
+        window.location.reload()
+      })()
+    })()
   }
 
   const handleCancel = () => {
@@ -107,9 +110,6 @@ export default function UpdateBookAdmin({ book }) {
       console.error('AHHHHHHHH!!')
     }
   }
-
-
-
   return (
     <>
       <Button type="primary" onClick={showModal}>

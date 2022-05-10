@@ -5,6 +5,7 @@ const Order = require('../model/order.model')
 const mongoose = require('mongoose')
 const createHttpError = require('http-errors')
 const createNewReview = async (req, res) => {
+  // console.log(req.body)
   try {
     let reviewInfo = {
       book: req.body.book,
@@ -38,7 +39,6 @@ const createNewReview = async (req, res) => {
     } else {
       delete reviewInfo.rating
     }
-
     const savedReview = await newReview.save()
     account.reviews.push(savedReview._id)
     book.reviews.push(savedReview._id)
@@ -62,10 +62,9 @@ const createNewReview = async (req, res) => {
     })
   }
 }
-
 const updateReview = async (req, res) => {
+  console.log('req body', req.body)
   try {
-    const id = req.params.id
     const review = { rating: req.body.rating, content: req.body.content }
     const propNames = Object.getOwnPropertyNames(review)
     const updateProp = {}
@@ -138,18 +137,10 @@ const getReviewById = async (req, res) => {
 const getReviewOfBookById = async (req, res) => {
   try {
     const bookId = req.params.bookId
-    const pageLimit = 10
-    const page = req.query.page ? req.query.page : 1
-    const maxItem = await Review.count({ book: bookId })
-    const maxPage = Math.ceil(maxItem / pageLimit)
     const reviews = await Review.find({ book: bookId })
-      .skip((page - 1) * pageLimit)
-      .limit(pageLimit)
       .populate('book')
       .populate({ path: 'account', select: 'username avatar_url' })
     res.status(200).json({
-      currentPage: page,
-      maxPage: maxPage,
       reviews: reviews
     })
   } catch (error) {

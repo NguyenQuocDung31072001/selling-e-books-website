@@ -43,7 +43,6 @@ const register = async (req, res, next) => {
     next(error)
   }
 }
-
 function generateAccessToken(id) {
   return jwt.sign(
     {
@@ -70,6 +69,7 @@ function generateRefreshToken(id) {
 const login = async (req, res) => {
   //email,password
   try {
+    console.log(req.body)
     const { email, password } = req.body
     console.log({ email, password })
     const account = await Account.findOne({ email: email })

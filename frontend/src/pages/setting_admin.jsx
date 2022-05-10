@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateAccountAdmin } from "../redux/api_request";
-import { loginFailed } from "../redux/auth_slices";
+import { loginFailed,logout } from "../redux/auth_slices";
 
 const IMAGE_URL = "http://localhost:5000/image_avatar/avatar_admin.png";
 
@@ -17,6 +17,10 @@ function SettingAdmin() {
   const dispatch = useDispatch();
   const navigate=useNavigate()
 
+  const Logout=()=>{
+      console.log('logout')
+      dispatch(logout())
+  }
 
   useEffect(() => {
     if (image) {
@@ -111,6 +115,9 @@ function SettingAdmin() {
           Update Account
         </button>
       </div>
+      <button className="" onClick={()=>Logout()}>
+            logout
+        </button>
     </div>
   );
 }

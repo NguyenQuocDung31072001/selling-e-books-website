@@ -91,8 +91,8 @@ function AddBook() {
   return (
     <div>
       <div className="w-full flex flex-col justify-center items-center">
-        <div className=" w-full h-[100px] bg-sky-500">
-          Thêm sách
+        <div className=" w-full flex justify-start p-4 border-b-[1px] border-solid border-gray-300">
+          <p className='px-4 text-xl font-medium '>Thêm sách</p>
         </div>
         <div className='flex '>
           <div className="flex justify-center w-[350px] mt-[100px] ml-[20px] h-[450px] rounded-lg shadow-xl bg-gray-50 border-dashed border-2">

@@ -3,6 +3,8 @@ import authReducer from './auth_slices'
 import breadcrumbReducer from './breadcrumb_slices'
 import genreReducer from './genre_slice'
 import searchReducer from "./search_slices"
+import bookBoughtReducer from "./book_bought_slices"
+import authorReducer from './author_slice'
 import {
   persistStore,
   persistReducer,
@@ -14,7 +16,6 @@ import {
   REGISTER
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
-import authorReducer from './author_slice'
 
 const persistConfig = {
   key: 'root',
@@ -26,7 +27,8 @@ const rootReducer = combineReducers({
   breadcrumb: breadcrumbReducer,
   genre: genreReducer,
   author: authorReducer,
-  search:searchReducer
+  search:searchReducer,
+  bookBought:bookBoughtReducer
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 

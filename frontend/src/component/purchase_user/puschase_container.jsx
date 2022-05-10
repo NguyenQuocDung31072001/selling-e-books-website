@@ -4,6 +4,7 @@ import React from 'react'
 
 export default function PurchaseContainer(props) {
   const { purchase } = props
+  // console.log('purchase',purchase)
   return (
     <div className="bg-white px-4 ">
       <div className="flex flex-row justify-between py-3 border-b">
@@ -16,6 +17,7 @@ export default function PurchaseContainer(props) {
       </div>
       <div className="">
         {purchase.books.map((item, index) => {
+          console.log(item)
           return (
             <div key={item._id} className="flex flex-row justify-between pt-4">
               <div className="flex flex-row space-x-2 w-max">
