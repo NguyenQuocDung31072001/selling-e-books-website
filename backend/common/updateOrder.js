@@ -48,7 +48,7 @@ const updateOrderById = async (id, status, callback = null) => {
                 select: 'slug _id name avatarUrl'
               })
               .select(
-                '_id user books status paid total address phone message payment createAt updateAt'
+                '_id user books status paid total address phone message payment createAt updateAt email customer'
               )
               .lean()
             updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
@@ -78,7 +78,7 @@ const updateOrderById = async (id, status, callback = null) => {
               select: 'slug _id name avatarUrl'
             })
             .select(
-              '_id user books status paid total address phone message payment createAt updateAt'
+              '_id user books status paid total address phone message payment createAt updateAt email customer'
             )
             .lean()
 

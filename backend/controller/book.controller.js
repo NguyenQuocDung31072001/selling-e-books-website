@@ -32,6 +32,8 @@ const CreateNewBook = async (req, res) => {
       pages: parseInt(req.body.pages),
       publishedBy: req.body.publishedBy,
       publishedDate: req.body.publishedDate,
+      historicalSold: 0,
+      historicalReviewed: 0,
       rating: 0,
       reviews: [],
       deleted: false,

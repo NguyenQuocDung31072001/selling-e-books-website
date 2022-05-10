@@ -60,6 +60,21 @@ const orderValidate = data => {
   return orderSchema.validate(data)
 }
 
+const anonymousOrderValidate = data => {
+  const orderSchema = joi.object({
+    customer: joi.string().required(),
+    books: joi.array().required(),
+    status: joi.number().min(-3).max(4).required(),
+    payment: joi.string().required(),
+    street: joi.string(),
+    ward: joi.string().required(),
+    district: joi.number().required(),
+    province: joi.number().required(),
+    phone: joi.string().required()
+  })
+  return orderSchema.validate(data)
+}
+
 const reviewValidate = data => {
   const reviewSchema = joi.object({
     book: joi.string().required(),
@@ -76,5 +91,6 @@ module.exports = {
   bookValidate,
   genreValidate,
   orderValidate,
-  reviewValidate
+  reviewValidate,
+  anonymousOrderValidate
 }

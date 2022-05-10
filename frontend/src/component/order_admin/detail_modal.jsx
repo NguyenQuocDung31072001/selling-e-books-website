@@ -87,7 +87,7 @@ export default function DetailModal(props) {
               paddingRight: '1rem'
             }}
           >
-            <Text strong> {data.user.username}</Text>
+            <Text strong> {data.customer}</Text>
           </Col>
 
           <Col span={12}>

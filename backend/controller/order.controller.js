@@ -3,17 +3,24 @@ const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('../common/constant')
 const updateOrderById = require('../common/updateOrder')
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
-const order = require('../model/order.model')
 const Order = require('../model/order.model')
-const { createPayment, refundPayment } = require('./payment.controller')
+const crypto = require('crypto')
+const {
+  createPayment,
+  refundPayment,
+  createAnonymousPayment
+} = require('./payment.controller')
 const {
   calShippingCost,
   getProvince,
   getDistrict,
-  getWard
+  getWard,
+  calAnonymousShippingCost
 } = require('../controller/shipping.controller')
-const { orderValidate } = require('../utils/validation')
+const { orderValidate, anonymousOrderValidate } = require('../utils/validation')
 const createHttpError = require('http-errors')
+const AnonymousOrder = require('../model/anonymousOrder.model')
+const { sendConfirmOrderEmail } = require('../utils/senEmail')
 
 const pageLimit = 10
 
@@ -48,22 +55,46 @@ const checkOut = async (req, res) => {
   }
 }
 
+const newOrder = async (req, res) => {
+  try {
+    if (req.body.account) {
+      await createNewOrder(req, res)
+    } else {
+      await createAnonymousOrder(req, res)
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500)
+  }
+}
+
 const createNewOrder = async (req, res) => {
   try {
-    const bookIds = req.body.books
+    const { books, address, email, customer, payment, phoneNumber } = req.body
     const accountId = req.body.account
-    const addressTo = req.body.address
-    const customer = req.body.customer
-    const paymentMethod = req.body.payment
-    const phone = req.body.phoneNumber
+    // const books = req.body.books
 
-    if (accountId !== req.params.userId) {
-      const error = new Error('account not match')
-      error.status = 0
-      throw error
-    }
+    // const address = req.body.address
+    // const customer = req.body.customer
+    // const payment = req.body.payment
+    // const phone = req.body.phoneNumber
 
     const account = await Account.findById(accountId).populate('cart.book')
+
+    const { error } = orderValidate({
+      user: accountId,
+      customer: customer,
+      books: books,
+      status: 0,
+      payment: payment,
+      street: address.street,
+      ward: address.WardCode,
+      district: address.DistrictID,
+      province: address.ProvinceID,
+      phone: phoneNumber
+    })
+
+    if (error) throw createHttpError.BadRequest(error)
 
     if (!account) {
       const error = new Error('Account does not exist')
@@ -71,21 +102,37 @@ const createNewOrder = async (req, res) => {
       throw error
     }
 
-    if (paymentMethod != 'cod' && paymentMethod != 'paypal') {
+    if (payment != 'cod' && payment != 'paypal') {
       const error = new Error('Invalid payment method')
       error.status = 2
       throw error
     }
 
+    const bookIDs = books.map(item => item.book)
+    const existBooks = await Book.find({ _id: { $in: bookIDs } })
+
+    if (existBooks.length != bookIDs.length) {
+      const error = new Error('Invalid book ID')
+      error.status = 9
+      throw error
+    }
+
     let total = 0
-    const orderBooks = bookIds.map(bookId => {
+
+    const orderBooks = books.map(bookItem => {
       const cartItem = account.cart.find(
-        item => item.book._id.toString() == bookId
+        item => item.book._id.toString() == bookItem.book
       )
 
       if (!cartItem) {
         const error = new Error('Book and account are not valid')
         error.status = 3
+        throw error
+      }
+
+      if (bookItem.amount != cartItem.amount) {
+        const error = new Error(`Cart have changed`)
+        error.status = 4
         throw error
       }
 
@@ -103,40 +150,23 @@ const createNewOrder = async (req, res) => {
         price: cartItem.book.price
       }
     })
-    const { error } = orderValidate({
-      user: accountId,
-      customer: customer,
-      books: bookIds,
-      status: 0,
-      payment: paymentMethod,
-      street: addressTo.street,
-      ward: addressTo.WardCode,
-      district: addressTo.DistrictID,
-      province: addressTo.ProvinceID,
-      phone: phone
-    })
 
-    if (error) throw createHttpError.BadRequest(error)
-
-    let shippingCost = await calShippingCost(accountId, addressTo, bookIds)
+    let shippingCost = await calShippingCost(accountId, address, bookIDs)
     total += shippingCost.total
-    const province = await getProvince(addressTo.ProvinceID)
+    const province = await getProvince(address.ProvinceID)
     if (!province) {
       const error = new Error('Invalid address')
       error.status = 5
       throw error
     }
-    const district = await getDistrict(
-      addressTo.ProvinceID,
-      addressTo.DistrictID
-    )
+    const district = await getDistrict(address.ProvinceID, address.DistrictID)
     if (!district) {
       const error = new Error('Invalid address')
       error.status = 5
       throw error
     }
 
-    const ward = await getWard(addressTo.DistrictID, addressTo.WardCode)
+    const ward = await getWard(address.DistrictID, address.WardCode)
     if (!ward) {
       const error = new Error('Invalid address')
       error.status = 5
@@ -145,6 +175,7 @@ const createNewOrder = async (req, res) => {
 
     const newOrder = new Order({
       user: account._id,
+      email: email ? email : account.email,
       customer: customer ? customer : account.username,
       books: orderBooks,
       status: 0,
@@ -152,7 +183,7 @@ const createNewOrder = async (req, res) => {
       shippingCost: shippingCost.total,
       total: total,
       address: {
-        street: addressTo.street,
+        street: address.street,
         ward: {
           WardCode: ward.WardCode,
           WardName: ward.WardName
@@ -166,7 +197,7 @@ const createNewOrder = async (req, res) => {
           ProvinceName: province.ProvinceName
         }
       },
-      phone: phone
+      phone: phoneNumber
     })
 
     const asyncUpdateBooks = orderBooks.map(orderItem => {
@@ -181,24 +212,24 @@ const createNewOrder = async (req, res) => {
       {
         $pull: {
           cart: {
-            book: { $in: bookIds }
+            book: { $in: bookIDs }
           }
         }
       }
     )
 
     //COD
-    if (paymentMethod == 'cod') {
+    if (payment == 'cod') {
       newOrder.payment = 0
       const savedOrder = await newOrder.save()
       await Promise.all([...asyncUpdateBooks, asyncUpdateCart])
       res.json({
         success: true,
         redirect: true,
-        redirectTo: 'http://localhost:3000/user/purchase',
+        redirectTo: `${process.env.FRONT_END_HOST}/user/purchase`,
         order: savedOrder
       })
-    } else if (paymentMethod == 'paypal') {
+    } else if (payment == 'paypal') {
       //Payment by Paypal
       newOrder.payment = 1
       const savedOrder = await newOrder.save()
@@ -230,15 +261,164 @@ const createNewOrder = async (req, res) => {
   }
 }
 
+const createAnonymousOrder = async (req, res) => {
+  try {
+    const { books, address, email, customer, payment, phoneNumber } = req.body
+
+    if (payment != 'cod' && payment != 'paypal') {
+      const error = new Error('Invalid payment method')
+      error.status = 2
+      throw error
+    }
+
+    const bookIDs = books.map(item => item.book)
+    const existBooks = await Book.find({ _id: { $in: bookIDs } })
+    if (existBooks.length != bookIDs.length) {
+      const error = new Error('Invalid book ID')
+      error.status = 9
+      throw error
+    }
+
+    let total = 0
+
+    const orderBooks = books.map(item => {
+      const book = existBooks.find(book => book._id.toString() === item.book)
+      if (book.amount < item.amount) throw new Error('Book sold out')
+      total += book.price * item.amount
+      return {
+        book: item.book,
+        amount: item.amount,
+        price: book.price
+      }
+    })
+
+    const { error } = anonymousOrderValidate({
+      customer: customer,
+      books: bookIDs,
+      status: 0,
+      payment: payment,
+      street: address.street,
+      ward: address.WardCode,
+      district: address.DistrictID,
+      province: address.ProvinceID,
+      phone: phoneNumber
+    })
+
+    if (error) throw createHttpError.BadRequest(error)
+
+    let shippingCost = await calAnonymousShippingCost(address, orderBooks)
+    total += shippingCost.total
+    const province = await getProvince(address.ProvinceID)
+    if (!province) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
+    const district = await getDistrict(address.ProvinceID, address.DistrictID)
+    if (!district) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
+
+    const ward = await getWard(address.DistrictID, address.WardCode)
+    if (!ward) {
+      const error = new Error('Invalid address')
+      error.status = 5
+      throw error
+    }
+
+    const newOrder = new AnonymousOrder({
+      customer: customer,
+      email: email,
+      books: orderBooks,
+      status: 0,
+      paid: false,
+      shippingCost: shippingCost.total,
+      total: total,
+      address: {
+        street: address.street,
+        ward: {
+          WardCode: ward.WardCode,
+          WardName: ward.WardName
+        },
+        district: {
+          DistrictID: district.DistrictID,
+          DistrictName: district.DistrictName
+        },
+        province: {
+          ProvinceID: province.ProvinceID,
+          ProvinceName: province.ProvinceName
+        }
+      },
+      phone: phoneNumber
+    })
+
+    const asyncUpdateBooks = orderBooks.map(orderItem => {
+      return Book.updateOne(
+        { _id: orderItem.book },
+        { $inc: { amount: -orderItem.amount } }
+      )
+    })
+
+    //COD
+    if (payment == 'cod') {
+      newOrder.payment = 0
+      newOrder.verifyToken = crypto.randomBytes(64).toString('hex')
+      const savedOrder = await newOrder.save()
+      const popOrder = await AnonymousOrder.findById(savedOrder._id).populate({
+        path: 'books.book',
+        select: '_id slug name coverUrl'
+      })
+      await sendConfirmOrderEmail(popOrder.email, popOrder)
+      await Promise.all(asyncUpdateBooks)
+      res.json({
+        success: true,
+        redirect: false,
+        redirectTo: '',
+        message: 'Đặt hàng thành công vui lòng kiểm tra email và xác nhận',
+        order: savedOrder
+      })
+    } else if (payment == 'paypal') {
+      //Payment by Paypal
+      newOrder.payment = 1
+      const savedOrder = await newOrder.save()
+      await Promise.all(asyncUpdateBooks)
+      await createAnonymousPayment(savedOrder._id, res)
+    }
+  } catch (error) {
+    console.log(error)
+    if (error.status) {
+      res.json({
+        success: false,
+        error: true,
+        status: error.status,
+        message: error.message
+      })
+    } else {
+      res.status(500).json({ success: false, error: true })
+    }
+  }
+}
+
 const getOrders = async (req, res) => {
   try {
-    const statusQuery = req.query.status
-    const page = req.body.page
-    const sorterField = req.query.sorterField
+    const { status, sorterField, from, to, page } = req.query
 
     const queryObj = {}
-    if (statusQuery != undefined) queryObj.status = statusQuery
+    if (status != undefined) queryObj.status = parseInt(status)
 
+    if (from || to) {
+      queryObj['$and'] = []
+    }
+    if (from) {
+      queryObj['$and'].push({ createdAt: { $gte: new Date(from) } })
+    }
+    if (to) {
+      const toDate = new Date(to)
+      toDate.setHours(24, 59, 59)
+      queryObj['$and'].push({ createdAt: { $lte: new Date(toDate) } })
+    }
     const sorter = {}
     if (sorterField && req.query.sorterOrder) {
       sorter[sorterField] = req.query.sorterOrder
@@ -254,7 +434,7 @@ const getOrders = async (req, res) => {
         select: '_id slug name coverUrl'
       })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
       )
       .sort(sorterField && sorterField != 'user' ? sorter : {})
       .lean()
@@ -276,7 +456,7 @@ const getOrderById = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url address' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
       )
       .lean()
     res.status(200).json(order)
@@ -294,7 +474,7 @@ const getOrderOfUser = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
       )
     order.statusName = ORDER_STATUS_NAME[order.status]
     res.status(200).json(order)
@@ -459,7 +639,7 @@ const getAllOrderOfUser = async (req, res) => {
         select: '_id slug name coverUrl'
       })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createAt updateAt'
+        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt'
       )
       .sort({ createdAt: 'descending' })
       .lean()
@@ -474,14 +654,63 @@ const getAllOrderOfUser = async (req, res) => {
   }
 }
 
+const confirmAnonymousOrder = async (req, res) => {
+  try {
+    const { token } = req.query
+    const anonymousOrder = await AnonymousOrder.findOneAndUpdate(
+      {
+        verifyToken: token,
+        isVerified: false
+      },
+      { isVerified: true }
+    )
+    if (!anonymousOrder) throw new Error('Order does not exist')
+    const newOrder = new Order({
+      // user: account._id,
+      customer: anonymousOrder.customer,
+      email: anonymousOrder.email,
+      books: anonymousOrder.books,
+      status: 0,
+      paid: anonymousOrder.paid,
+      shippingCost: anonymousOrder.shippingCost,
+      total: anonymousOrder.total,
+      payment: anonymousOrder.payment,
+      paypal: anonymousOrder.paypal,
+      address: {
+        street: anonymousOrder.address.street,
+        ward: {
+          WardCode: anonymousOrder.address.ward.WardCode,
+          WardName: anonymousOrder.address.ward.WardName
+        },
+        district: {
+          DistrictID: anonymousOrder.address.district.DistrictID,
+          DistrictName: anonymousOrder.address.district.DistrictName
+        },
+        province: {
+          ProvinceID: anonymousOrder.address.province.ProvinceID,
+          ProvinceName: anonymousOrder.address.province.ProvinceName
+        }
+      },
+      phone: anonymousOrder.phone
+    })
+    const savedOrder = await newOrder.save()
+    res.redirect(`${process.env.FRONT_END_HOST}/user/home`)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports = {
   checkOut,
   createNewOrder,
+  createAnonymousOrder,
   getOrders,
   getOrderOfUser,
   updateOrder,
   getAllOrderOfUser,
   updateOrderOfUser,
   updateOrderByAdmin,
-  getOrderById
+  getOrderById,
+  confirmAnonymousOrder,
+  newOrder
 }

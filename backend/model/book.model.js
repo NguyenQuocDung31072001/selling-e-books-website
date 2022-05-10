@@ -67,6 +67,10 @@ const BookSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    historicalReviewed: {
+      type: Number,
+      default: 0
+    },
     reviews: [
       {
         type: mongoose.Types.ObjectId,

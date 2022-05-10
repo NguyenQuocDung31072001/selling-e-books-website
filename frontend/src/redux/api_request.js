@@ -585,16 +585,17 @@ export const createNewOrder = async (
   payment
 ) => {
   try {
+    const data = {
+      customer: customer,
+      phoneNumber: phoneNumber,
+      address: address,
+      books: books,
+      payment: payment
+    }
+    if (account) data.account = account
     const response = await axios.post(
-      API_URL + `/v1/selling_e_books/account/${account}/yourOrder`,
-      {
-        account: account,
-        customer: customer,
-        phoneNumber: phoneNumber,
-        address: address,
-        books: books,
-        payment: payment
-      }
+      API_URL + `/v1/selling_e_books/order`,
+      data
     )
     return response.data
   } catch (error) {

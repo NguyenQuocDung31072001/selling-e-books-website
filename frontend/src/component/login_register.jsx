@@ -38,7 +38,7 @@ function LoginAndRegister() {
   const registerSubmit = e => {
     e.preventDefault()
     const user = {
-      username: username,
+      // username: username,
       email: email,
       password: password
     }
@@ -63,7 +63,6 @@ function LoginAndRegister() {
           onCancel={handleCancel}
           footer={null}
           cancelButtonProps
-          
         >
           <Form
             name="basic"
@@ -71,7 +70,7 @@ function LoginAndRegister() {
             wrapperCol={{ span: 16 }}
             initialValues={{ remember: true }}
             autoComplete="off"
-            className='flex flex-col '
+            className="flex flex-col "
           >
             <Form.Item
               label="Email"
@@ -106,7 +105,7 @@ function LoginAndRegister() {
                 Submit
               </Button>
             </Form.Item>
-            <Form.Item className='flex justify-center'>
+            <Form.Item className="flex justify-center">
               <span>If you don't have account?</span>
               <span
                 className="text-sky-500 cursor-pointer"
@@ -141,7 +140,7 @@ function LoginAndRegister() {
             >
               <Input onChange={e => setEmail(e.target.value)} />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               label="Username"
               name="username"
               rules={[
@@ -149,7 +148,7 @@ function LoginAndRegister() {
               ]}
             >
               <Input onChange={e => setUsername(e.target.value)} />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
               label="Password"
               name="password"
@@ -175,7 +174,7 @@ function LoginAndRegister() {
                 Register
               </Button>
             </Form.Item>
-            <Form.Item className='flex justify-center'>
+            <Form.Item className="flex justify-center">
               <span>If you alraedy have account?</span>
               <span
                 className="text-sky-500 cursor-pointer"

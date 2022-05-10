@@ -233,6 +233,45 @@ const calShippingCost = async (userID, addressTo, bookIDs) => {
   }
 }
 
+const calAnonymousShippingCost = async (addressTo, books) => {
+  try {
+    if (
+      typeof addressTo.DistrictID !== 'number' ||
+      typeof addressTo.WardCode !== 'string'
+    )
+      throw new Error('Invalid address input type')
+
+    let insuranceValue = 0
+    let height = 0
+    let width = 24
+    let length = 27
+    let weight = 0
+
+    books.forEach(book => {
+      insuranceValue += book.price * book.amount
+      height += 5 * book.amount
+      weight += 100 * book.amount
+    })
+
+    const shippingData = {
+      service_type_id: 2,
+      insurance_value: parseInt(insuranceValue),
+      coupon: null,
+      from_district_id: parseInt(process.env.SHOP_DISTRICT_ID),
+      to_district_id: parseInt(addressTo.DistrictID),
+      to_ward_code: addressTo.WardCode,
+      height: parseInt(height),
+      length: parseInt(length),
+      weight: parseInt(weight),
+      width: parseInt(width)
+    }
+    const shippingCost = await fetchShippingCost(shippingData)
+    return shippingCost
+  } catch (error) {
+    throw error
+  }
+}
+
 const fetchShippingCost = async data => {
   try {
     const shippingData = {
@@ -275,5 +314,6 @@ module.exports = {
   getDistrict,
   getWard,
   getShippingCost,
-  calShippingCost
+  calShippingCost,
+  calAnonymousShippingCost
 }

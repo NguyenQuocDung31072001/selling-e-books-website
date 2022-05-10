@@ -1,17 +1,23 @@
 const mongoose = require('mongoose')
-const orderSchema = new mongoose.Schema(
+
+const AnonymousOrderSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Types.ObjectId,
+    verifyToken: {
+      type: String,
       // required: true,
-      ref: 'account'
+      unique: true
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    email: {
+      type: String,
+      required: true
     },
     customer: {
       type: String,
       required: true
-    },
-    email: {
-      type: String
     },
     books: [
       {
@@ -27,10 +33,6 @@ const orderSchema = new mongoose.Schema(
         }
       }
     ],
-    status: {
-      type: Number, //-3 giao hang khong thanh cong,  -2 huy, -1 tu choi, 0 cho xac nhan, 1 xac nhan, 2 van chuyen, 3 giao thanh cong, 4 da nhan hang
-      required: true
-    },
     payment: {
       type: Number, //0:COD, 1:ATM
       required: true
@@ -113,5 +115,8 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
-
-module.exports = mongoose.model('Order', orderSchema, 'Order')
+module.exports = mongoose.model(
+  'AnonymousOrder',
+  AnonymousOrderSchema,
+  'AnonymousOrder'
+)
