@@ -40,12 +40,12 @@ function OrderTable(props) {
   const columns = [
     {
       title: 'Khách hàng',
-      dataIndex: ['user', 'email'],
-      key: 'user',
+      dataIndex: 'customer',
+      key: 'customer',
       sorter: (a, b) => {
-        return a.user.email > b.user.email ? 1 : -1
+        return a.customer > b.customer ? 1 : -1
       },
-      sortOrder: sortedInfo.columnKey === 'user' && sortedInfo.order,
+      sortOrder: sortedInfo.columnKey === 'customer' && sortedInfo.order,
       ellipsis: true
     },
     {
@@ -53,11 +53,14 @@ function OrderTable(props) {
       dataIndex: 'books',
       key: 'books',
       render: books => (
-        <Anchor style={{ borderLeft: '0' }}>
+        <div className="flex flex-col max-h-40 overflow-auto">
           {books.map(item => (
-            <Link href="/" title={`${item.book.name} - sl: ${item.amount}`} />
+            <a
+              href="/"
+              title={`${item.book.name} - sl: ${item.amount}`}
+            >{`${item.book.name} - sl: ${item.amount}`}</a>
           ))}
-        </Anchor>
+        </div>
       )
     },
     {
@@ -133,7 +136,14 @@ function OrderTable(props) {
     }
   ]
 
-  return <Table columns={columns} dataSource={data} onChange={handleChange} />
+  return (
+    <Table
+      className="admin_order_table"
+      columns={columns}
+      dataSource={data}
+      onChange={handleChange}
+    />
+  )
 }
 
 export default OrderTable

@@ -18,6 +18,7 @@ const reviewRouter = require('./router/review.router')
 const collectionRouter = require('./router/collection.router')
 const orderRouter = require('./router/order.router')
 const shippingRouter = require('./router/shipping.router')
+const dashboardRouter = require('./router/dashboard.router')
 
 dotenv.config()
 
@@ -53,6 +54,7 @@ app.use('/v1/selling_e_books/review', reviewRouter)
 app.use('/v1/selling_e_books/collection', collectionRouter)
 app.use('/v1/selling_e_books/order', orderRouter)
 app.use('/v1/selling_e_books/shipping', shippingRouter)
+app.use('/v1/selling_e_books/dashboard', dashboardRouter)
 app.use((error, req, res, next) => {
   res.json({
     success: false,

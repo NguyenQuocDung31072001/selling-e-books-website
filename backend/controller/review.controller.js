@@ -30,6 +30,7 @@ const createNewReview = async (req, res) => {
     if (!order) throw createHttpError.BadRequest('You have not purchased yet.')
 
     const newReview = new Review(reviewInfo)
+    book.historicalReviewed++
     if (reviewInfo.rating != -1) {
       book.rating =
         (book.rating * book.reviews.length + newReview.rating) /
@@ -104,7 +105,8 @@ const deleteReview = async (req, res) => {
     const asyncUpdateBook = Book.findOneAndUpdate(
       { reviews: deletedReview._id },
       {
-        $pull: { reviews: deletedReview._id }
+        $pull: { reviews: deletedReview._id },
+        $inc: { historicalReviewed: -1 }
       }
     )
     await Promise.all([asyncUpdateAccount, asyncUpdateBook])
