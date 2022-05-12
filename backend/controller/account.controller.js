@@ -17,11 +17,8 @@ const updateAccount = async (req, res) => {
     if (req.body.birthDate) {
       if (checkDate(req.body.birthDate)) {
         account.birthDate = req.body.birthDate
-      } else {
-        throw createHttpError.BadRequest('Invalid birthDate')
       }
     }
-
     if (req.body.address) account.address = req.body.address
     if (req.body.phoneNumber) account.phoneNumber = req.body.phoneNumber
     if (req.body.address) account.address = req.body.address
