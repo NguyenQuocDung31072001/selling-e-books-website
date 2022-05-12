@@ -8,8 +8,6 @@ export default function HomePagesAdmin() {
   const currentUser = useSelector((state) => state.auth.login.currentUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-
   const Logout=()=>{
       console.log('logout')
       dispatch(logout())

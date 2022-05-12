@@ -1,64 +1,67 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector ,useDispatch} from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Image, Input } from 'antd'
-import { ShoppingCartOutlined } from '@ant-design/icons'
+import { Image, Input, Typography } from 'antd'
+import { SearchOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import LoginAndRegister from './login_register'
 import { updateQuery } from '../redux/search_slices'
+import BreadcrumbsUser from './breadcrumbs_user'
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
-const typeBook = [
-  'Chính trị - pháp luật',
-  'Khoa học công nghệ',
-  'Kinh tế',
-  'Văn học nghệ thuật',
-  'Văn hóa xã hội - Lịch sử',
-  'Giáo trình',
-  'Truyện, tiểu thuyết',
-  'Tâm lý, tâm linh, tôn giáo',
-  'Sách thiếu nhi'
-]
-
+const { Title } = Typography
 function TopUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
-  const dispatch=useDispatch()
-  const [query,setQuery]=useState('')
-
+  const dispatch = useDispatch()
+  const [query, setQuery] = useState('')
   const [image, setImage] = useState()
   useEffect(() => {
     if (currentUser?.avatar_url) {
       setImage(currentUser.avatar_url)
     }
   }, [currentUser])
-  
-  useEffect(()=>{
-    dispatch(updateQuery(query))
-  },[query])
 
-  //currentUser.avatar_url
+  useEffect(() => {
+    let search = {
+      query: { name: query },
+      type: 'name'
+    }
+    dispatch(updateQuery(search))
+  }, [query])
+  //currentUser.avatar_url  
   return (
-    <div className="w-full h-[100px] min-w-max bg-blue-600 fixed top-0 text-white z-50">
+    <div className="ml-[300px] w-[81%]  h-[80px] bg-[#ecf0f1] fixed top-0 text-white border-b-[1px] border-slate-300 z-50">
       <div className="flex justify-between items-center mt-[20px]">
-        <Link to="/user/home">
-          <div className="ml-[20px] text-[25px] text-white">
-            <span>E_Book</span>
-          </div>
-        </Link>
-        <div className="w-1/2 flex items-center bg-white rounded-[5px]">
-          <Input size="large" placeholder="Tìm kiếm" value={query} onChange={(e)=>setQuery(e.target.value)}/>
-          <div className="flex items-center w-[140px] h-[40px] bg-cyan-800  rounded-r-[5px] px-[10px]">
-            <i className="fa-solid fa-magnifying-glass pr-[10px]"></i>
-            <button>Tìm kiếm</button>
-          </div>
+        <div className="ml-[20px] text-black">
+          <BreadcrumbsUser />
         </div>
-        <div className="flex justify-between items-center mr-[40px]">
+        <div className="flex items-center rounded-[5px]">
+          <Input
+            size="large"
+            placeholder="Tìm kiếm"
+            style={{ width: 300 }}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            prefix={<SearchOutlined />}
+          />
+        </div>
+        <div className="flex justify-between items-center  mr-[40px]">
+          <Link to="/user/cart">
+            <div className='mr-4'>
+              <ShoppingCartOutlined
+                style={{ fontSize: '45px', color: '#2c3e50' }}
+              />
+            </div>
+          </Link>
           {currentUser && (
             <Link to="/user/setting">
-              <img
-                className="h-[50px] w-[50px] object-cover cursor-pointer rounded-[50px]"
-                src={image ? currentUser?.avatar_url : IMAGE_URL}
-                alt=""
-              />
+              <div className='flex items-center text-xl text-black'>
+                <img
+                  className="h-[50px] w-[50px] object-cover cursor-pointer rounded-[50px]"
+                  src={image ? currentUser?.avatar_url : IMAGE_URL}
+                  alt=""
+                />
+                <p className='font-bold ml-4'>{currentUser.username}</p>
+              </div>
             </Link>
           )}
           {!currentUser && (
@@ -66,22 +69,17 @@ function TopUser() {
               <LoginAndRegister />
             </div>
           )}
-          <Link to="/user/cart">
-            <ShoppingCartOutlined
-              style={{ fontSize: '45px', color: '#EFFFFD' }}
-            />
-          </Link>
         </div>
       </div>
-      <div className="flex justify-center">
-        {typeBook.map((type, key) => (
+      {/* <div className="flex justify-center">
+        {typeBook.map((type, key) => (  
           <div key={key} className="mx-[10px] cursor-pointer ">
             <Link to={`/user/home/${type}`}>
               <span className="text-white"> {type}</span>
             </Link>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   )
 }

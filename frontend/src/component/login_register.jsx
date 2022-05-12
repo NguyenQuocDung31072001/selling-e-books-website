@@ -49,8 +49,11 @@ function LoginAndRegister() {
 
   return (
     <div>
-      <div className=" cursor-pointer" onClick={showModal}>
-        <p>Đăng nhập/Đăng kí</p>
+      <div
+        className=" cursor-pointer"
+        onClick={showModal}
+      >
+        <p className='text-blue-700'>Đăng nhập/Đăng kí</p>
       </div>
       {isLogin && (
         <Modal

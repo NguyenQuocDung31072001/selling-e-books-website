@@ -39,7 +39,6 @@ function OrderManage() {
   function handleLoaded() {
     setLoading(false)
   }
-
   return (
     <div className="px-10 py-4">
       {loading && (

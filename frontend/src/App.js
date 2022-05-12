@@ -14,24 +14,26 @@ import HomePagesUser from './pages/home_user'
 import NotFound from './pages/not_found'
 import LayoutAdmin from './component/layout_admin'
 import TopUser from './component/top_user'
-import GenreBookUser from './pages/genre_book_user'
+import SideBar from './component/sidebar'
+import GenresAuthorsBookUser from './pages/genre_author_book_user'
 import DetailBookUser from './pages/detail_book_user'
 import Cart from './pages/cart'
 import AddBook from './pages/add_book'
 import GenreManage from './pages/genre_book_admin'
 import AuthorManage from './pages/author_admin'
 import AllBookAdmin from './pages/all_book_admin'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import OrderManage from './pages/order_admin'
-import { useEffect } from 'react'
+import CategoryUser from './pages/category_page'
+import { useEffect, useState } from 'react'
 import DetailBookAdmin from './pages/detail_book_admin'
 import AllGenreBookAdmin from './pages/all_book_genre_admin'
 import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
-
+import DashboardAdmin from './pages/dashboard_admin'
+import TopAdmin from './component/top_admin'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
-
   function ProtectRouterUser({ children }) {
     return currentUser?.role === 'user' ? (
       children
@@ -91,6 +93,14 @@ function App() {
               }
             />
             <Route
+              path="dashboard"
+              element={
+                <ProtectRouterAdmin>
+                  <DashboardAdmin />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
               path="add_book"
               element={
                 <ProtectRouterAdmin>
@@ -98,14 +108,14 @@ function App() {
                 </ProtectRouterAdmin>
               }
             />
-            <Route
+            {/* <Route
               path="home/:genre/:slug"
               element={
                 <ProtectRouterAdmin>
                   <DetailBookAdmin />
                 </ProtectRouterAdmin>
               }
-            />
+            /> */}
             <Route path="home/:genre" element={<AllGenreBookAdmin />} />
             <Route
               path="all_book"
@@ -126,7 +136,7 @@ function App() {
           </Route>
           <Route path="/user" element={<UserComponent />}>
             <Route path="home" element={<HomePagesUser />} />
-            <Route path="home/:genre" element={<GenreBookUser />} />
+            <Route path="home/:slug" element={<GenresAuthorsBookUser />} />
             <Route
               path="home/:genre/:slug"
               element={
@@ -151,10 +161,11 @@ function App() {
                 </ProtectRouterUser>
               }
             />
+            <Route path="category" element={<CategoryUser />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="purchase" element={<UserPurchase />} />
           </Route>
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </div>
@@ -175,8 +186,8 @@ function UserComponent() {
   return (
     <div>
       <TopUser />
-      <div className="mt-[100px]">
-        {/* <BreadcrumbsUser /> */}
+      <SideBar />
+      <div className="mt-[100px] ml-[300px]">
         <Outlet />
       </div>
     </div>

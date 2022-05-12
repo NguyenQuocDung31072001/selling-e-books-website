@@ -156,8 +156,6 @@ const GetAllBook = async (req, res) => {
       if (maxPrice || minPrice) queryObj['$and'] = []
       if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
       if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
-
-      console.log(queryObj)
     } else {
       if (search) {
         let regex = new RegExp(search, 'i')
@@ -181,8 +179,6 @@ const GetAllBook = async (req, res) => {
       if (maxPrice || minPrice) queryObj['$and'] = []
       if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
       if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
-
-      console.log(queryObj)
     }
 
     const maxItem = await BookModel.countDocuments(queryObj)
@@ -195,7 +191,7 @@ const GetAllBook = async (req, res) => {
       books: books
     })
   } catch (error) {
-    console.log({ GetBookError: error })
+    // console.log({ GetBookError: error })
     res.status(500).json(error)
   }
 }
@@ -203,7 +199,7 @@ const GetAllBook = async (req, res) => {
 const GetBook = async (req, res) => {
   try {
     const slug = req.params.slug
-    console.log(slug)
+    // console.log(slug)
     const books = await getBooks({ slug: slug, deleted: false }, 1, 1)
     if (books.length == 0) throw new Error('Book does not exist')
     res.status(200).json(books[0])
@@ -219,7 +215,10 @@ const GetBookOfGenre = async (req, res) => {
     const page = req.query.page || 1
     const genreSlug = req.params.slug
     const genre = await GenreModel.findOne({ slug: genreSlug, deleted: false })
-    if (!genre) throw new Error('Genre does not exist')
+    if (!genre) {
+      return res.status(200).json('')
+    }
+    // if (!genre) throw new Error('Genre does not exist')
     const maxItem = await BookModel.countDocuments({ genres: genre._id })
     const maxPage = Math.ceil(maxItem / perPage)
     const books = await getBooks(
@@ -248,11 +247,14 @@ const getBookOfAuthor = async (req, res) => {
       slug: authorSlug,
       deleted: false
     })
-    if (!author) throw new Error('Author does not exist')
+    if (!author) {
+      return res.status(200).json('')
+    }
+    // if (!author) throw new Error('Author does not exist')
     const maxItem = await BookModel.countDocuments({ author: author._id })
     const maxPage = Math.ceil(maxItem / perPage)
     const books = await getBooks(
-      { author: author._id, deleted: false },
+      { authors: author._id, deleted: false },
       page,
       perPage
     )
@@ -331,6 +333,8 @@ const GetTop = async (req, res) => {
     const books = await BookModel.find({})
       .sort({ [field]: -1 })
       .limit(top)
+      .populate('authors')
+      .populate('genres')
     res.json(books)
   } catch (error) {
     console.log(error)

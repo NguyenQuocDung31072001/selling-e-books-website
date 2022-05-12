@@ -1,7 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  query: ''
+  search:{
+    query:{
+      
+    },
+    type:''
+  },
+
 }
 
 const searchSlice = createSlice({
@@ -9,7 +15,7 @@ const searchSlice = createSlice({
   initialState,
   reducers: {
     updateQuery: (state, actions) => {
-      state.query=actions.payload
+      state.search=actions.payload
     }
   }
 })
