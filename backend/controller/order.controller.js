@@ -110,7 +110,7 @@ const createNewOrder = async (req, res) => {
 
     const bookIDs = books.map(item => item.book)
     const existBooks = await Book.find({ _id: { $in: bookIDs } })
-
+    console.log(bookIDs)
     if (existBooks.length != bookIDs.length) {
       const error = new Error('Invalid book ID')
       error.status = 9

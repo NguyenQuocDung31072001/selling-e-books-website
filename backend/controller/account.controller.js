@@ -58,7 +58,7 @@ function checkDate(dateString) {
   var y = q.getFullYear()
 
   var toDate = new Date(y, m, d)
-  var date = new Date(dateString + ' GMT+0700')
+  var date = new Date(dateString)
   return date <= toDate
 }
 

@@ -29,7 +29,14 @@ export default function Checkout(props) {
         DistrictID: shipData.address.district.DistrictID,
         WardCode: shipData.address.ward.WardCode.toString()
       }
-      const books = state.product.map(item => item.product._id)
+      const books = state.product.map(item => {
+        return {
+          book: item.product._id,
+          amount: item.count.value
+        }
+      })
+
+      console.log(books)
       const user = currentUser._id
       const shippingCost = await getShippingCost(user, address, books)
       setShippingCost(shippingCost)
@@ -89,7 +96,12 @@ export default function Checkout(props) {
     }
     const phoneNumber = shipData.phoneNumber
     const customer = shipData.username
-    const books = state.product.map(item => item.product._id)
+    const books = state.product.map(item => {
+      return {
+        book: item.product._id,
+        amount: item.count.value
+      }
+    })
     const user = currentUser._id
     const result = await createNewOrder(
       user,

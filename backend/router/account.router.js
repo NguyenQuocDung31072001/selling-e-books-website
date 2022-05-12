@@ -35,7 +35,7 @@ router.put('/:userId/yourOrder/:id', orderController.updateOrderOfUser)
 router.post('/:userId/yourOrder', orderController.createNewOrder)
 
 router.get('/order/payment/:orderId/cancel', (req, res) => {
-  res.redirect(`/`)
+  res.redirect(`${process.env.FRONT_END_HOST}`)
 })
 
 router.get('/:userId/collection', collectionController.getCollectionOfAccount)

@@ -108,7 +108,7 @@ const verify = async (req, res, next) => {
       account.isVerified = true
       await account.save()
     }
-    res.redirect('http://localhost:3000/user/home')
+    res.redirect(`${process.env.FRONT_END_HOST}`)
   } catch (error) {
     console.log(error)
   }
