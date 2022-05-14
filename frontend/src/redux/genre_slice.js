@@ -41,9 +41,10 @@ const genreSlice = createSlice({
     },
     updateGenreData: (state, action) => {
       let updatedIndex = state.genres.findIndex(
-        genre => genre._id === action.payload.id
+        genre => genre._id === action.payload._id
       )
       let newGenresData = [...state.genres]
+      console.log(updatedIndex)
       newGenresData.splice(updatedIndex, 1, action.payload)
       state.genres = newGenresData
       state.loading = false

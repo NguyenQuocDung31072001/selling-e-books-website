@@ -110,7 +110,7 @@ const createNewOrder = async (req, res) => {
 
     const bookIDs = books.map(item => item.book)
     const existBooks = await Book.find({ _id: { $in: bookIDs } })
-
+    console.log(bookIDs)
     if (existBooks.length != bookIDs.length) {
       const error = new Error('Invalid book ID')
       error.status = 9
@@ -436,7 +436,7 @@ const getOrders = async (req, res) => {
       .select(
         '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
       )
-      .sort(sorterField && sorterField != 'user' ? sorter : {})
+      .sort(sorterField && sorterField != 'user' ? sorter : { updatedAt: -1 })
       .lean()
     all.forEach(order => {
       order.statusName = ORDER_STATUS_NAME[order.status]
@@ -476,6 +476,7 @@ const getOrderOfUser = async (req, res) => {
       .select(
         '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
       )
+      .sort({ createdAt: -1 })
     order.statusName = ORDER_STATUS_NAME[order.status]
     res.status(200).json(order)
   } catch (error) {
@@ -489,7 +490,8 @@ const updateOrder = async (req, res) => {
     const id = req.parmas.id
     let currentStatus = parseInt(req.body.currentStatus)
     let newStatus = parseInt(req.body.newStatus)
-    if (newStatus != -1) newStatus = currentStatus + 1
+    if (newStatus > 0) newStatus = currentStatus + 1
+    else newStatus = -2
     if (newStatus > 0) {
       const result = await updateOrderById(id, newStatus)
       res.status(200).json(result)
@@ -531,8 +533,12 @@ const updateOrder = async (req, res) => {
 const updateOrderByAdmin = async (req, res) => {
   try {
     const id = req.params.id
-    const newStatus = req.body.newStatus
-
+    let newStatus = req.body.newStatus
+    const order = await Order.findById(id)
+    if (order) {
+      if (order.status == 2 && newStatus == -1) newStatus = -3
+      if (order.status == 0 && newStatus == -1) newStatus = -1
+    }
     await updateOrderById(id, newStatus, (error, order) => {
       if (error) {
         console.log(error)
