@@ -10,7 +10,7 @@ router.get(
   paymentController.successAnonymousOrder
 )
 router.get('/anonymous/:orderId/cancel', (req, res) => {
-  res.redirect('/')
+  res.redirect(`${process.env.FRONT_END_HOST}`)
 })
 
 router.get('/:id', orderController.getOrderById)

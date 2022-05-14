@@ -15,9 +15,10 @@ export default function Checkout(props) {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
   const calTotal = () => {
+    // console.log(state)
     let total = 0
     state.product.forEach(item => {
-      total += item.price * item.count.value
+      // total += item.price * item.count.value
     })
     return total
   }
@@ -29,12 +30,18 @@ export default function Checkout(props) {
         DistrictID: shipData.address.district.DistrictID,
         WardCode: shipData.address.ward.WardCode.toString()
       }
-      const books = state.product.map(item => item.product._id)
+      const books = state.product.map(item => {
+        return {
+          book: item.product._id,
+          amount: item.count.value
+        }
+      })
+
       const user = currentUser._id
       const shippingCost = await getShippingCost(user, address, books)
       setShippingCost(shippingCost)
     }
-    if (shipData.address.province.ProvinceID) getShippingCostFnc()
+    if (shipData && shipData.address.province.ProvinceID) getShippingCostFnc()
   }, [shipData])
 
   const closeShipModal = () => {
@@ -56,10 +63,16 @@ export default function Checkout(props) {
   }
 
   const checkData = () => {
+    if (!shipData) {
+      openNotification('Vui lòng nhập đầy đủ thông tin nhận hàng')
+      return false
+    }
+
     const shipAddress = shipData.address
     const phoneNumber = shipData.phoneNumber
     const books = state.product.map(item => item.product._id)
     if (
+      !shipData ||
       !shipAddress.province.ProvinceID ||
       !shipAddress.district.DistrictID ||
       !shipAddress.ward.WardCode ||
@@ -88,17 +101,18 @@ export default function Checkout(props) {
       street: shipData.address.street
     }
     const phoneNumber = shipData.phoneNumber
+    const email = shipData.email
     const customer = shipData.username
-    const books = state.product.map(item => item.product._id)
-    const user = currentUser._id
-    const result = await createNewOrder(
-      user,
-      customer,
-      phoneNumber,
-      address,
-      books,
-      payment
-    )
+    const books = state.product.map(item => {
+      return {
+        book: item.product._id,
+        amount: item.count.value
+      }
+    })
+    const user = currentUser ? currentUser._id : null
+    const data = { user, customer, phoneNumber, email, address, books, payment }
+    if (currentUser) data.account = currentUser._id
+    const result = await createNewOrder(data)
     if (result.error) {
       switch (result.status) {
         case 1: {
@@ -180,7 +194,7 @@ export default function Checkout(props) {
 
   return (
     <>
-      {shipData.address && openShipModal && (
+      {openShipModal && (
         <ShipModal
           visible={openShipModal}
           shipData={shipData}
@@ -195,14 +209,14 @@ export default function Checkout(props) {
               Địa Chỉ Nhận Hàng
             </Text>
             <div className="flex flex-row items-center space-x-6">
-              {shipData.username && (
+              {shipData && shipData.username && (
                 <Text className="text-base font-medium capitalize">{`${shipData.username} - ${shipData.phoneNumber}`}</Text>
               )}
 
-              {shipData.address?.street && (
+              {shipData && shipData.address && (
                 <Text className="text-base capitalize">{`${shipData.address?.street}, ${shipData.address?.ward.WardName}, ${shipData.address?.district.DistrictName}, ${shipData.address?.province.ProvinceName}`}</Text>
               )}
-              {!shipData.address?.street && (
+              {(!shipData || !shipData.address) && (
                 <span className="text-base font-medium text-orange-600">
                   Vui lòng điền đầy đủ thông tin liên hệ trước khi tiến hành đặt
                   hàng!

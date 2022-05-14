@@ -139,9 +139,9 @@ const getWard = async (DistrictID, WardCode) => {
 const getShippingCost = async (req, res) => {
   try {
     const userID = req.body.user
-    const bookIDs = [].concat(req.body.books)
+    const books = [].concat(req.body.books)
     const addressTo = req.body.address
-
+    const bookIDs = books.map(book => book.book)
     const shippingCost = await calShippingCost(userID, addressTo, bookIDs)
     res.status(200).json(shippingCost)
   } catch (error) {
@@ -159,7 +159,7 @@ const calShippingCost = async (userID, addressTo, bookIDs) => {
       throw new Error('Invalid address input type')
 
     if (!mongoose.isValidObjectId(userID)) throw new Error('Invalid user ID')
-
+    console.log(bookIDs)
     const bookObjIDs = bookIDs.map(id => new mongoose.Types.ObjectId(id))
 
     const accounts = await Account.aggregate([

@@ -200,7 +200,7 @@ const createAnonymousPayment = async (orderId, res) => {
     res.status(503).json({
       success: false,
       redirect: true,
-      redirectTo: `http://localhost:3000/user/home`,
+      redirectTo: `${process.env.FRONT_END_HOST}`,
       order: null
     })
   }
