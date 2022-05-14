@@ -616,9 +616,8 @@ const getAllOrderOfUser = async (req, res) => {
   try {
     const userId = req.params.id
     const statusQuery = req.query.status
-    const page = req.body.page
     const sorterField = req.query.sorterField
-
+    console.log("userId",userId,"statusQuery",statusQuery,"sorterField",sorterField)
     const queryObj = { user: new mongoose.Types.ObjectId(userId) }
     if (statusQuery != undefined) {
       const status = parseInt(statusQuery)
@@ -642,7 +641,11 @@ const getAllOrderOfUser = async (req, res) => {
       })
       .populate({
         path: 'books.book',
-        select: '_id slug name coverUrl'
+        select: '_id slug name genres coverUrl',
+        populate:({
+          path:'genres',
+          select:'_id slug name'
+        })
       })
       .select(
         '_id user books status paid shippingCost total address phone message payment createdAt updatedAt'

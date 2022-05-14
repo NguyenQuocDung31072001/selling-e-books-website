@@ -46,12 +46,18 @@ function DetailBookUser() {
     setLoading(true)
     ;(async function () {
       let _bookApi = getBook(slug)
-      let _bookBought = getAllBookUserBought(currentUser?._id)
-      let _bookReview = getAllBookUserReview(currentUser?._id)
+      let _bookBought
+      let _bookReview
+      if (currentUser) {
+        _bookBought = getAllBookUserBought(currentUser._id)
+        _bookReview = getAllBookUserReview(currentUser._id)
+      }
       Promise.all([_bookBought, _bookReview, _bookApi]).then(
         ([bookBought, bookReview, bookApi]) => {
-          dispatch(getAllBookBought(bookBought))
-          dispatch(getAllBookReview(bookReview))
+          if (currentUser) {
+            dispatch(getAllBookBought(bookBought))
+            dispatch(getAllBookReview(bookReview))
+          }
           setBook(bookApi)
           setLoading(false)
         }
@@ -67,6 +73,12 @@ function DetailBookUser() {
     dispatch(getAllBookReview(bookReview))
   }
   const getData = () => {
+    ;(async function () {
+      let _allBookReview = await getReviewOfBook(book._id)
+      setAllReview(_allBookReview)
+    })()
+  }
+  useEffect(() => {
     if (book) {
       const breadcrum = {
         genre_slug: genre,
@@ -74,30 +86,26 @@ function DetailBookUser() {
         name_book: book.name
       }
       dispatch(updateBreadcrumb(breadcrum))
-      ;(async function () {
-        let _allBookReview = await getReviewOfBook(book?._id)
-        setAllReview(_allBookReview)
-      })()
+      getData()
     }
-  }
-  useEffect(() => {
-    getData()
     return () => {
       setAllReview([])
     }
   }, [book])
   useEffect(() => {
     if (allReview.reviews?.length > 0) {
-      allReview.reviews.forEach(review => {
-        if (review.account._id === currentUser._id) {
-          setUpdateValueRate(review.rating)
-          setUpdateContent(review.content)
-        }
-      })
+      if (currentUser) {
+        allReview.reviews.forEach(review => {
+          if (review.account._id === currentUser._id) {
+            setUpdateValueRate(review.rating)
+            setUpdateContent(review.content)
+          }
+        })
+      }
     }
     return () => {
-      setUpdateContent('')
-      setUpdateValueRate(0)
+      setUpdateValueRate()
+      setUpdateContent()
     }
   }, [allReview])
   const buyBookFnc = () => {
@@ -258,7 +266,8 @@ function DetailBookUser() {
           </div>
         )}
       </div>
-      {allBookCurrentUserBought.includes(book?._id) &&
+    
+      {currentUser && allBookCurrentUserBought.includes(book?._id) &&
         !allBookCurrentUserReview.includes(book?._id) && (
           <div className="mt-4 p-4 w-[90%] bg-white py-4 border-b-[1px] border-solid border-gray-300">
             <div className="w-full flex justify-start border-b-[1px] border-solid border-gray-300">
@@ -343,7 +352,7 @@ function DetailBookUser() {
                   <p>{review.content}</p>
                 </div>
               </div>
-              {review.account._id === currentUser._id && (
+              {currentUser && review.account._id === currentUser._id && (
                 <div className="w-[25%]">
                   <button
                     className="px-4 py-2 border-[1px] border-solid border-green-400 duration-500 
@@ -363,40 +372,44 @@ function DetailBookUser() {
             </div>
           ))}
       </div>
-      <Modal
-        title="Sửa đánh giá"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <div className="flex items-center w-full p-4 border-b-[1px] border-solid border-gray-300">
-          <span className="text-xl font-medium">Đánh giá</span>
-          <span className="ml-8">
-            <Rate
-              tooltips={desc}
-              onChange={e => setUpdateValueRate(e)}
-              value={updateValueRate}
-            />
-            {updateValueRate ? (
-              <span className="ant-rate-text">{desc[updateValueRate - 1]}</span>
-            ) : (
-              ''
-            )}
-          </span>
-        </div>
-        <div className="flex flex-col w-full p-4">
-          <div className="w-full h-[50px] pb-4 ">
-            <p className="text-xl font-medium">Nhận xét</p>
+      {currentUser && (
+        <Modal
+          title="Sửa đánh giá"
+          visible={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <div className="flex items-center w-full p-4 border-b-[1px] border-solid border-gray-300">
+            <span className="text-xl font-medium">Đánh giá</span>
+            <span className="ml-8">
+              <Rate
+                tooltips={desc}
+                onChange={e => setUpdateValueRate(e)}
+                value={updateValueRate}
+              />
+              {updateValueRate ? (
+                <span className="ant-rate-text">
+                  {desc[updateValueRate - 1]}
+                </span>
+              ) : (
+                ''
+              )}
+            </span>
           </div>
-          <TextArea
-            rows={4}
-            placeholder="maxLength is 100"
-            maxLength={100}
-            value={updateContent}
-            onChange={e => setUpdateContent(e.currentTarget.value)}
-          />
-        </div>
-      </Modal>
+          <div className="flex flex-col w-full p-4">
+            <div className="w-full h-[50px] pb-4 ">
+              <p className="text-xl font-medium">Nhận xét</p>
+            </div>
+            <TextArea
+              rows={4}
+              placeholder="maxLength is 100"
+              maxLength={100}
+              value={updateContent}
+              onChange={e => setUpdateContent(e.currentTarget.value)}
+            />
+          </div>
+        </Modal>
+      )}
       <div className="w-full mt-[50px] h-[200px] bg-black flex justify-around items-center">
         <div>
           <img

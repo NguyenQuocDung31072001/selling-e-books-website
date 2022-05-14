@@ -17,14 +17,14 @@ function ShipModal(props) {
 
   const [email, setEmail] = useState((shipData && shipData.email) || '')
   const [province, setProvince] = useState(
-    (shipData && shipData.address.province) || {}
+    (shipData && shipData.address?.province) || {}
   )
   const [district, setDistrict] = useState(
-    (shipData && shipData.address.district) || {}
+    (shipData && shipData.address?.district) || {}
   )
-  const [ward, setWard] = useState((shipData && shipData.address.ward) || {})
+  const [ward, setWard] = useState((shipData && shipData.address?.ward) || {})
   const [street, setStreet] = useState(
-    (shipData && shipData.address.street) || ''
+    (shipData && shipData.address?.street) || ''
   )
 
   const [provinceData, setProvinceData] = useState([])
@@ -70,33 +70,33 @@ function ShipModal(props) {
   }
 
   const updateWard = value => {
-    const _ward = wardData.find(war => war.WardCode == value)
+    const _ward = wardData.find(war => war.WardCode === value)
     setWard(_ward)
   }
 
   const saveShipInfo = value => {
-    console.log(value)
-    // const data = {
-    //   customer: customer,
-    //   phoneNumber: phoneNumber,
-    //   email: email,
-    //   address: {
-    //     province: {
-    //       ProvinceID: province.ProvinceID,
-    //       ProvinceName: province.ProvinceName
-    //     },
-    //     district: {
-    //       DistrictID: district.DistrictID,
-    //       DistrictName: district.DistrictName
-    //     },
-    //     ward: {
-    //       WardCode: ward.WardCode,
-    //       WardName: ward.WardName
-    //     },
-    //     street: street
-    //   }
-    // }
-    // onSave(data)
+    const data = {
+      customer: customer,
+      phoneNumber: phoneNumber,
+      email: email,
+      address: {
+        province: {
+          ProvinceID: province.ProvinceID,
+          ProvinceName: province.ProvinceName
+        },
+        district: {
+          DistrictID: district.DistrictID,
+          DistrictName: district.DistrictName
+        },
+        ward: {
+          WardCode: ward.WardCode,
+          WardName: ward.WardName
+        },
+        street: street
+      }
+    }
+    // console.log(data)
+    onSave(data)
   }
 
   return (

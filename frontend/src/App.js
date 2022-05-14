@@ -148,9 +148,9 @@ function App() {
             <Route
               path="cart"
               element={
-                <ProtectRouterUser>
-                  <Cart />
-                </ProtectRouterUser>
+                // <ProtectRouterUser>
+                <Cart />
+                // </ProtectRouterUser>
               }
             />
             <Route
@@ -163,7 +163,14 @@ function App() {
             />
             <Route path="category" element={<CategoryUser />} />
             <Route path="checkout" element={<Checkout />} />
-            <Route path="purchase" element={<UserPurchase />} />
+            <Route
+              path="purchase"
+              element={
+                <ProtectRouterUser>
+                  <UserPurchase />
+                </ProtectRouterUser>
+              }
+            />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

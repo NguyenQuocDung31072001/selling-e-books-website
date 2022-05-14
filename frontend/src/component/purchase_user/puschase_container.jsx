@@ -1,10 +1,10 @@
 import { BookFilled } from '@ant-design/icons'
 import { Col, Image, Row } from 'antd'
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function PurchaseContainer(props) {
   const { purchase } = props
-  // console.log('purchase',purchase)
   return (
     <div className="bg-white px-4 ">
       <div className="flex flex-row justify-between py-3 border-b">
@@ -17,23 +17,25 @@ export default function PurchaseContainer(props) {
       </div>
       <div className="">
         {purchase.books.map((item, index) => {
-          console.log(item)
+          // console.log(item)
           return (
             <div key={item._id} className="flex flex-row justify-between pt-4">
-              <div className="flex flex-row space-x-2 w-max">
-                <Image
-                  height={80}
-                  width={60}
-                  src={item.book.coverUrl}
-                  className="object-cover"
-                />
-                <div className="flex flex-col items-start">
-                  <span className="text-base font-normal">
-                    {item.book.name}
-                  </span>
-                  <span className="text-base font-normal">{`sl: ${item.amount}`}</span>
-                </div>
-              </div>
+              <Link to={`/user/home/${item.book.genres[0].slug}/${item.book.slug}`}>
+                <div className="flex flex-row space-x-2 w-max">
+                  <Image
+                    height={80}
+                    width={60}
+                    src={item.book.coverUrl}
+                    className="object-cover"
+                  />
+                  <div className="flex flex-col items-start">
+                    <span className="text-base font-normal">
+                      {item.book.name}
+                    </span>
+                    <span className="text-base font-normal">{`sl: ${item.amount}`}</span>
+                  </div>
+                </div>         
+              </Link>
               <div className="flex flex-col justify-center">
                 <span className="text-orange-600">
                   {new Intl.NumberFormat('vi-VN', {

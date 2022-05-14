@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 
 export default function Checkout(props) {
   const { state } = useLocation()
+  console.log(state)
   const [shipData, setShipData] = useState(state.shipData)
   const [shippingCost, setShippingCost] = useState(0)
   const [payment, setPayment] = useState('cod')
@@ -15,10 +16,10 @@ export default function Checkout(props) {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
   const calTotal = () => {
-    // console.log(state)
+    // console.log(state) 
     let total = 0
     state.product.forEach(item => {
-      // total += item.price * item.count.value
+      total += item.price * item.count.value
     })
     return total
   }
@@ -41,7 +42,7 @@ export default function Checkout(props) {
       const shippingCost = await getShippingCost(user, address, books)
       setShippingCost(shippingCost)
     }
-    if (shipData && shipData.address.province.ProvinceID) getShippingCostFnc()
+    if (shipData && shipData.address?.province?.ProvinceID) getShippingCostFnc()
   }, [shipData])
 
   const closeShipModal = () => {
@@ -49,7 +50,7 @@ export default function Checkout(props) {
   }
 
   const saveShipInfo = data => {
-    console.log(data)
+    console.log('data',data)
     setShipData({ ...data, username: data.customer })
     setOpenShipModal(false)
   }
@@ -84,7 +85,7 @@ export default function Checkout(props) {
       return false
     }
 
-    if (books.length == 0) {
+    if (books.length === 0) {
       openNotification('Đơn hàng phải gồm ít nhất một sản phẩm!')
       return false
     }
@@ -243,7 +244,7 @@ export default function Checkout(props) {
               <div className="order-2 sm:order-1 w-full my-4 md:my-0 md:w-max flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4  px-4  ">
                 <div
                   className={`px-2 py-2 font-medium border cursor-pointer ${
-                    payment == 'cod' ? 'text-orange-600 border-orange-600' : ''
+                    payment === 'cod' ? 'text-orange-600 border-orange-600' : ''
                   }`}
                   onClick={() => {
                     setPayment('cod')
@@ -253,7 +254,7 @@ export default function Checkout(props) {
                 </div>
                 <div
                   className={` px-2  py-2 font-medium border cursor-pointer ${
-                    payment == 'paypal'
+                    payment === 'paypal'
                       ? 'text-orange-600 border-orange-600'
                       : ''
                   }`}

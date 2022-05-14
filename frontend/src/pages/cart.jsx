@@ -99,40 +99,42 @@ export default function Cart() {
     }
     dispatch(updateBreadcrumb(breadcrumb))
     ;(async function () {
-      const _cart = getCart(currentUser._id)
-      const _info = getShippingInfo(currentUser._id)
-      Promise.all([_cart, _info]).then(([cart, info]) => {
-        let cartDataRender = []
-        if (cart) {
-          for (let i = 0; i < cart.length; i++) {
-            let dataCart = {
-              key: i + 1,
-              product: {
-                image: cart[i].book.coverUrl,
-                name: cart[i].book.name,
-                genres: cart[i].book.genres,
-                slug: cart[i].book.slug,
-                _id: cart[i].book._id
-              },
-              price: cart[i].book.price,
-              count: {
-                value: cart[i].amount,
-                status: cart[i].amount > 1 ? false : true
-              },
-              total: cart[i].book.price * cart[i].amount,
-              id: cart[i].book._id
+      if(currentUser){
+        const _cart = getCart(currentUser._id)
+        const _info = getShippingInfo(currentUser._id)
+        Promise.all([_cart, _info]).then(([cart, info]) => {
+          let cartDataRender = []
+          if (cart) {
+            for (let i = 0; i < cart.length; i++) {
+              let dataCart = {
+                key: i + 1,
+                product: {
+                  image: cart[i].book.coverUrl,
+                  name: cart[i].book.name,
+                  genres: cart[i].book.genres,
+                  slug: cart[i].book.slug,
+                  _id: cart[i].book._id
+                },
+                price: cart[i].book.price,
+                count: {
+                  value: cart[i].amount,
+                  status: cart[i].amount > 1 ? false : true
+                },
+                total: cart[i].book.price * cart[i].amount,
+                id: cart[i].book._id
+              }
+              cartDataRender.push(dataCart)
             }
-            cartDataRender.push(dataCart)
           }
-        }
-        setShipData(info)
-        setData(cartDataRender)
-        setFirstLoading(false)
-        setLoading(false)
-      })
+          setShipData(info)
+          setData(cartDataRender)
+          setFirstLoading(false)
+          setLoading(false)
+        })
+      }
     })()
-    return ()=>{
-      setShipData()
+    return () => {
+      // setShipData()
       setFirstLoading(false)
       setLoading(false)
     }
@@ -251,12 +253,12 @@ export default function Cart() {
       )}
       <div className="flex flex-col justify-center ">
         <div className="flex justify-center mx-[20px]">
-          {firstLoading && (
+          {firstLoading && currentUser && (
             <div className="fixed w-full h-full z-10">
               <Spin tip="Loading..." />
             </div>
           )}
-          {loading && (
+          {loading && currentUser && (
             <div className="fixed w-full h-full z-10">
               <Spin tip="Loading..." />
             </div>
@@ -272,36 +274,42 @@ export default function Cart() {
               dataSource={data}
             />
           </div>
-          <div className="w-[350px] ml-[20px] h-[330px] bg-white ">
+          <div className="w-[350px] ml-[20px] h-fit pb-8 bg-white ">
             <div className="flex flex-col p-4">
-              <div>
-                <div className="flex relative py-4">
+              <div className="">
+                <div className="flex relative pb-4">
                   <span className="text-[15px] font-medium">Giao tới</span>
-                  <div className="absolute top-4 right-4">
-                    <Link
-                      to={`${PATH_NAME.USER_CART}`}
-                      onClick={() => {
-                        setOpenShipModal(true)
-                      }}
-                    >
-                      <span className="text-[15px] font-medium">Thay đổi</span>
-                    </Link>
-                  </div>
+                  {currentUser && (
+                    <div className="absolute top-1 right-4">
+                      <Link
+                        to={`${PATH_NAME.USER_CART}`}
+                        onClick={() => {
+                          setOpenShipModal(true)
+                        }}
+                      >
+                        <span className="text-[15px] font-medium">Thay đổi</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
-                <div className="flex ">
-                  <p className="text-[15px] font-medium">{shipData.username}</p>
-                  <p className="text-[15px] font-medium ml-16">
-                    {shipData.phoneNumber}
-                  </p>
-                </div>
-                <div className="flex flex-col items-start mb-[20px] text-gray-500">
-                  <p>{shipData.address?.street}</p>
+                {currentUser && (
+                  <>
                   <div className="flex ">
-                    <p>{shipData.address?.ward.WardName}, </p>
-                    <p>{shipData.address?.district.DistrictName}, </p>
-                    <p>{shipData.address?.province.ProvinceName}</p>
+                    <p className="text-[15px] font-medium">{shipData.username}</p>
+                    <p className="text-[15px] font-medium ml-16">
+                      {shipData.phoneNumber}
+                    </p>
                   </div>
-                </div>
+                  <div className="flex flex-col items-start mb-[20px] text-gray-500">
+                    <p>{shipData.address?.street}</p>
+                    <div className="flex ">
+                      <p>{shipData.address?.ward.WardName}, </p>
+                      <p>{shipData.address?.district.DistrictName}, </p>
+                      <p>{shipData.address?.province.ProvinceName}</p>
+                    </div>
+                  </div>
+                  </>
+                )}
               </div>
               <div className="flex justify-between pr-4">
                 <div>
@@ -319,9 +327,9 @@ export default function Cart() {
                   <h1>{numberFormat(totalFinal)}</h1>
                 </div>
               </div>
-              <div className="flex w-full bg-red-400 relative">
+              <div className="flex justify-center w-full ">
                 <Button
-                  className="absolute right-[25%]"
+                  className=""
                   style={{ width: 170 }}
                   onClick={checkout}
                 >
@@ -331,9 +339,16 @@ export default function Cart() {
             </div>
           </div>
         </div>
+        {!currentUser &&(
+        <div className="mt-[170px]">
+          <Footer />
+        </div>
+        )}
+        {currentUser &&(
         <div className="mt-[50px]">
           <Footer />
         </div>
+        )}
       </div>
     </>
   )

@@ -13,6 +13,7 @@ import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image, Select } from 'antd'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import Footer from '../component/footer'
+import { cleanBookBought } from '../redux/book_bought_slices'
 const { TextArea } = Input
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
@@ -118,6 +119,7 @@ function SettingUser() {
 
   const logout_fnc = () => {
     dispatch(logout())
+    dispatch(cleanBookBought())
   }
 
   const updatePassword = () => {

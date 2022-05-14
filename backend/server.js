@@ -10,7 +10,7 @@ const app = express()
 
 //import router
 const authRouter = require('./router/auth.router')
-const accountController = require('./router/account.router')
+const accountRouter = require('./router/account.router')
 const authorRouter = require('./router/author.router')
 const genreRouter = require('./router/genre.router')
 const bookRouter = require('./router/book.router')
@@ -46,7 +46,7 @@ paypal.configure({
 })
 
 app.use('/v1/selling_e_books/auth', authRouter)
-app.use('/v1/selling_e_books/account', accountController)
+app.use('/v1/selling_e_books/account', accountRouter)
 app.use('/v1/selling_e_books/author', authorRouter)
 app.use('/v1/selling_e_books/genre', genreRouter)
 app.use('/v1/selling_e_books/book', bookRouter)
