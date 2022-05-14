@@ -1,11 +1,13 @@
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const Genres = require('../model/genres.model')
-const Review =require('../model/review.model')
+const Review = require('../model/review.model')
 const Collection = require('../model/collection.model')
 const { cloudinary } = require('../utils/cloudinary')
 const { default: mongoose } = require('mongoose')
 const createHttpError = require('http-errors')
+const crypto = require('crypto')
+const bcrypt = require('bcrypt')
 
 const updateAccount = async (req, res) => {
   //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
@@ -69,8 +71,12 @@ const updatePasswordAccount = async (req, res) => {
     const id = req.params.id
     if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
     const account = await Account.findById(id)
-    if (account.password == req.body.oldPassword)
-      account.password = req.body.newPassword
+    const isValid = await account.isCheckPassword(req.body.oldPassword)
+    if (isValid) {
+      const salt = await bcrypt.genSalt(10)
+      const hashPassword = await bcrypt.hash(req.body.newPassword, salt)
+      account.password = hashPassword
+    }
     await account.save()
     delete account.password
     res.status(200).json(account)
@@ -187,7 +193,7 @@ const getAccountShipping = async (req, res) => {
   try {
     const userId = req.params.userId
     const userAddress = await Account.findById(userId).select(
-      'username phoneNumber address'
+      'username phoneNumber address email'
     )
     res.status(200).json(userAddress)
   } catch (error) {
@@ -229,10 +235,10 @@ const getAllBookReview = async (req, res) => {
   try {
     console.log(req.params)
     const accountID = req.params.id
-    const arrBookReview=[]
-    const bookReview=await Review.find({account:accountID})
+    const arrBookReview = []
+    const bookReview = await Review.find({ account: accountID })
     console.log(bookReview)
-    bookReview.forEach((book)=>{
+    bookReview.forEach(book => {
       arrBookReview.push(book.book)
     })
     console.log(arrBookReview)

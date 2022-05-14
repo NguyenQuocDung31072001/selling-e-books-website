@@ -140,9 +140,9 @@ function App() {
             <Route
               path="home/:genre/:slug"
               element={
-                <ProtectRouterUser>
-                  <DetailBookUser />
-                </ProtectRouterUser>
+                // <ProtectRouterUser>
+                <DetailBookUser />
+                // </ProtectRouterUser>
               }
             />
             <Route

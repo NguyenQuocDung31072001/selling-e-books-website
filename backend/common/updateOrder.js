@@ -22,7 +22,6 @@ const updateOrderById = async (id, status, callback = null) => {
       error.status = 7
       throw error
     }
-
     if (checkValidNewStatus(currentOrder.status, status)) {
       if (
         (status == -1 || status == -2 || status == -3) &&
@@ -115,10 +114,6 @@ const checkValidNewStatus = (currentStatus, newStatus) => {
   } else if (currentStatus < 0) {
     const error = new Error('Can not change order status')
     error.status = 9
-    throw error
-  } else if (currentStatus > 0 && newStatus < 0 && newStatus != -3) {
-    const error = new Error('Invalid new status')
-    error.status = 6
     throw error
   } else if (newStatus == -3 && currentStatus != 2) {
     const error = new Error('Invalid new status')
