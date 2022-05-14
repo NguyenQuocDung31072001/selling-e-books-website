@@ -50,7 +50,7 @@ function SideBar() {
     })()
   }, [])
   return (
-    <div className="w-[300px] h-full bg-white overflow-y-auto fixed top-0 left-0 z-40">
+    <div className="hidden h-full bg-white overflow-y-auto fixed top-0 left-0 z-40 md:block md:w-[300px]">
       <div className=" text-green-500">
         <Link to="/user/home">
           <div className="flex items-center justify-start ml-4 p-8">
@@ -66,8 +66,6 @@ function SideBar() {
       <Menu
         onClick={handleClick}
         style={{ width: 300 }}
-        // defaultSelectedKeys={['1']}
-        // defaultOpenKeys={['sub1']}
         mode="inline"
         theme="light"
       >

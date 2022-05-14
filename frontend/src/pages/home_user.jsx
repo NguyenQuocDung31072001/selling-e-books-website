@@ -24,9 +24,6 @@ export default function HomePagesUser() {
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrum))
-    return () => {
-      setBookData([])
-    }
   }, [])
   useEffect(() => {
     let dataQuery
@@ -47,7 +44,7 @@ export default function HomePagesUser() {
       <div className="w-full h-[350px]">
         <SlideshowUser />
       </div>
-      {bookData.length === 0 && (
+      {bookData?.length === 0 && (
         <div className="w-full h-full flex items-center justify-center">
           <Spin tip="Loading..." />
         </div>

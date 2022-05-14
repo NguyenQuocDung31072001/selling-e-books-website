@@ -52,14 +52,13 @@ export default function CategoryUser() {
     }
     dispatch(updateBreadcrumb(breadcrum))
     return () => {
-      setBookData()
       setAllGenres()
       setAllAuthors()
     }
   }, [])
 
   useEffect(() => {
-    if (bookData.length > 0) {
+    if (bookData?.length > 0) {
       setBookRender(bookData)
     }
     return () => {
@@ -106,7 +105,7 @@ export default function CategoryUser() {
   }
   const allBookFnc = () => {
     let search = {
-      query: {},
+      query: {}, 
       type: 'all'
     }
     dispatch(updateQuery(search))
@@ -115,51 +114,59 @@ export default function CategoryUser() {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-wrap w-full justify-center">
-        {bookData.length === 0 && (
+        {bookData?.length === 0 && (
           <div className="w-full h-full flex items-center justify-center">
             <Spin tip="Loading..." />
           </div>
         )}
-        <div className="w-full flex flex-col justify-center items-center mb-10">
+        <div className=" md:w-full flex flex-col justify-center items-center mb-10">
           <div>
             <Title level={2}>Tìm kiếm sách</Title>
           </div>
-          <div className="w-[70%] flex justify-between">
-            <Button onClick={allBookFnc}>Tất cả sách</Button>
-            <Select
-              placeholder="Thể loại"
-              style={{ width: 230 }}
-              onChange={value => setGenresSearch(value)}
-            >
-              {allGenres?.length > 0 &&
-                allGenres.map((genres, index) => {
-                  return (
-                    <Option key={index} value={genres}>
-                      {genres}
-                    </Option>
-                  )
-                })}
-            </Select>
-            <Select
-              placeholder="Tác giả"
-              style={{ width: 230 }}
-              onChange={value => setAuthorsSearch(value)}
-            >
-              {allAuthors?.length > 0 &&
-                allAuthors.map((authors, index) => {
-                  return (
-                    <Option key={index} value={authors}>
-                      {authors}
-                    </Option>
-                  )
-                })}
-            </Select>
-            <Input
-              placeholder="Nhập tên sách"
-              style={{ width: 320 }}
-              prefix={<SearchOutlined />}
-              onChange={e => setInputSearch(e.target.value)}
-            />
+          <div className="w-[100%] md:w-[70%]  md:flex md:justify-between">
+            <div className="py-4 md:py-0">
+              <Button onClick={allBookFnc}>Tất cả sách</Button>
+            </div>
+            <div className="pb-4 md:pb-0">
+              <Select
+                placeholder="Thể loại"
+                style={{ width: 230 }}
+                onChange={value => setGenresSearch(value)}
+              >
+                {allGenres?.length > 0 &&
+                  allGenres?.map((genres, index) => {
+                    return (
+                      <Option key={index} value={genres}>
+                        {genres}
+                      </Option>
+                    )
+                  })}
+              </Select>
+            </div>
+            <div className="pb-4 md:pb-0">
+              <Select
+                placeholder="Tác giả"
+                style={{ width: 230 }}
+                onChange={value => setAuthorsSearch(value)}
+              >
+                {allAuthors?.length > 0 &&
+                  allAuthors?.map((authors, index) => {
+                    return (
+                      <Option key={index} value={authors}>
+                        {authors}
+                      </Option>
+                    )
+                  })}
+              </Select>
+            </div>
+            <div className="pb-4 md:pb-0">
+              <Input
+                placeholder="Nhập tên sách"
+                style={{ width: 230 }}
+                prefix={<SearchOutlined />}
+                onChange={e => setInputSearch(e.target.value)}
+              />
+            </div>
             <Button onClick={searchFnc}>Tìm kiếm</Button>
           </div>
         </div>

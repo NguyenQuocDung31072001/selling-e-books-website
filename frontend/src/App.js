@@ -187,7 +187,7 @@ function UserComponent() {
     <div>
       <TopUser />
       <SideBar />
-      <div className="mt-[100px] ml-[300px]">
+      <div className="mt-[100px]  md:ml-[300px]">
         <Outlet />
       </div>
     </div>

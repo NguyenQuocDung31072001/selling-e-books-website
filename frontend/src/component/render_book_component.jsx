@@ -41,7 +41,7 @@ const RenderBookComponent = ({ books }) => {
         style: {
           width: 400,
           backgroundColor:'#ffbe76',
-          color:'#535c68'
+          color:'#535c68',
         },
       })
     }
@@ -67,9 +67,9 @@ const RenderBookComponent = ({ books }) => {
   }
   return (
     <div className="w-full flex flex-col items-center justify-center mb-8">
-      <div className="flex flex-wrap bg-white h-fit w-[97%] mb-4">
+      <div className="md:flex md:flex-wrap bg-white h-fit md:w-[97%] mb-4">
         {bookRender?.length > 0 &&
-          bookRender.map((book, key) => (
+          bookRender?.map((book, key) => (
             <div
               key={key}
               className="group w-[260px] h-[220px] m-4 p-2 overflow-hidden "
