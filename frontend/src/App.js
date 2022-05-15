@@ -32,6 +32,7 @@ import Checkout from './pages/checkout_user'
 import UserPurchase from './pages/purchase_user'
 import DashboardAdmin from './pages/dashboard_admin'
 import TopAdmin from './component/top_admin'
+import CartForFree from './pages/cart_for_free'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   function ProtectRouterUser({ children }) {
@@ -150,6 +151,14 @@ function App() {
               element={
                 // <ProtectRouterUser>
                 <Cart />
+                // </ProtectRouterUser>
+              }
+            />
+            <Route
+              path="cart_for_free"
+              element={
+                // <ProtectRouterUser>
+                <CartForFree />
                 // </ProtectRouterUser>
               }
             />

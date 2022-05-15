@@ -9,6 +9,7 @@ import { numberFormat } from '../utils/formatNumber'
 import PaginationFunc from './pagination'
 const { Title } = Typography
 const RenderBookComponent = ({ books }) => {
+  // console.log(books)
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
   const [bookRender, setBookRender] = useState()
@@ -23,14 +24,60 @@ const RenderBookComponent = ({ books }) => {
     if(amount===0){
       openNotification(amount)
     }else{
-      const id_book = idOfBook
-      const id_account = currentUser._id
-      const data = {
-        book: id_book,
-        account: id_account
+      if(currentUser){
+        const id_book = idOfBook
+        const id_account = currentUser._id
+        const data = {
+          book: id_book,
+          account: id_account
+        }
+        addBookToCart(data)
+        openNotification(amount)
       }
-      addBookToCart(data)
-      openNotification(amount)
+      else{
+        let _bookClick=bookRender.find(book=>book._id===idOfBook)
+        // console.log(_bookClick)
+        let dataCartWhenNotLogin=JSON.parse(localStorage.getItem('dataCart'))
+        // console.log(dataCartWhenNotLogin)
+        if(dataCartWhenNotLogin===null){
+          dataCartWhenNotLogin=[]
+          dataCartWhenNotLogin.push({
+            key:0,
+            product:{
+              genres:_bookClick.genres[0].name,
+              image:_bookClick.coverUrl,
+              name:_bookClick.name,
+              slug:_bookClick.slug
+            },
+            price:_bookClick.price,
+            total:_bookClick.price,
+            count:{
+              status:false,
+              value:1
+            }
+          })
+        }
+        else{
+          dataCartWhenNotLogin.push({
+            key:dataCartWhenNotLogin.length,
+            product:{
+              genres:_bookClick.genres[0].name,
+              image:_bookClick.coverUrl,
+              name:_bookClick.name,
+              slug:_bookClick.slug
+            },
+            price:_bookClick.price,
+            total:_bookClick.price,
+            count:{
+              status:false,
+              value:1
+            }
+          })
+        }
+        // dataCartWhenNotLogin=['meo meo']
+        openNotification(amount)
+        localStorage.setItem('dataCart',JSON.stringify(dataCartWhenNotLogin))
+      }
     }
   }
   const openNotification = (amount) => {
