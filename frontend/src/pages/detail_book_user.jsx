@@ -112,14 +112,58 @@ function DetailBookUser() {
     if (book.amount === 0) {
       openNotification()
     } else {
-      const id_book = book._id
-      const id_account = currentUser._id
-      const data = {
-        book: id_book,
-        account: id_account
+      if (currentUser) {
+        const id_book = book._id
+        const id_account = currentUser._id
+        const data = {
+          book: id_book,
+          account: id_account
+        }
+        addBookToCart(data)
+        openNotification()
       }
-      addBookToCart(data)
-      openNotification()
+      else{
+        let dataCartWhenNotLogin=JSON.parse(localStorage.getItem('dataCart'))
+        // console.log(dataCartWhenNotLogin)
+        if(dataCartWhenNotLogin===null){
+          dataCartWhenNotLogin=[]
+          dataCartWhenNotLogin.push({
+            key:0,
+            product:{
+              genres:book.genres[0].name,
+              image:book.coverUrl,
+              name:book.name,
+              slug:book.slug
+            },
+            price:book.price,
+            total:book.price,
+            count:{
+              status:false,
+              value:1
+            }
+          })
+        }
+        else{
+          dataCartWhenNotLogin.push({
+            key:dataCartWhenNotLogin.length,
+            product:{
+              genres:book.genres[0].name,
+              image:book.coverUrl,
+              name:book.name,
+              slug:book.slug
+            },
+            price:book.price,
+            total:book.price,
+            count:{
+              status:false,
+              value:1
+            }
+          })
+        }
+        // dataCartWhenNotLogin=['meo meo']
+        openNotification()
+        localStorage.setItem('dataCart',JSON.stringify(dataCartWhenNotLogin))
+      }
     }
   }
   const openNotification = () => {
@@ -266,8 +310,9 @@ function DetailBookUser() {
           </div>
         )}
       </div>
-    
-      {currentUser && allBookCurrentUserBought.includes(book?._id) &&
+
+      {currentUser &&
+        allBookCurrentUserBought.includes(book?._id) &&
         !allBookCurrentUserReview.includes(book?._id) && (
           <div className="mt-4 p-4 w-[90%] bg-white py-4 border-b-[1px] border-solid border-gray-300">
             <div className="w-full flex justify-start border-b-[1px] border-solid border-gray-300">
