@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Table, Button, Input, Spin } from 'antd'
 import { DeleteOutlined, DeleteTwoTone, DeleteFilled } from '@ant-design/icons'
 import { Link, useNavigate } from 'react-router-dom'
@@ -12,7 +12,7 @@ import { numberFormat } from '../utils/formatNumber'
 import Footer from '../component/footer'
 
 export default function CartForFree() {
-  const [flat,setFlat]=useState(0)
+  const [flat, setFlat] = useState(0)
   const [totalFinal, setTotalFinal] = useState(0)
   const [rowChecked, setRowChecked] = useState([])
   const [selectedRows, setSelectedRows] = useState([])
@@ -82,9 +82,9 @@ export default function CartForFree() {
     }
   ]
   useEffect(() => {
-    if(currentUser){
-        navigate('/user/cart')
-      }
+    if (currentUser) {
+      navigate('/user/cart')
+    }
     window.scrollTo(0, 0)
     const breadcrumb = {
       genre_slug: 'cart_for_free',
@@ -94,58 +94,56 @@ export default function CartForFree() {
     dispatch(updateBreadcrumb(breadcrumb))
     // console.log(JSON.parse(localStorage.getItem('dataCart')))
     setData(JSON.parse(localStorage.getItem('dataCart')))
-
   }, [])
 
-useEffect(() => {
-  setData(JSON.parse(localStorage.getItem('dataCart')))
-},[flat])
+  useEffect(() => {
+    setData(JSON.parse(localStorage.getItem('dataCart')))
+  }, [flat])
 
-  const increaseCartFnc=(recordKey)=>{
-    let dataOfLocalStorage=JSON.parse(localStorage.getItem('dataCart'))
-    let dataRowItem=dataOfLocalStorage.find(item=>item.key===recordKey)
-    dataRowItem.count.value+=1
-    dataRowItem.count.status=true
-    if(rowChecked.includes(dataRowItem.key)){
-      setTotalFinal(value=>value=value+dataRowItem.price)
+  const increaseCartFnc = recordKey => {
+    let dataOfLocalStorage = JSON.parse(localStorage.getItem('dataCart'))
+    let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
+    dataRowItem.count.value += 1
+    dataRowItem.count.status = true
+    if (rowChecked.includes(dataRowItem.key)) {
+      setTotalFinal(value => (value = value + dataRowItem.price))
     }
-    dataRowItem.total=dataRowItem.count.value*dataRowItem.price
-    dataOfLocalStorage[dataRowItem.key]=dataRowItem
-    localStorage.setItem('dataCart',JSON.stringify(dataOfLocalStorage))
-    setFlat(flat=>flat+=1)
+    dataRowItem.total = dataRowItem.count.value * dataRowItem.price
+    dataOfLocalStorage[dataRowItem.key] = dataRowItem
+    localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
+    setFlat(flat => (flat += 1))
   }
-  const decreaseCartFnc=(recordKey)=>{
-    let dataOfLocalStorage=JSON.parse(localStorage.getItem('dataCart'))
-    let dataRowItem=dataOfLocalStorage.find(item=>item.key===recordKey)
-    if(dataRowItem.count.value>1){
-      dataRowItem.count.value-=1
-      if(rowChecked.includes(dataRowItem.key)){
-        setTotalFinal(value=>value=value-dataRowItem.price)
+  const decreaseCartFnc = recordKey => {
+    let dataOfLocalStorage = JSON.parse(localStorage.getItem('dataCart'))
+    let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
+    if (dataRowItem.count.value > 1) {
+      dataRowItem.count.value -= 1
+      if (rowChecked.includes(dataRowItem.key)) {
+        setTotalFinal(value => (value = value - dataRowItem.price))
       }
-      if(dataRowItem.count.value===1){
-        dataRowItem.count.status=false
+      if (dataRowItem.count.value === 1) {
+        dataRowItem.count.status = false
+      } else {
+        dataRowItem.count.status = true
       }
-      else{
-        dataRowItem.count.status=true
-      }
-      dataRowItem.total=dataRowItem.count.value*dataRowItem.price
-      dataOfLocalStorage[dataRowItem.key]=dataRowItem
-      localStorage.setItem('dataCart',JSON.stringify(dataOfLocalStorage))
-      setFlat(flat=>flat+=1)
+      dataRowItem.total = dataRowItem.count.value * dataRowItem.price
+      dataOfLocalStorage[dataRowItem.key] = dataRowItem
+      localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
+      setFlat(flat => (flat += 1))
     }
   }
-  const deleteCartFnc=(recordKey)=>{
-    let dataOfLocalStorage=JSON.parse(localStorage.getItem('dataCart'))
-    let dataRowItem=dataOfLocalStorage.find(item=>item.key===recordKey)
-    if(rowChecked.includes(dataRowItem.key)){
-      setTotalFinal(value=>value=value-dataRowItem.total)
+  const deleteCartFnc = recordKey => {
+    let dataOfLocalStorage = JSON.parse(localStorage.getItem('dataCart'))
+    let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
+    if (rowChecked.includes(dataRowItem.key)) {
+      setTotalFinal(value => (value = value - dataRowItem.total))
     }
-    dataOfLocalStorage.splice(dataRowItem.key,1)
-    dataOfLocalStorage.forEach((item,index)=>{
-      item.key=index
+    dataOfLocalStorage.splice(dataRowItem.key, 1)
+    dataOfLocalStorage.forEach((item, index) => {
+      item.key = index
     })
-    localStorage.setItem('dataCart',JSON.stringify(dataOfLocalStorage))
-    setFlat(flat=>flat+=1)
+    localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
+    setFlat(flat => (flat += 1))
   }
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -167,6 +165,7 @@ useEffect(() => {
     setOpenShipModal(false)
   }
   const checkout = () => {
+    console.log(selectedRows)
     navigate('/user/checkout', {
       state: {
         shipData: shipData,
@@ -210,7 +209,9 @@ useEffect(() => {
                           setOpenShipModal(true)
                         }}
                       >
-                        <span className="text-[15px] font-medium">Thay đổi</span>
+                        <span className="text-[15px] font-medium">
+                          Thay đổi
+                        </span>
                       </Link>
                     </div>
                   )}
@@ -233,26 +234,22 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex justify-center w-full ">
-                <Button
-                  className=""
-                  style={{ width: 170 }}
-                  onClick={checkout}
-                >
+                <Button className="" style={{ width: 170 }} onClick={checkout}>
                   Mua hàng
                 </Button>
               </div>
             </div>
           </div>
         </div>
-        {!currentUser &&(
-        <div className="mt-[170px]">
-          <Footer />
-        </div>
+        {!currentUser && (
+          <div className="mt-[170px]">
+            <Footer />
+          </div>
         )}
-        {currentUser &&(
-        <div className="mt-[50px]">
-          <Footer />
-        </div>
+        {currentUser && (
+          <div className="mt-[50px]">
+            <Footer />
+          </div>
         )}
       </div>
     </>

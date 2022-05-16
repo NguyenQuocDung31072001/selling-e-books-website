@@ -121,48 +121,48 @@ function DetailBookUser() {
         }
         addBookToCart(data)
         openNotification()
-      }
-      else{
-        let dataCartWhenNotLogin=JSON.parse(localStorage.getItem('dataCart'))
+      } else {
+        let dataCartWhenNotLogin = JSON.parse(localStorage.getItem('dataCart'))
         // console.log(dataCartWhenNotLogin)
-        if(dataCartWhenNotLogin===null){
-          dataCartWhenNotLogin=[]
+        if (dataCartWhenNotLogin === null) {
+          dataCartWhenNotLogin = []
           dataCartWhenNotLogin.push({
-            key:0,
-            product:{
-              genres:book.genres[0].name,
-              image:book.coverUrl,
-              name:book.name,
-              slug:book.slug
+            key: 0,
+            product: {
+              _id: book._id,
+              genres: book.genres[0].name,
+              image: book.coverUrl,
+              name: book.name,
+              slug: book.slug
             },
-            price:book.price,
-            total:book.price,
-            count:{
-              status:false,
-              value:1
+            price: book.price,
+            total: book.price,
+            count: {
+              status: false,
+              value: 1
             }
           })
-        }
-        else{
+        } else {
           dataCartWhenNotLogin.push({
-            key:dataCartWhenNotLogin.length,
-            product:{
-              genres:book.genres[0].name,
-              image:book.coverUrl,
-              name:book.name,
-              slug:book.slug
+            key: dataCartWhenNotLogin.length,
+            product: {
+              _id: book._id,
+              genres: book.genres[0].name,
+              image: book.coverUrl,
+              name: book.name,
+              slug: book.slug
             },
-            price:book.price,
-            total:book.price,
-            count:{
-              status:false,
-              value:1
+            price: book.price,
+            total: book.price,
+            count: {
+              status: false,
+              value: 1
             }
           })
         }
         // dataCartWhenNotLogin=['meo meo']
         openNotification()
-        localStorage.setItem('dataCart',JSON.stringify(dataCartWhenNotLogin))
+        localStorage.setItem('dataCart', JSON.stringify(dataCartWhenNotLogin))
       }
     }
   }

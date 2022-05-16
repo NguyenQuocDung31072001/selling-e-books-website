@@ -13,7 +13,7 @@ async function sendEmail(receiverEmail, subject, text, html) {
 
   let info = await transporter.sendMail({
     from: '"Book store" <bookstore@example.com>',
-    to: 'testdoan2022@gmail.com', //receiverEmail,
+    to: receiverEmail, //receiverEmail,
     subject: subject,
     text: text,
     html: html // html body

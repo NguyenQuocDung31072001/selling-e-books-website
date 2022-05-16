@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button, Input, Select, Form } from 'antd'
+import { useSelector } from 'react-redux'
 import {
   getDistrictData,
   getProvinceData,
@@ -8,6 +9,7 @@ import {
 
 function ShipModal(props) {
   const { visible, shipData, onSave, onCancel } = props
+  const currentUser = useSelector(state => state.auth.login.currentUser)
   const [customer, setCustomer] = useState(
     (shipData && shipData.username) || ''
   )
@@ -75,10 +77,11 @@ function ShipModal(props) {
   }
 
   const saveShipInfo = value => {
+    console.log(value)
     const data = {
-      customer: customer,
-      phoneNumber: phoneNumber,
-      email: email,
+      customer: value.customer,
+      phoneNumber: value.phoneNumber,
+      email: value.email,
       address: {
         province: {
           ProvinceID: province.ProvinceID,
@@ -92,7 +95,7 @@ function ShipModal(props) {
           WardCode: ward.WardCode,
           WardName: ward.WardName
         },
-        street: street
+        street: value.street
       }
     }
     // console.log(data)
@@ -145,7 +148,7 @@ function ShipModal(props) {
             rules={[
               {
                 type: 'email',
-                required: shipData ? false : true,
+                required: currentUser ? false : true,
                 message: 'Vui lòng nhập Email!'
               }
             ]}

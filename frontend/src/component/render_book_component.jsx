@@ -20,11 +20,11 @@ const RenderBookComponent = ({ books }) => {
     }
   }, [books])
 
-  const buyBookFnc = (idOfBook,amount) => {
-    if(amount===0){
+  const buyBookFnc = (idOfBook, amount) => {
+    if (amount === 0) {
       openNotification(amount)
-    }else{
-      if(currentUser){
+    } else {
+      if (currentUser) {
         const id_book = idOfBook
         const id_account = currentUser._id
         const data = {
@@ -33,76 +33,75 @@ const RenderBookComponent = ({ books }) => {
         }
         addBookToCart(data)
         openNotification(amount)
-      }
-      else{
-        let _bookClick=bookRender.find(book=>book._id===idOfBook)
+      } else {
+        let _bookClick = bookRender.find(book => book._id === idOfBook)
         // console.log(_bookClick)
-        let dataCartWhenNotLogin=JSON.parse(localStorage.getItem('dataCart'))
+        let dataCartWhenNotLogin = JSON.parse(localStorage.getItem('dataCart'))
         // console.log(dataCartWhenNotLogin)
-        if(dataCartWhenNotLogin===null){
-          dataCartWhenNotLogin=[]
+        if (dataCartWhenNotLogin === null) {
+          dataCartWhenNotLogin = []
           dataCartWhenNotLogin.push({
-            key:0,
-            product:{
-              genres:_bookClick.genres[0].name,
-              image:_bookClick.coverUrl,
-              name:_bookClick.name,
-              slug:_bookClick.slug
+            key: 0,
+            product: {
+              genres: _bookClick.genres[0].name,
+              image: _bookClick.coverUrl,
+              name: _bookClick.name,
+              slug: _bookClick.slug,
+              _id: _bookClick._id
             },
-            price:_bookClick.price,
-            total:_bookClick.price,
-            count:{
-              status:false,
-              value:1
+            price: _bookClick.price,
+            total: _bookClick.price,
+            count: {
+              status: false,
+              value: 1
             }
           })
-        }
-        else{
+        } else {
           dataCartWhenNotLogin.push({
-            key:dataCartWhenNotLogin.length,
-            product:{
-              genres:_bookClick.genres[0].name,
-              image:_bookClick.coverUrl,
-              name:_bookClick.name,
-              slug:_bookClick.slug
+            key: dataCartWhenNotLogin.length,
+            product: {
+              genres: _bookClick.genres[0].name,
+              image: _bookClick.coverUrl,
+              name: _bookClick.name,
+              slug: _bookClick.slug,
+              _id: _bookClick._id
             },
-            price:_bookClick.price,
-            total:_bookClick.price,
-            count:{
-              status:false,
-              value:1
+            price: _bookClick.price,
+            total: _bookClick.price,
+            count: {
+              status: false,
+              value: 1
             }
           })
         }
         // dataCartWhenNotLogin=['meo meo']
         openNotification(amount)
-        localStorage.setItem('dataCart',JSON.stringify(dataCartWhenNotLogin))
+        localStorage.setItem('dataCart', JSON.stringify(dataCartWhenNotLogin))
       }
     }
   }
-  const openNotification = (amount) => {
-    if(amount===0){
+  const openNotification = amount => {
+    if (amount === 0) {
       notification.open({
-        message:'Đã hết sách!',
+        message: 'Đã hết sách!',
         description: 'Bạn vui lòng chờ nhập thêm sách vào kho hàng!',
         style: {
           width: 400,
-          backgroundColor:'#ffbe76',
-          color:'#535c68',
-        },
+          backgroundColor: '#ffbe76',
+          color: '#535c68'
+        }
       })
-    }
-    else{
-        notification.open({
-          message:'Đã thêm vào giỏ hàng!',
-          description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
-          style: {
-            width: 400
-          },
-          onClick: () => {
-            navigate('/user/cart')
-          }
-        })
+    } else {
+      notification.open({
+        message: 'Đã thêm vào giỏ hàng!',
+        description: 'Sách đã được thêm vào giỏ hàng. Click để xem chi tiết!',
+        style: {
+          width: 400
+        },
+        onClick: () => {
+          navigate('/user/cart')
+        }
+      })
     }
   }
   const onChangePage = current => {
@@ -160,7 +159,7 @@ const RenderBookComponent = ({ books }) => {
                   <div className="absolute bottom-0 left-4">
                     <ShoppingCartOutlined
                       style={{ color: '#27ae60', fontSize: 30 }}
-                      onClick={() => buyBookFnc(book._id,book.amount)}
+                      onClick={() => buyBookFnc(book._id, book.amount)}
                     />
                   </div>
                 </div>
@@ -175,9 +174,9 @@ const RenderBookComponent = ({ books }) => {
                 )}
                 {book.amount !== 0 && (
                   <div className="w-full h-full bg-gradient-to-r from-violet-500 to-fuchsia-500">
-                  <p className="text-[18px] font-bold text-yellow-300">
-                    Còn {book.amount} cuốn
-                  </p>
+                    <p className="text-[18px] font-bold text-yellow-300">
+                      Còn {book.amount} cuốn
+                    </p>
                   </div>
                 )}
               </div>

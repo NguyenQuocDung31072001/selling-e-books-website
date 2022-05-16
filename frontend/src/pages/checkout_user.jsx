@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux'
 
 export default function Checkout(props) {
   const { state } = useLocation()
-  console.log(state)
   const [shipData, setShipData] = useState(state.shipData)
   const [shippingCost, setShippingCost] = useState(0)
   const [payment, setPayment] = useState('cod')
@@ -16,7 +15,7 @@ export default function Checkout(props) {
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
   const calTotal = () => {
-    // console.log(state) 
+    // console.log(state)
     let total = 0
     state.product.forEach(item => {
       total += item.price * item.count.value
@@ -38,8 +37,8 @@ export default function Checkout(props) {
         }
       })
 
-      const user = currentUser._id
-      const shippingCost = await getShippingCost(user, address, books)
+      // const user = currentUser._id
+      const shippingCost = await getShippingCost(address, books)
       setShippingCost(shippingCost)
     }
     if (shipData && shipData.address?.province?.ProvinceID) getShippingCostFnc()
@@ -50,7 +49,7 @@ export default function Checkout(props) {
   }
 
   const saveShipInfo = data => {
-    console.log('data',data)
+    console.log('data', data)
     setShipData({ ...data, username: data.customer })
     setOpenShipModal(false)
   }

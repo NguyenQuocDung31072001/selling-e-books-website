@@ -141,8 +141,20 @@ const getShippingCost = async (req, res) => {
     const userID = req.body.user
     const books = [].concat(req.body.books)
     const addressTo = req.body.address
+    console.log(books)
     const bookIDs = books.map(book => book.book)
-    const shippingCost = await calShippingCost(userID, addressTo, bookIDs)
+    const existBooks = await Book.find({ _id: { $in: bookIDs } })
+    if (existBooks.length != books.length) throw new Error('Invalid book IDs')
+    const orderBooks = books.map(item => {
+      const book = existBooks.find(book => book._id.toString() === item.book)
+      return {
+        book: item.book,
+        amount: item.amount,
+        price: book.price
+      }
+    })
+
+    const shippingCost = await calAnonymousShippingCost(addressTo, orderBooks)
     res.status(200).json(shippingCost)
   } catch (error) {
     console.log(error)

@@ -558,12 +558,12 @@ export const getShippingInfo = async account => {
   }
 }
 
-export const getShippingCost = async (user, address, books) => {
+export const getShippingCost = async (address, books) => {
   try {
     const response = await axios.post(
       API_URL + `/v1/selling_e_books/shipping/cost`,
       {
-        user: user,
+        // user: user,
         address: address,
         books: books
       }
