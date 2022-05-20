@@ -1,6 +1,6 @@
 const { default: mongoose } = require('mongoose')
 const { ORDER_STATUS_NAME, PAYMENT_METHOD } = require('../common/constant')
-const updateOrderById = require('../common/updateOrder')
+const { updateOrderById } = require('../common/updateOrder')
 const Account = require('../model/account.model')
 const Book = require('../model/book.model')
 const Order = require('../model/order.model')
@@ -21,6 +21,7 @@ const { orderValidate, anonymousOrderValidate } = require('../utils/validation')
 const createHttpError = require('http-errors')
 const AnonymousOrder = require('../model/anonymousOrder.model')
 const { sendConfirmOrderEmail } = require('../utils/senEmail')
+const { applyVoucher } = require('./voucher.controller')
 
 const pageLimit = 10
 
@@ -70,15 +71,17 @@ const newOrder = async (req, res) => {
 
 const createNewOrder = async (req, res) => {
   try {
-    const { books, address, email, customer, payment, phoneNumber } = req.body
+    const {
+      books,
+      address,
+      email,
+      customer,
+      payment,
+      phoneNumber,
+      voucherCode
+    } = req.body
+
     const accountId = req.body.account
-    // const books = req.body.books
-
-    // const address = req.body.address
-    // const customer = req.body.customer
-    // const payment = req.body.payment
-    // const phone = req.body.phoneNumber
-
     const account = await Account.findById(accountId).populate('cart.book')
 
     const { error } = orderValidate({
@@ -110,14 +113,13 @@ const createNewOrder = async (req, res) => {
 
     const bookIDs = books.map(item => item.book)
     const existBooks = await Book.find({ _id: { $in: bookIDs } })
-    console.log(bookIDs)
     if (existBooks.length != bookIDs.length) {
       const error = new Error('Invalid book ID')
       error.status = 9
       throw error
     }
 
-    let total = 0
+    let subTotal = 0
 
     const orderBooks = books.map(bookItem => {
       const cartItem = account.cart.find(
@@ -142,7 +144,7 @@ const createNewOrder = async (req, res) => {
         throw error
       }
 
-      total += cartItem.book.price * cartItem.amount
+      subTotal += cartItem.book.price * cartItem.amount
 
       return {
         book: cartItem.book._id,
@@ -152,7 +154,7 @@ const createNewOrder = async (req, res) => {
     })
 
     let shippingCost = await calShippingCost(accountId, address, bookIDs)
-    total += shippingCost.total
+
     const province = await getProvince(address.ProvinceID)
     if (!province) {
       const error = new Error('Invalid address')
@@ -181,7 +183,8 @@ const createNewOrder = async (req, res) => {
       status: 0,
       paid: false,
       shippingCost: shippingCost.total,
-      total: total,
+      subTotal: subTotal,
+      total: shippingCost.total + subTotal,
       address: {
         street: address.street,
         ward: {
@@ -199,6 +202,14 @@ const createNewOrder = async (req, res) => {
       },
       phone: phoneNumber
     })
+    if (typeof voucherCode !== 'undefined') {
+      const voucher = await applyVoucher(newOrder, voucherCode)
+      if (voucher) {
+        newOrder.voucher = voucher
+        let total = newOrder.subTotal + newOrder.shippingCost - voucher.discount
+        newOrder.total = total
+      }
+    }
 
     const asyncUpdateBooks = orderBooks.map(orderItem => {
       return Book.updateOne(
@@ -263,7 +274,15 @@ const createNewOrder = async (req, res) => {
 
 const createAnonymousOrder = async (req, res) => {
   try {
-    const { books, address, email, customer, payment, phoneNumber } = req.body
+    const {
+      books,
+      address,
+      email,
+      customer,
+      payment,
+      phoneNumber,
+      voucherCode
+    } = req.body
 
     if (payment != 'cod' && payment != 'paypal') {
       const error = new Error('Invalid payment method')
@@ -279,19 +298,6 @@ const createAnonymousOrder = async (req, res) => {
       throw error
     }
 
-    let total = 0
-
-    const orderBooks = books.map(item => {
-      const book = existBooks.find(book => book._id.toString() === item.book)
-      if (book.amount < item.amount) throw new Error('Book sold out')
-      total += book.price * item.amount
-      return {
-        book: item.book,
-        amount: item.amount,
-        price: book.price
-      }
-    })
-
     const { error } = anonymousOrderValidate({
       customer: customer,
       books: bookIDs,
@@ -304,10 +310,22 @@ const createAnonymousOrder = async (req, res) => {
       phone: phoneNumber
     })
 
+    let subTotal = 0
+
+    const orderBooks = books.map(item => {
+      const book = existBooks.find(book => book._id.toString() === item.book)
+      if (book.amount < item.amount) throw new Error('Book sold out')
+      subTotal += book.price * item.amount
+      return {
+        book: item.book,
+        amount: item.amount,
+        price: book.price
+      }
+    })
+
     if (error) throw createHttpError.BadRequest(error)
 
     let shippingCost = await calAnonymousShippingCost(address, orderBooks)
-    total += shippingCost.total
     const province = await getProvince(address.ProvinceID)
     if (!province) {
       const error = new Error('Invalid address')
@@ -334,8 +352,9 @@ const createAnonymousOrder = async (req, res) => {
       books: orderBooks,
       status: 0,
       paid: false,
+      subTotal: subTotal,
       shippingCost: shippingCost.total,
-      total: total,
+      total: subTotal + shippingCost.total,
       address: {
         street: address.street,
         ward: {
@@ -353,6 +372,15 @@ const createAnonymousOrder = async (req, res) => {
       },
       phone: phoneNumber
     })
+
+    if (typeof voucherCode !== 'undefined') {
+      const voucher = await applyVoucher(newOrder, voucherCode)
+      if (voucher) {
+        newOrder.voucher = voucher
+        let total = newOrder.subTotal + newOrder.shippingCost - voucher.discount
+        newOrder.total = total
+      }
+    }
 
     const asyncUpdateBooks = orderBooks.map(orderItem => {
       return Book.updateOne(
@@ -374,8 +402,8 @@ const createAnonymousOrder = async (req, res) => {
       await Promise.all(asyncUpdateBooks)
       res.json({
         success: true,
-        redirect: false,
-        redirectTo: '',
+        redirect: true,
+        redirectTo: process.env.FRONT_END_HOST,
         message: 'Đặt hàng thành công vui lòng kiểm tra email và xác nhận',
         order: savedOrder
       })
@@ -403,11 +431,14 @@ const createAnonymousOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
-    const { status, sorterField, from, to, page } = req.query
+    const { status, payment, paid, sorterField, from, to, customer, page } =
+      req.query
 
     const queryObj = {}
     if (status != undefined) queryObj.status = parseInt(status)
-
+    if (payment != undefined) queryObj.payment = parseInt(payment)
+    if (customer != undefined) queryObj.customer = new RegExp(customer, 'i')
+    if (paid != undefined) queryObj.paid = paid
     if (from || to) {
       queryObj['$and'] = []
     }
@@ -434,7 +465,7 @@ const getOrders = async (req, res) => {
         select: '_id slug name coverUrl'
       })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
+        '_id user books status paid shippingCost total subTotal voucher address phone message payment createdAt updatedAt email customer'
       )
       .sort(sorterField && sorterField != 'user' ? sorter : { updatedAt: -1 })
       .lean()
@@ -456,7 +487,7 @@ const getOrderById = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url address' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
+        '_id user books status paid shippingCost total subTotal voucher address phone message payment createdAt updatedAt email customer'
       )
       .lean()
     res.status(200).json(order)
@@ -474,7 +505,7 @@ const getOrderOfUser = async (req, res) => {
       .populate({ path: 'user', select: 'username email avatar_url' })
       .populate({ path: 'books.book', select: 'slug _id name avatarUrl' })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt email customer'
+        '_id user books status paid shippingCost total subTotal voucher address phone message payment createdAt updatedAt email customer'
       )
       .sort({ createdAt: -1 })
     order.statusName = ORDER_STATUS_NAME[order.status]
@@ -617,7 +648,14 @@ const getAllOrderOfUser = async (req, res) => {
     const userId = req.params.id
     const statusQuery = req.query.status
     const sorterField = req.query.sorterField
-    console.log("userId",userId,"statusQuery",statusQuery,"sorterField",sorterField)
+    console.log(
+      'userId',
+      userId,
+      'statusQuery',
+      statusQuery,
+      'sorterField',
+      sorterField
+    )
     const queryObj = { user: new mongoose.Types.ObjectId(userId) }
     if (statusQuery != undefined) {
       const status = parseInt(statusQuery)
@@ -642,13 +680,13 @@ const getAllOrderOfUser = async (req, res) => {
       .populate({
         path: 'books.book',
         select: '_id slug name genres coverUrl',
-        populate:({
-          path:'genres',
-          select:'_id slug name'
-        })
+        populate: {
+          path: 'genres',
+          select: '_id slug name'
+        }
       })
       .select(
-        '_id user books status paid shippingCost total address phone message payment createdAt updatedAt'
+        '_id user books status paid shippingCost total subTotal voucher address phone message payment createdAt updatedAt'
       )
       .sort({ createdAt: 'descending' })
       .lean()
@@ -671,7 +709,7 @@ const confirmAnonymousOrder = async (req, res) => {
         verifyToken: token,
         isVerified: false
       },
-      { isVerified: true }
+      { isVerified: true, confirmed: true }
     )
     if (!anonymousOrder) throw new Error('Order does not exist')
     const newOrder = new Order({
@@ -681,10 +719,15 @@ const confirmAnonymousOrder = async (req, res) => {
       books: anonymousOrder.books,
       status: 0,
       paid: anonymousOrder.paid,
+      subTotal: anonymousOrder.subTotal,
       shippingCost: anonymousOrder.shippingCost,
+      voucher: anonymousOrder.voucher,
       total: anonymousOrder.total,
       payment: anonymousOrder.payment,
-      paypal: anonymousOrder.paypal,
+      paypal: {
+        _id: anonymousOrder.paypal._id,
+        refund: anonymousOrder.paypal.refund
+      },
       address: {
         street: anonymousOrder.address.street,
         ward: {

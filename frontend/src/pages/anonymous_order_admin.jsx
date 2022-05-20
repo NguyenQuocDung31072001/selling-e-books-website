@@ -13,9 +13,10 @@ import {
 import { Option } from 'antd/lib/mentions'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
+import AnonymousOrderTable from '../component/order_admin/anonymous_order_table'
 import OrderTable from '../component/order_admin/order_table'
 
-function OrderManage() {
+function AnonymousOrdersManage() {
   const { RangePicker } = DatePicker
   const { Title } = Typography
   const { TabPane } = Tabs
@@ -85,19 +86,6 @@ function OrderManage() {
             />
           </Form.Item>
 
-          <Form.Item name="status" label="Tình trạng">
-            <Select style={{ minWidth: 225 }}>
-              <Option value={5}>Tất cả</Option>
-              <Option value={0}>Đang chờ</Option>
-              <Option value={1}>Đã xác nhận</Option>
-              <Option value={2}>Đang vận chuyển</Option>
-              <Option value={3}>Giao hàng thành công</Option>
-              <Option value={-3}>Giao hàng không thành công</Option>
-              <Option value={-1}>Đã từ chối</Option>
-              <Option value={-2}>Đã hủy</Option>
-            </Select>
-          </Form.Item>
-
           <Form.Item name="paid" label="Trạng thái thanh toán">
             <Select style={{ minWidth: 150 }}>
               <Option value={2}>Tất cả</Option>
@@ -113,15 +101,9 @@ function OrderManage() {
               <Option value={1}>Paypal</Option>
             </Select>
           </Form.Item>
-
-          {/* <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Tìm kiếm
-            </Button>
-          </Form.Item> */}
         </Form>
       </div>
-      <OrderTable
+      <AnonymousOrderTable
         filter={filter}
         status={0}
         onLoading={handleLoading}
@@ -130,4 +112,4 @@ function OrderManage() {
     </div>
   )
 }
-export default OrderManage
+export default AnonymousOrdersManage

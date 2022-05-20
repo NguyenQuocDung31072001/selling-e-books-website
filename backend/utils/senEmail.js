@@ -62,6 +62,18 @@ async function sendVerificationEmail(email, token) {
   await sendEmail(email, 'Xác thực email', '', html)
 }
 
+const sendForgotEmail = async (code, email) => {
+  const html = `<div style="background-color: white; padding: 1rem; margin: 0">
+    <p>Xin chào <strong>${email}</strong></p>
+    <p>Chúng tôi ghi nhận một yêu cầu khôi phục mật khẩu từ bạn</p>
+    <p>
+      Vui dòng sử dụng mã dưới đây để xác nhận yêu cầu này:
+      <strong>${code}</strong>
+    </p>
+  </div>`
+  await sendEmail(email, 'Khôi phục mật khẩu', '', html)
+}
+
 async function sendConfirmOrderEmail(email, order) {
   const itemsHtml = initOrderItemsHTML(order.books)
   const html = `<!DOCTYPE html>
@@ -1154,7 +1166,7 @@ async function sendConfirmOrderEmail(email, order) {
                                             line-height: 27px;
                                           "
                                         >
-                                          ${order.total - order.shippingCost}đ
+                                          ${order.subTotal}đ
                                         </td>
                                       </tr>
                                       <tr>
@@ -1342,4 +1354,10 @@ const initOrderItemsHTML = books => {
   })
   return html
 }
-module.exports = { sendEmail, sendVerificationEmail, sendConfirmOrderEmail }
+
+module.exports = {
+  sendEmail,
+  sendVerificationEmail,
+  sendConfirmOrderEmail,
+  sendForgotEmail
+}

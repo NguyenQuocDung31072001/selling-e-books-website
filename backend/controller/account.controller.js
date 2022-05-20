@@ -8,6 +8,8 @@ const { default: mongoose } = require('mongoose')
 const createHttpError = require('http-errors')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
+const { sendConfirmOrderEmail, sendForgotEmail } = require('../utils/senEmail')
+const { date } = require('joi')
 
 const updateAccount = async (req, res) => {
   //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
@@ -246,6 +248,107 @@ const getAllBookReview = async (req, res) => {
   }
 }
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+    const existAccount = await Account.findOne({ email: email })
+    const currentTime = new Date()
+
+    if (existAccount) {
+      const verifyCode = crypto.randomBytes(3).toString('hex')
+      existAccount.resetPassword = {
+        code: verifyCode,
+        expireTime: new Date(currentTime.getTime() + 3 * 60000)
+      }
+      await Promise.all([
+        existAccount.save(),
+        sendForgotEmail(verifyCode, existAccount.email)
+      ])
+      return res.json({
+        success: true,
+        error: false,
+        message: ''
+      })
+    } else {
+      return res.json({
+        success: false,
+        error: true,
+        message: 'Không tìm thấy tài khoản hợp lệ!'
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: true, success: false, message: '' })
+  }
+}
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, code, password } = req.body
+    console.log(email, code, password)
+    const existAccount = await Account.findOne({ email: email })
+    if (existAccount) {
+      let currentTime = new Date()
+      if (
+        existAccount.resetPassword.code !== code ||
+        currentTime > existAccount.resetPassword.expireTime
+      )
+        return res.json({
+          success: false,
+          error: true,
+          message: 'Mã xác nhận không hợp lệ!'
+        })
+      else {
+        const salt = await bcrypt.genSalt(10)
+        const hashPassword = await bcrypt.hash(password, salt)
+        existAccount.password = hashPassword
+        await existAccount.save()
+        res.json({
+          success: true,
+          error: false,
+          message: 'Thành công!'
+        })
+      }
+    } else {
+      res.json({
+        success: false,
+        error: true,
+        message: 'Không tìm thấy tài khoản hợp lệ!'
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: true, success: false, message: '' })
+  }
+}
+
+const checkVerifyCode = async (req, res) => {
+  const { email, code } = req.body
+  try {
+    let currentTime = new Date()
+    const existAccount = await Account.findOne({ email: email })
+    if (
+      !existAccount ||
+      currentTime > existAccount.resetPassword.expireTime ||
+      code !== existAccount.resetPassword.code
+    )
+      return res.json({
+        success: false,
+        error: true,
+        message: 'Mã xác thực không hợp lệ'
+      })
+    else
+      return res.json({
+        success: true,
+        error: false,
+        message: 'Thành công!'
+      })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: true, success: false, message: '' })
+  }
+}
+
 module.exports = {
   getAccountCart,
   updateAccount,
@@ -255,5 +358,8 @@ module.exports = {
   getAccountShipping,
   updateAccountLibrary,
   getAccountLibraries,
-  getAllBookReview
+  getAllBookReview,
+  forgotPassword,
+  resetPassword,
+  checkVerifyCode
 }

@@ -7,6 +7,10 @@ const paymentController = require('../controller/payment.controller')
 const collectionController = require('../controller/collection.controller')
 const { refundPayment } = require('../controller/payment.controller')
 
+router.post('/forgot', accountController.forgotPassword)
+router.post('/forgot/check', accountController.checkVerifyCode)
+router.post('/forgot/reset', accountController.resetPassword)
+
 router.post('/setting/:id', verifyToken, accountController.updateAccount)
 
 router.post(

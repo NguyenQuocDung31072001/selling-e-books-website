@@ -509,23 +509,48 @@ export const increaseCart = async data => {
 }
 
 //Order manage api
-export const getOrders = async (status, page, sorter, filter) => {
+export const getOrders = async (page, sorter, filter) => {
   try {
     const queryObj = {}
     if (page) queryObj.page = page
-    if (status != null && status != undefined) queryObj.status = status
     if (sorter && sorter.field && sorter.order) {
       const fields = [].concat(sorter.field)
       queryObj.sorterField = fields[0]
       queryObj.sorterOrder = sorter.order == 'ascend' ? 1 : -1
     }
-    if (filter && filter.field) {
-      queryObj.filterField = filter.field
-      queryObj.filterValue = filter.value
-    }
+    const propNames = Object.getOwnPropertyNames(filter)
+    propNames.forEach(prop => {
+      if (filter[prop] != undefined) queryObj[prop] = filter[prop]
+    })
+
     const queryString = new URLSearchParams(queryObj).toString()
+    console.log(queryString)
     const res = await axios.get(
       API_URL + '/v1/selling_e_books/order?' + queryString
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getAnonymousOrders = async (page, sorter, filter) => {
+  try {
+    const queryObj = {}
+    if (page) queryObj.page = page
+    if (sorter && sorter.field && sorter.order) {
+      const fields = [].concat(sorter.field)
+      queryObj.sorterField = fields[0]
+      queryObj.sorterOrder = sorter.order == 'ascend' ? 1 : -1
+    }
+    const propNames = Object.getOwnPropertyNames(filter)
+    propNames.forEach(prop => {
+      if (filter[prop] != undefined) queryObj[prop] = filter[prop]
+    })
+
+    const queryString = new URLSearchParams(queryObj).toString()
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/anonymous?' + queryString
     )
     return res.data
   } catch (error) {
@@ -545,6 +570,18 @@ export const updateOrder = async order => {
   }
 }
 
+export const updateAnonymousOrder = async order => {
+  try {
+    const res = await axios.put(
+      API_URL + '/v1/selling_e_books/anonymous/' + order._id,
+      order
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const getShippingInfo = async account => {
   try {
     const address = await axios.get(
@@ -555,6 +592,22 @@ export const getShippingInfo = async account => {
   } catch (error) {
     console.log(error)
     return null
+  }
+}
+
+export const getVoucher = async (subTotal, voucherCode) => {
+  try {
+    const address = await axios.post(
+      API_URL + `/v1/selling_e_books/voucher/apply`,
+      {
+        subTotal,
+        voucherCode
+      }
+    )
+    console.log('data', address.data)
+    return address.data
+  } catch (error) {
+    return error.response.data
   }
 }
 
@@ -586,10 +639,15 @@ export const createNewOrder = async data => {
       books: data.books,
       payment: data.payment
     }
-    if (data.account) data.account = data.account
+
+    if (data.account) dataObj.account = data.account
+    if (data.voucherCode) dataObj.voucherCode = data.voucherCode
+
+    console.log(dataObj)
+
     const response = await axios.post(
       API_URL + `/v1/selling_e_books/order`,
-      data
+      dataObj
     )
     return response.data
   } catch (error) {
@@ -715,5 +773,117 @@ export const getTopBook = async (top, field) => {
     return res.data
   } catch (error) {
     console.log(error)
+  }
+}
+export const getAllVoucher = async query => {
+  try {
+    const res = await axios.get(API_URL + `/v1/selling_e_books/voucher`, {
+      params: {
+        query
+      }
+    })
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const createNewVoucher = async voucher => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/voucher`,
+      voucher
+    )
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const updateVoucher = async voucher => {
+  try {
+    const res = await axios.put(
+      API_URL + `/v1/selling_e_books/voucher/${voucher._id}`,
+      voucher
+    )
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const deleteVoucher = async voucher => {
+  try {
+    const res = await axios.delete(
+      API_URL + `/v1/selling_e_books/voucher/${voucher._id}`
+    )
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const forgotRequest = async email => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/account/forgot`,
+      email
+    )
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const confirmVerifyCode = async (email, code) => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/account/forgot/check`,
+      {
+        email: email,
+        code: code
+      }
+    )
+
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+export const updateNewPassword = async (email, code, password) => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/account/forgot/reset`,
+      {
+        email: email,
+        code: code,
+        password: password
+      }
+    )
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
   }
 }

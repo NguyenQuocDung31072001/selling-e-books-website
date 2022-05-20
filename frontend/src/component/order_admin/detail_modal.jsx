@@ -4,7 +4,16 @@ import { useState } from 'react'
 import BooksTable from './books_table'
 
 export default function DetailModal(props) {
-  const { data, onClose, onConfirm, onRefuse, visible, action, step } = props
+  const {
+    data,
+    onClose,
+    onConfirm,
+    onRefuse,
+    visible,
+    action,
+    step,
+    isAnonymous = false
+  } = props
   // const [visible, setVisible] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
 
@@ -17,6 +26,7 @@ export default function DetailModal(props) {
 
   function refuseTitle() {
     if (action === 'show') {
+      if (isAnonymous) return 'Từ chối'
       if (step === 0) return 'Từ chối'
       else if (step === 1) return 'Không thể vận chuyển'
       else if (step === 2) return 'Giao hàng không thành công'
@@ -27,10 +37,12 @@ export default function DetailModal(props) {
 
   function confirmTitle() {
     if (action === 'confirm' || action === 'show') {
+      if (isAnonymous) return 'Xác nhận'
       if (step === 0) return 'Chấp nhận'
       else if (step === 1) return 'Tiến hành vận chuyển'
       else if (step === 2) return 'Giao hàng thành công'
     } else if (action === 'refuse') {
+      if (isAnonymous) return 'Từ chối'
       if (step === 0) return 'Từ chối'
       else if (step === 1) return 'Không thể vận chuyển'
       else if (step === 2) return 'Giao hàng không thành công'
@@ -39,7 +51,6 @@ export default function DetailModal(props) {
 
   return (
     <>
-      {/* {console.log(action, step)} */}
       <Modal
         title="Đơn hàng"
         visible={visible}
@@ -173,7 +184,7 @@ export default function DetailModal(props) {
               {new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
-              }).format(data.total - data.shippingCost)}
+              }).format(data.subTotal)}
             </Text>
           </Col>
 
@@ -194,6 +205,26 @@ export default function DetailModal(props) {
                 style: 'currency',
                 currency: 'VND'
               }).format(data.shippingCost)}
+            </Text>
+          </Col>
+
+          <Col span={12}>
+            <Text strong>Giảm giá:</Text>
+          </Col>
+          <Col
+            span={12}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'end',
+              paddingRight: '1rem'
+            }}
+          >
+            <Text strong>
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(data.voucher ? data.voucher.discount : 0)}
             </Text>
           </Col>
 
