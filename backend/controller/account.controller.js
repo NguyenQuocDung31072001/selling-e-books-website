@@ -75,10 +75,12 @@ const updatePasswordAccount = async (req, res) => {
       const salt = await bcrypt.genSalt(10)
       const hashPassword = await bcrypt.hash(req.body.newPassword, salt)
       account.password = hashPassword
+    }else{
+      return res.json({message: 'invalid_password'})
     }
     await account.save()
     delete account.password
-    res.status(200).json(account)
+    return res.status(200).json({message: 'update_success',account:account})
   } catch (error) {
     console.log(error)
     res.status(500).json(error)

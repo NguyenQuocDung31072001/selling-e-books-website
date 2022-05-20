@@ -117,8 +117,8 @@ export const updateAccountPassword = async (currentUser, account, dispatch) => {
         headers: { token: currentUser.accessToken }
       }
     )
-    console.log(res)
-    if (res.status === 200) dispatch(logout())
+    return res.data
+    // if (res.status === 200) dispatch(logout())
   } catch (error) {
     console.log(error)
   }

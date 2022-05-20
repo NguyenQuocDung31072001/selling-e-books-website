@@ -10,11 +10,12 @@ import {
 } from '../redux/api_request'
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
-import { Input, Button, Image, Select } from 'antd'
+import { Input, Button, Image, Select, Form, notification } from 'antd'
 import BreadcrumbsUser from '../component/breadcrumbs_user'
 import Footer from '../component/footer'
 import { cleanBookBought } from '../redux/book_bought_slices'
 const { TextArea } = Input
+
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
 
 function SettingUser() {
@@ -35,15 +36,16 @@ function SettingUser() {
   const [districtData, setDistrictData] = useState([])
   const [wardData, setWardData] = useState([])
 
-  const [oldPassword, setOldPassword] = useState('')
+  const [oldPassword, setOldPassword] = useState()
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
+  const [form] = Form.useForm()
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   useEffect(() => {
-    window.scrollTo(0,0)
+    window.scrollTo(0, 0)
     const breadcrumb = {
       genre_slug: 'setting',
       genre_name: 'Setting',
@@ -122,19 +124,58 @@ function SettingUser() {
     dispatch(cleanBookBought())
   }
 
-  const updatePassword = () => {
+  const updatePassword = async() => {
+
     if (newPassword !== confirmPassword) {
-      window.confirm('Mật khẩu không trùng khớp vui lòng kiểm tra lại')
+      notification.open({
+        message: 'Cảnh báo',
+        description: 'Mật khẩu không trùng khớp vui lòng kiểm tra lại!',
+        style: {
+          width: 400,
+          backgroundColor: '#f1c40f',
+          color: '#535c68'
+        }
+      })
     } else {
       const account = {
         _id: currentUser._id,
         oldPassword: oldPassword,
         newPassword: newPassword
       }
-      updateAccountPassword(currentUser, account, dispatch)
-    }
-  }
+      await updateAccountPassword(currentUser, account, dispatch)
+      .then(res=>{
+        if(res.message==='invalid_password'){
+          notification.open({
+            message: 'Cảnh báo',
+            description: 'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!',
+            style: {
+              width: 400,
+              backgroundColor: '#f1c40f',
+              color: '#535c68'
+            }
+          })
 
+        }else{
+          notification.open({
+            message: 'Chúc mừng',
+            description: 'Bạn đã thay đổi mật khẩu thành công!',
+            style: {
+              width: 400,
+              backgroundColor: '#2ecc71',
+              color: '#535c68'
+            }
+          })
+
+        }
+      })
+    }
+    setOldPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+  }
+useEffect(() => {
+  console.log("old password")
+},[oldPassword])
   const updateProvince = value => {
     const _province = provinceData.find(
       province => province.ProvinceID == value
@@ -365,43 +406,97 @@ function SettingUser() {
         </div>
 
         <div className="w-full lg:w-2/3 xl:w-1/2 px-6 flex flex-col space-y-6">
-          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-            <div className="w-40 min-w-[8rem] text-right">
-              <label className="text-right whitespace-nowrap text-gray-600">
-                Mật Khẩu Hiện Tại
-              </label>
+          <Form
+            form={form}
+            name="updatePassword"
+            labelCol={{ span: 0 }}
+            wrapperCol={{ span: 24 }}
+            // onFinish={handler}
+            autoComplete="off"
+          >
+            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+              <div className="w-40 min-w-[8rem] text-right">
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Mật Khẩu Hiện Tại
+                </label>
+              </div>
+              <Form.Item
+                name="old_password"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập mật khẩu!'
+                  },
+                  {
+                    type: 'string',
+                    min: 6,
+                    message: 'Mật khẩu phải ít nhất 6 kí tự'
+                  },
+        
+                ]}
+              >
+                <Input.Password
+                  size="large"
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                />
+              </Form.Item>
             </div>
-            <Input.Password
-              size="large"
-              value={oldPassword}
-              onChange={e => setOldPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-            <div className="w-40 min-w-[8rem] text-right">
-              <label className="text-right whitespace-nowrap text-gray-600">
-                Mật Khẩu Mới
-              </label>
+            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+              <div className="w-40 min-w-[8rem] text-right">
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Mật Khẩu Mới
+                </label>
+              </div>
+              <Form.Item
+                name="new_password"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập mật khẩu!'
+                  },
+                  {
+                    type: 'string',
+                    min: 6,
+                    message: 'Mật khẩu phải ít nhất 6 kí tự'
+                  }
+                ]}
+              >
+                <Input.Password
+                  size="large"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                />
+              </Form.Item>
             </div>
-            <Input.Password
-              size="large"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-            <div className="w-40 min-w-[8rem] text-right">
-              <label className="text-right whitespace-nowrap text-gray-600">
-                Xác Nhận Mật Khẩu
-              </label>
+            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
+              <div className="w-40 min-w-[8rem] text-right">
+                <label className="text-right whitespace-nowrap text-gray-600">
+                  Xác Nhận Mật Khẩu
+                </label>
+              </div>
+              <Form.Item
+                name="confirm_password"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập mật khẩu!'
+                  },
+                  {
+                    type: 'string',
+                    min: 6,
+                    message: 'Mật khẩu phải ít nhất 6 kí tự'
+                  }
+                ]}
+              >
+                <Input.Password
+                  size="large"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                />
+              </Form.Item>
             </div>
-            <Input.Password
-              size="large"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-            />
-          </div>
+          </Form>
         </div>
 
         <div className="flex flex-row space-x-6">
@@ -411,9 +506,15 @@ function SettingUser() {
           >
             Lưu
           </Button>
+          <Button
+            // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
+            onClick={()=>navigate('/forgotPassword')}
+          >
+            Reset 
+          </Button>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   )
 }

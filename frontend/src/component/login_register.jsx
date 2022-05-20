@@ -90,7 +90,7 @@ function LoginAndRegister() {
               <Input.Password onChange={e => setPassword(e.target.value)} />
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               name="remember"
               valuePropName="checked"
               wrapperCol={{ offset: 8, span: 16 }}
@@ -98,21 +98,26 @@ function LoginAndRegister() {
               <Checkbox onChange={e => console.log(e.target.checked)}>
                 Remember me
               </Checkbox>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Button type="primary" htmlType="submit" onClick={loginSubmit}>
                 Submit
               </Button>
             </Form.Item>
-            <Form.Item className="flex justify-center">
-              <span>If you don't have account?</span>
-              <span
+            <Form.Item className="flex flex-col items-center justify-center">
+            <p
+                className="text-sky-500 cursor-pointer"
+                onClick={() => navigate('/forgotPassword')}
+              >
+                Quên mật khẩu
+              </p>
+              <p
                 className="text-sky-500 cursor-pointer"
                 onClick={() => setIsLogin(false)}
               >
-                Register
-              </span>
+                Đăng ký tài khoản
+              </p>
             </Form.Item>
           </Form>
         </Modal>
