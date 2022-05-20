@@ -33,6 +33,9 @@ import UserPurchase from './pages/purchase_user'
 import DashboardAdmin from './pages/dashboard_admin'
 import TopAdmin from './component/top_admin'
 import CartForFree from './pages/cart_for_free'
+import AnonymousOrdersManage from './pages/anonymous_order_admin'
+import VoucherManage from './pages/voucher_admin'
+import ForgotPasswordPage from './pages/forgot_password'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   function ProtectRouterUser({ children }) {
@@ -53,6 +56,10 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
+          <Route
+            path="/forgotPassword"
+            element={<ForgotPasswordPage />}
+          ></Route>
           <Route
             path="/admin"
             element={
@@ -82,6 +89,22 @@ function App() {
               element={
                 <ProtectRouterAdmin>
                   <OrderManage />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="anonymous"
+              element={
+                <ProtectRouterAdmin>
+                  <AnonymousOrdersManage />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="voucher"
+              element={
+                <ProtectRouterAdmin>
+                  <VoucherManage />
                 </ProtectRouterAdmin>
               }
             />

@@ -117,6 +117,15 @@ const accountUser = new mongoose.Schema(
         }
       ],
       default: []
+    },
+    resetPassword: {
+      code: {
+        type: String,
+        default: ''
+      },
+      expireTime: {
+        type: Date
+      }
     }
   },
   {

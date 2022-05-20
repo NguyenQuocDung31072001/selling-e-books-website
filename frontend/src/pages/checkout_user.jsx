@@ -1,8 +1,12 @@
-import { Button, Row, Col, Table, notification } from 'antd'
+import { Button, Row, Col, Table, notification, Input } from 'antd'
 import Text from 'antd/lib/typography/Text'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { createNewOrder, getShippingCost } from '../redux/api_request'
+import {
+  createNewOrder,
+  getShippingCost,
+  getVoucher
+} from '../redux/api_request'
 import ShipModal from '../component/checkout/ship_modal'
 import { useSelector } from 'react-redux'
 
@@ -10,17 +14,38 @@ export default function Checkout(props) {
   const { state } = useLocation()
   const [shipData, setShipData] = useState(state.shipData)
   const [shippingCost, setShippingCost] = useState(0)
+  const [voucher, setVoucher] = useState({
+    success: false,
+    error: true,
+    code: null,
+    discount: null
+  })
+  const [voucherCode, setVoucherCode] = useState()
   const [payment, setPayment] = useState('cod')
   const [openShipModal, setOpenShipModal] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
-  const calTotal = () => {
+  const calSubTotal = () => {
     // console.log(state)
     let total = 0
     state.product.forEach(item => {
       total += item.price * item.count.value
     })
     return total
+  }
+
+  const calTotal = () => {
+    let total = calSubTotal() + shippingCost.total
+    console.log(voucher)
+    if (voucher.success) {
+      total -= voucher.discount
+    }
+    return total
+  }
+
+  const applyVoucher = async () => {
+    const voucher = await getVoucher(calSubTotal(), voucherCode)
+    setVoucher(voucher)
   }
 
   useEffect(() => {
@@ -112,6 +137,7 @@ export default function Checkout(props) {
     const user = currentUser ? currentUser._id : null
     const data = { user, customer, phoneNumber, email, address, books, payment }
     if (currentUser) data.account = currentUser._id
+    if (voucher.success) data.voucherCode = voucher.code
     const result = await createNewOrder(data)
     if (result.error) {
       switch (result.status) {
@@ -239,6 +265,34 @@ export default function Checkout(props) {
               pagination={false}
               dataSource={state.product}
             />
+          </div>
+
+          <div className="w-full py-3 px-8 bg-white flex flex-row ">
+            <div className="w-full text-left flex flex-row justify-between items-center space-x-6">
+              <Text strong className="text-lg whitespace-nowrap">
+                Mã giảm giá:
+              </Text>
+              <Input
+                size="large"
+                placeholder="Mã giảm giá"
+                className="w-full"
+                onChange={e => {
+                  setVoucherCode(e.target.value)
+                }}
+              />
+              <Button
+                size="large"
+                type="primary"
+                onClick={() => {
+                  applyVoucher(true)
+                }}
+              >
+                Áp dụng
+              </Button>
+            </div>
+          </div>
+
+          <div className="w-full py-3 px-8 bg-white flex flex-row justify-end">
             <div className="w-full flex flex-col sm:flex-row justify-between items-center pt-4">
               <div className="order-2 sm:order-1 w-full my-4 md:my-0 md:w-max flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4  px-4  ">
                 <div
@@ -271,7 +325,7 @@ export default function Checkout(props) {
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
-                    }).format(calTotal())}
+                    }).format(calSubTotal())}
                   </div>
                 </div>
                 <div className="w-full flex flex-row justify-end items-center py-4">
@@ -283,13 +337,25 @@ export default function Checkout(props) {
                     }).format(shippingCost.total || 0)}
                   </div>
                 </div>
+                {voucher.success && (
+                  <div className="w-full flex flex-row justify-end items-center pb-4">
+                    <div> Giảm giá:</div>
+                    <div className="w-36 text-base text-right px-4">
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                      }).format(voucher.discount)}
+                    </div>
+                  </div>
+                )}
+
                 <div className="w-full flex flex-row justify-end items-center">
                   <div> Tổng số tiền:</div>
                   <div className="w-36 text-right px-4 text-xl font-medium text-orange-600">
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
-                    }).format(calTotal() + shippingCost.total || 0)}
+                    }).format(calTotal() || 0)}
                   </div>
                 </div>
               </div>

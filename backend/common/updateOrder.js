@@ -47,7 +47,7 @@ const updateOrderById = async (id, status, callback = null) => {
                 select: 'slug _id name avatarUrl'
               })
               .select(
-                '_id user books status paid total address phone message payment createAt updateAt email customer'
+                '_id user books status paid shippingCost total subTotal voucher address phone message payment createAt updateAt email customer'
               )
               .lean()
             updatedOrder.statusName = ORDER_STATUS_NAME[updatedOrder.status]
@@ -77,7 +77,7 @@ const updateOrderById = async (id, status, callback = null) => {
               select: 'slug _id name avatarUrl'
             })
             .select(
-              '_id user books status paid total address phone message payment createAt updateAt email customer'
+              '_id user books status paid total shippingCost subTotal voucher address phone message payment createAt updateAt email customer'
             )
             .lean()
 
@@ -148,4 +148,7 @@ const updateBooks = async books => {
   }
 }
 
-module.exports = updateOrderById
+module.exports = {
+  updateOrderById,
+  restoreBooks
+}

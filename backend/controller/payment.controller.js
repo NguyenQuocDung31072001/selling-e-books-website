@@ -1,5 +1,4 @@
 const paypal = require('paypal-rest-sdk')
-const updateOrderById = require('../common/updateOrder')
 const AnonymousOrder = require('../model/anonymousOrder.model')
 const Order = require('../model/order.model')
 const crypto = require('crypto')
@@ -30,14 +29,6 @@ const createPayment = async (orderId, res) => {
       }
     })
 
-    items.push({
-      name: 'Phí vận chuyển',
-      sku: 'item',
-      price: order.shippingCost,
-      currency: 'USD',
-      quantity: 1
-    })
-
     var address = order.address
     var name = order.user.username
 
@@ -64,7 +55,12 @@ const createPayment = async (orderId, res) => {
           },
           amount: {
             currency: 'USD',
-            total: order.total
+            total: order.total,
+            details: {
+              subtotal: order.subTotal,
+              shipping: order.shippingCost,
+              shipping_discount: order.voucher ? order.voucher.discount : 0
+            }
           },
           description: 'Hóa đơn mua sách'
         }
@@ -73,7 +69,8 @@ const createPayment = async (orderId, res) => {
 
     paypal.payment.create(create_payment_json, async function (error, payment) {
       if (error) {
-        const updateOrderById = require('../common/updateOrder')
+        console.log(error)
+        const { updateOrderById } = require('../common/updateOrder')
         await updateOrderById(orderId, -1, (error, response) => {
           res.status(200).json({
             success: false,
@@ -131,14 +128,6 @@ const createAnonymousPayment = async (orderId, res) => {
       }
     })
 
-    items.push({
-      name: 'Phí vận chuyển',
-      sku: 'item',
-      price: order.shippingCost,
-      currency: 'USD',
-      quantity: 1
-    })
-
     var address = order.address
     var name = order.customer
 
@@ -165,7 +154,12 @@ const createAnonymousPayment = async (orderId, res) => {
           },
           amount: {
             currency: 'USD',
-            total: order.total
+            total: order.total,
+            details: {
+              subtotal: order.subTotal,
+              shipping: order.shippingCost,
+              shipping_discount: order.voucher ? order.voucher.discount : 0
+            }
           },
           description: 'Hóa đơn mua sách'
         }
@@ -235,7 +229,7 @@ const successOrder = async (req, res) => {
     execute_payment_json,
     async function (error, payment) {
       if (error) {
-        const updateOrderById = require('../common/updateOrder')
+        const { updateOrderById } = require('../common/updateOrder')
         order.paid = false
         await Promise.all([
           order.save(),

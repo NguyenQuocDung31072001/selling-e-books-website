@@ -6,7 +6,7 @@ import {
   AppstoreOutlined,
   MailOutlined,
   SettingOutlined,
-  AppstoreAddOutlined, 
+  AppstoreAddOutlined,
   EyeOutlined,
   CheckOutlined,
   AreaChartOutlined,
@@ -53,7 +53,7 @@ function LayoutAdmin() {
           <Link to="/admin/dashboard">Dashboard</Link>
         </Menu.Item>
         <SubMenu key="sub1" icon={<SettingOutlined />} title="Manage book">
-          <Menu.Item icon={<AppstoreAddOutlined/>} key="add_book">
+          <Menu.Item icon={<AppstoreAddOutlined />} key="add_book">
             <Link to="/admin/add_book">Thêm sách</Link>
           </Menu.Item>
           <Menu.Item icon={<EyeOutlined />} key="book">
@@ -68,6 +68,12 @@ function LayoutAdmin() {
         </Menu.Item>
         <Menu.Item key="confirm">
           <Link to="/admin/confirm"> Phê duyệt</Link>
+        </Menu.Item>
+        <Menu.Item key="anonymous">
+          <Link to="/admin/anonymous"> Khách vãng lai</Link>
+        </Menu.Item>
+        <Menu.Item key="voucher">
+          <Link to="/admin/voucher"> Khuyễn mãi</Link>
         </Menu.Item>
       </Menu>
     </div>

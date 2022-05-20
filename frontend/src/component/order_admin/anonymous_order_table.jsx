@@ -1,11 +1,12 @@
 import { Anchor, Table, Tag } from 'antd'
 import { useEffect, useState } from 'react'
-import { getOrders } from '../../redux/api_request'
+import { getAnonymousOrders, getOrders } from '../../redux/api_request'
 import moment from 'moment'
 import ActionContainer from './action_container'
+import AnonymousActionContainer from './anonymous_action_container'
 
-function OrderTable(props) {
-  const { status, filter, onLoading, onLoaded } = props
+function AnonymousOrderTable(props) {
+  const { filter, onLoading, onLoaded } = props
   const { Link } = Anchor
 
   const [filteredInfo, setFilteredInfo] = useState(filter)
@@ -23,9 +24,6 @@ function OrderTable(props) {
   useEffect(() => {
     const getOrderData = async () => {
       const filterQuery = {}
-      if (filter.status != undefined && filter.status != 5)
-        filterQuery.status = filter.status
-
       if (filter.paid != undefined && filter.paid != 2) {
         if (filter.paid == 1) filterQuery.paid = true
         else filterQuery.paid = false
@@ -42,7 +40,7 @@ function OrderTable(props) {
         filterQuery.to = filter.time[1].format('YYYY-MM-DD')
       }
       // console.log(filterQuery)
-      const orders = await getOrders(page, sortedInfo, filterQuery)
+      const orders = await getAnonymousOrders(page, sortedInfo, filterQuery)
       onLoaded()
       setData(orders)
     }
@@ -50,6 +48,7 @@ function OrderTable(props) {
   }, [page, filteredInfo, sortedInfo, filter])
 
   function handleUpdateOrder(updatedOrder) {
+    console.log(updatedOrder)
     const index = data.findIndex(item => item._id == updatedOrder._id)
     let newData = [...data]
     newData.splice(index, 1, updatedOrder)
@@ -103,45 +102,55 @@ function OrderTable(props) {
       ellipsis: true
     },
     {
-      title: 'Tình trạng',
-      dataIndex: 'statusName',
-      key: 'statusName',
+      title: 'Xác thực',
+      dataIndex: 'isVerified',
+      key: 'isVerified',
       sorter: (a, b) => {
-        return a.status - b.status
+        if (a.isVerified) return 1
       },
-      sortOrder: sortedInfo.columnKey === 'statusName' && sortedInfo.order,
-      render: status => {
-        let color = ''
-        switch (status) {
-          case 'Không thành công':
-          case 'Hủy':
-          case 'Từ chối': {
-            color = 'red'
-            break
-          }
-          case 'Chờ xác nhận': {
-            color = 'gray'
-            break
-          }
-          case 'Đã xác nhận': {
-            color = 'lime'
-            break
-          }
-          case 'Đã vận chuyển': {
-            color = 'blue'
-            break
-          }
-          case 'Giao hàng thành công':
-          case 'Đã nhận hàng': {
-            color = 'green'
-            break
-          }
-        }
-        return (
-          <Tag color={color} key={status}>
-            {status}
-          </Tag>
-        )
+      sortOrder: sortedInfo.columnKey === 'isVerified' && sortedInfo.order,
+      render: isVerified => {
+        if (isVerified)
+          return (
+            <Tag color={'green'} key={isVerified}>
+              Đã xác thực
+            </Tag>
+          )
+        else
+          return (
+            <Tag color={'red'} key={isVerified}>
+              Chưa xác thực
+            </Tag>
+          )
+      }
+    },
+    {
+      title: 'Tình trạng',
+      dataIndex: '',
+      key: 'confirmed',
+      sorter: (a, b) => {
+        if (a.confirmed) return 1
+      },
+      sortOrder: sortedInfo.columnKey === 'confirmed' && sortedInfo.order,
+      render: order => {
+        if (order.isVerified && order.confirmed)
+          return (
+            <Tag color={'green'} key={order._id}>
+              Đã xác nhận
+            </Tag>
+          )
+        else if (order.isVerified && !order.confirmed)
+          return (
+            <Tag color={'red'} key={order._id}>
+              Đã hủy
+            </Tag>
+          )
+        else
+          return (
+            <Tag color={'blue'} key={order._id}>
+              Chờ xác thực
+            </Tag>
+          )
       }
     },
     {
@@ -158,7 +167,7 @@ function OrderTable(props) {
       title: 'Thay đổi',
       key: 'action',
       render: (text, record) => (
-        <ActionContainer
+        <AnonymousActionContainer
           data={record}
           onUpdate={handleUpdateOrder}
           onLoading={onLoading}
@@ -178,4 +187,4 @@ function OrderTable(props) {
   )
 }
 
-export default OrderTable
+export default AnonymousOrderTable
