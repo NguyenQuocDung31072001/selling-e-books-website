@@ -7,6 +7,7 @@ import { getAllBook } from '../redux/api_request'
 import { Spin } from 'antd'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import RenderBookComponent from '../component/render_book_component'
+import {ConvertViToEn} from "../utils/convertViToEn"
 export default function HomePagesUser() {
   const querySearch = useSelector(state => state.search.search)
   const [bookData, setBookData] = useState([])
@@ -28,8 +29,9 @@ export default function HomePagesUser() {
   useEffect(() => {
     let dataQuery
     if (querySearch.type === 'name') {
+      let querySearchName= ConvertViToEn(querySearch.query.name.toLowerCase())
       dataQuery = bookData?.filter(book =>
-        book.name.toLowerCase().includes(querySearch.query.name)
+        ConvertViToEn(book.name.toLowerCase()).includes(querySearchName)
       )
     }
     setBookRender(dataQuery)

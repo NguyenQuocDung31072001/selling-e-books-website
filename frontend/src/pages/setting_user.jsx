@@ -11,7 +11,6 @@ import {
 import { loginFailed, logout } from '../redux/auth_slices'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import { Input, Button, Image, Select, Form, notification } from 'antd'
-import BreadcrumbsUser from '../component/breadcrumbs_user'
 import Footer from '../component/footer'
 import { cleanBookBought } from '../redux/book_bought_slices'
 const { TextArea } = Input

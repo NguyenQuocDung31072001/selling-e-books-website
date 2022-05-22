@@ -12,17 +12,12 @@ import {
   ShoppingCartOutlined,
   FilterOutlined,
   HomeOutlined,
-  UserSwitchOutlined,
-  UserOutlined,
-  MedicineBoxOutlined,
-  ProfileOutlined,
   ShopOutlined
 } from '@ant-design/icons'
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_user.png'
-const { SubMenu } = Menu
-const { Title } = Typography
 function TopUser() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
+  const breadcrumbName=useSelector(state => state.breadcrumb.breadcrumb.genre_name)
   const dispatch = useDispatch()
   const [query, setQuery] = useState('')
   const [image, setImage] = useState()
@@ -73,16 +68,18 @@ function TopUser() {
             )}
           </div>
         </div>
-        <div className="flex w-[120px] md:w-[300px] items-center rounded-[5px]">
-          <Input
-            size="large"
-            placeholder="Tìm kiếm"
-            style={{ width: 300 }}
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            prefix={<SearchOutlined />}
-          />
-        </div>
+        {(breadcrumbName==='Home Pages' || breadcrumbName==='Category Pages') && (
+          <div className="flex w-[120px] md:w-[300px] items-center rounded-[5px]">
+            <Input
+              size="large"
+              placeholder="Tìm kiếm"
+              style={{ width: 300 }}
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              prefix={<SearchOutlined />}
+            />
+          </div>
+        )}
         <div className=" flex justify-between items-center  mr-[40px]">
           <div className="hidden md:block">
             <Link to="/user/cart">

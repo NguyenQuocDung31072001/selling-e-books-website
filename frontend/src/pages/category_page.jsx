@@ -11,6 +11,7 @@ import { SearchOutlined } from '@ant-design/icons'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import RenderBookComponent from '../component/render_book_component'
 import Footer from '../component/footer'
+import { ConvertViToEn } from '../utils/convertViToEn'
 const { Title } = Typography
 const { Option } = Select
 export default function CategoryUser() {
@@ -67,20 +68,22 @@ export default function CategoryUser() {
   }, [bookData])
 
   useEffect(() => {
-    let dataQuery
+    let dataQuery=''
+    let querySeachName=' '
+    if(querySearch.query.name){
+      querySeachName = ConvertViToEn(querySearch.query.name.toLowerCase())
+    }
     if (querySearch.type === 'name') {
-      dataQuery = bookData?.filter(
-        book =>
-          book.name.toLowerCase().includes(querySearch.query.name) &&
-          book.name.includes(querySearch.query.name)
+      dataQuery = bookData?.filter(book =>
+        ConvertViToEn(book.name.toLowerCase()).includes(querySeachName)
       )
     }
     if (querySearch.type === 'many') {
       dataQuery = bookData?.filter(
         book =>
-          book.genres[0]?.name.includes(querySearch.query?.genres) &&
-          book.authors[0]?.fullName.includes(querySearch.query?.authors) &&
-          book.name.toLowerCase().includes(querySearch.query?.name)
+          book.genres[0]?.name.includes(querySearch.query.genres) &&
+          book.authors[0]?.fullName.includes(querySearch.query.authors) &&
+          ConvertViToEn(book.name.toLowerCase()).includes(querySeachName)
       )
     }
     if (querySearch.type === 'all') {
@@ -105,7 +108,7 @@ export default function CategoryUser() {
   }
   const allBookFnc = () => {
     let search = {
-      query: {}, 
+      query: {},
       type: 'all'
     }
     dispatch(updateQuery(search))

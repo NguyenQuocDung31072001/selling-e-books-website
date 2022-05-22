@@ -79,6 +79,7 @@ export const loginApi = async (user, dispatch, navigate) => {
 }
 export const updateAccountAdmin = async (currentUser, account, dispatch) => {
   try {
+    console.log("account",account)
     const res = await axios.post(
       API_URL + '/v1/selling_e_books/account/setting/' + currentUser._id,
       account,
