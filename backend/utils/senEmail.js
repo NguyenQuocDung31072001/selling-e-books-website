@@ -1,23 +1,29 @@
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
 async function sendEmail(receiverEmail, subject, text, html) {
-  let transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'testdoan2022@gmail.com',
-      pass: 'doan12022'
-    }
-  })
+  console.log('sending Email to ', receiverEmail)
+  try {
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'testdoan2022@gmail.com',
+        pass: 'doan12022'
+      }
+    })
 
-  let info = await transporter.sendMail({
-    from: '"Book store" <bookstore@example.com>',
-    to: receiverEmail, //receiverEmail,
-    subject: subject,
-    text: text,
-    html: html // html body
-  })
+    let info = await transporter.sendMail({
+      from: '"Book store" <bookstore@example.com>',
+      to: receiverEmail, //receiverEmail,
+      subject: subject,
+      text: text,
+      html: html // html body
+    })
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
 }
 
 async function sendVerificationEmail(email, token) {

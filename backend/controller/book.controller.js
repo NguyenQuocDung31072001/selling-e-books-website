@@ -329,7 +329,6 @@ const restore = async (req, res) => {
 const GetTop = async (req, res) => {
   try {
     const { top, field } = req.query
-    console.log({ [field]: -1 })
     const books = await BookModel.find({})
       .sort({ [field]: -1 })
       .limit(top)
