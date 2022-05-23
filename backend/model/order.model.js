@@ -1,3 +1,4 @@
+const { number } = require('joi')
 const mongoose = require('mongoose')
 const orderSchema = new mongoose.Schema(
   {
@@ -43,6 +44,10 @@ const orderSchema = new mongoose.Schema(
       refund: {
         type: String,
         default: ''
+      },
+      totalExecute: {
+        type: Number,
+        min: 0
       }
     },
     paid: {
