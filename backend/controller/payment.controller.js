@@ -3,8 +3,11 @@ const AnonymousOrder = require('../model/anonymousOrder.model')
 const Order = require('../model/order.model')
 const crypto = require('crypto')
 const { sendConfirmOrderEmail } = require('../utils/senEmail')
+const convertCurrency = require('../utils/currency')
 const createPayment = async (orderId, res) => {
   try {
+    let rate = await convertCurrency()
+    rate *= 100
     const order = await Order.findById(orderId)
       .populate({
         path: 'books.book',
@@ -18,19 +21,26 @@ const createPayment = async (orderId, res) => {
       error.status = 7
       throw error
     }
-
+    let subTotal = 0
     var items = order.books.map(item => {
+      subTotal += (Math.round(item.price * rate) / 100) * item.amount
       return {
         name: item.book.name,
         sku: 'item',
-        price: item.price,
+        price: Math.round(item.price * rate) / 100,
         currency: 'USD',
         quantity: item.amount
       }
     })
 
-    var address = order.address
-    var name = order.user.username
+    let address = order.address
+    let name = order.user.username
+    let total =
+      subTotal +
+      Math.round(order.shippingCost * rate) / 100 -
+      (order.voucher ? Math.round(order.voucher.discount * rate) / 100 : 0)
+    total = Math.round(total * 100) / 100
+    await Order.updateOne({ _id: orderId }, { 'paypal.totalExecute': total })
 
     var create_payment_json = {
       intent: 'sale',
@@ -55,11 +65,13 @@ const createPayment = async (orderId, res) => {
           },
           amount: {
             currency: 'USD',
-            total: order.total,
+            total: total,
             details: {
-              subtotal: order.subTotal,
-              shipping: order.shippingCost,
-              shipping_discount: order.voucher ? order.voucher.discount : 0
+              subtotal: subTotal,
+              shipping: Math.round(order.shippingCost * rate) / 100,
+              shipping_discount: order.voucher
+                ? Math.round(order.voucher.discount * rate) / 100
+                : 0
             }
           },
           description: 'Hóa đơn mua sách'
@@ -105,6 +117,8 @@ const createPayment = async (orderId, res) => {
 
 const createAnonymousPayment = async (orderId, res) => {
   try {
+    let rate = await convertCurrency()
+    rate *= 100
     const order = await AnonymousOrder.findById(orderId)
       .populate({
         path: 'books.book',
@@ -117,21 +131,33 @@ const createAnonymousPayment = async (orderId, res) => {
       error.status = 7
       throw error
     }
-
+    let subTotal = 0
     var items = order.books.map(item => {
+      subTotal += (Math.round(item.price * rate) / 100) * item.amount
       return {
         name: item.book.name,
         sku: 'item',
-        price: item.price,
+        price: Math.round(item.price * rate) / 100,
         currency: 'USD',
         quantity: item.amount
       }
     })
 
-    var address = order.address
-    var name = order.customer
+    let address = order.address
+    let name = order.customer
+    let total =
+      subTotal +
+      Math.round(order.shippingCost * rate) / 100 -
+      (order.voucher ? Math.round(order.voucher.discount * rate) / 100 : 0)
+    total = Math.round(total * 100) / 100
+    await AnonymousOrder.updateOne(
+      { _id: orderId },
+      {
+        'paypal.totalExecute': total
+      }
+    )
 
-    var create_payment_json = {
+    let create_payment_json = {
       intent: 'sale',
       payer: {
         payment_method: 'paypal'
@@ -154,11 +180,13 @@ const createAnonymousPayment = async (orderId, res) => {
           },
           amount: {
             currency: 'USD',
-            total: order.total,
+            total: total,
             details: {
-              subtotal: order.subTotal,
-              shipping: order.shippingCost,
-              shipping_discount: order.voucher ? order.voucher.discount : 0
+              subtotal: subTotal,
+              shipping: Math.round(order.shippingCost * rate) / 100,
+              shipping_discount: order.voucher
+                ? Math.round(order.voucher.discount * rate) / 100
+                : 0
             }
           },
           description: 'Hóa đơn mua sách'
@@ -218,7 +246,7 @@ const successOrder = async (req, res) => {
       {
         amount: {
           currency: 'USD',
-          total: order.total
+          total: order.paypal.totalExecute
         }
       }
     ]
@@ -241,7 +269,8 @@ const successOrder = async (req, res) => {
         const refundId = payment.transactions[0].related_resources[0].sale.id
         const paypalInfo = {
           _id: id,
-          refund: refundId
+          refund: refundId,
+          totalExecute: order.paypal.totalExecute
         }
         order.paid = true
         order.paypal = paypalInfo
@@ -256,10 +285,7 @@ const successAnonymousOrder = async (req, res) => {
   const orderId = req.params.orderId
   const payerId = req.query.PayerID
   const paymentId = req.query.paymentId
-  const order = await AnonymousOrder.findById(orderId).populate({
-    path: 'books.book',
-    select: '_id slug name coverUrl'
-  })
+  const order = await AnonymousOrder.findById(orderId)
 
   if (!order) {
     const error = new Error('Order does not exist!')
@@ -273,7 +299,7 @@ const successAnonymousOrder = async (req, res) => {
       {
         amount: {
           currency: 'USD',
-          total: order.total
+          total: order.paypal.totalExecute
         }
       }
     ]
@@ -284,38 +310,26 @@ const successAnonymousOrder = async (req, res) => {
     execute_payment_json,
     async function (error, payment) {
       if (error) {
+        console.log('execute', error)
         res.redirect(`${process.env.FRONT_END_HOST}`)
-        // res.status(200).json({
-        //   success: false,
-        //   redirect: true,
-        //   message: 'Thanh toán không thành công',
-        //   redirectTo: `${process.env.FRONT_END_HOST}`,
-        //   order: null
-        // })
       } else {
         const id = payment.id
         const refundId = payment.transactions[0].related_resources[0].sale.id
         const paypalInfo = {
           _id: id,
-          refund: refundId
+          refund: refundId,
+          totalExecute: order.paypal.totalExecute
         }
         order.paid = true
-        order.verifyToken = crypto.randomBytes(64).toString('hex')
         order.paypal = paypalInfo
-        await sendConfirmOrderEmail(order.email, order)
         await order.save()
 
-        delete order.verifyToken
-        delete order.paypal
+        const popOrder = await AnonymousOrder.findById(order._id).populate({
+          path: 'books.book',
+          select: '_id slug name coverUrl'
+        })
+        await sendConfirmOrderEmail(popOrder.email, popOrder)
         res.redirect(`${process.env.FRONT_END_HOST}`)
-        // res.status(200).json({
-        //   success: true,
-        //   redirect: true,
-        //   message: 'Thanh toán thành công',
-        //   email: order.email,
-        //   redirectTo: `${process.env.FRONT_END_HOST}`,
-        //   order: order
-        // })
       }
     }
   )

@@ -410,6 +410,7 @@ const createAnonymousOrder = async (req, res) => {
     } else if (payment == 'paypal') {
       //Payment by Paypal
       newOrder.payment = 1
+      newOrder.verifyToken = crypto.randomBytes(64).toString('hex')
       const savedOrder = await newOrder.save()
       await Promise.all(asyncUpdateBooks)
       await createAnonymousPayment(savedOrder._id, res)
@@ -726,7 +727,8 @@ const confirmAnonymousOrder = async (req, res) => {
       payment: anonymousOrder.payment,
       paypal: {
         _id: anonymousOrder.paypal._id,
-        refund: anonymousOrder.paypal.refund
+        refund: anonymousOrder.paypal.refund,
+        totalExecute: anonymousOrder.paypal.totalExecute
       },
       address: {
         street: anonymousOrder.address.street,
@@ -749,6 +751,7 @@ const confirmAnonymousOrder = async (req, res) => {
     res.redirect(`${process.env.FRONT_END_HOST}/user/home`)
   } catch (error) {
     console.log(error)
+    res.redirect(`${process.env.FRONT_END_HOST}/user/home`)
   }
 }
 

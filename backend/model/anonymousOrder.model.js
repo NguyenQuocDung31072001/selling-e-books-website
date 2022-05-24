@@ -49,6 +49,10 @@ const AnonymousOrderSchema = new mongoose.Schema(
       refund: {
         type: String,
         default: ''
+      },
+      totalExecute: {
+        type: Number,
+        min: 0
       }
     },
     paid: {
