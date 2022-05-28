@@ -274,11 +274,11 @@ function DetailBookUser() {
                 <Rate
                   allowHalf
                   disabled
-                  defaultValue={book.rating}
+                  defaultValue={book.avarageRating}
                   style={{ fontSize: 25 }}
                 />
-                <span className="mx-4 text-lg font-normal">3 đánh giá</span>
-                <span className="text-lg font-normal">5 người mua</span>
+                <span className="mx-4 text-lg font-normal">{book.countReview} đánh giá</span>
+                <span className="text-lg font-normal">{book.countBookBought} người mua</span>
               </div>
               <div className="py-4">
                 <span className="text-2xl text-gray-800">Nhà sản xuất:</span>

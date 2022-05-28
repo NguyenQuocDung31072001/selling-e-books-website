@@ -234,15 +234,15 @@ const getAccountLibraries = async (req, res) => {
 
 const getAllBookReview = async (req, res) => {
   try {
-    console.log(req.params)
+    // console.log(req.params)
     const accountID = req.params.id
     const arrBookReview = []
     const bookReview = await Review.find({ account: accountID })
-    console.log(bookReview)
+    // console.log(bookReview)
     bookReview.forEach(book => {
       arrBookReview.push(book.book)
     })
-    console.log(arrBookReview)
+    // console.log(arrBookReview)
     res.json(arrBookReview)
   } catch (error) {
     console.log(error)

@@ -1,8 +1,10 @@
 const { default: mongoose } = require('mongoose')
 const BookModel = require('../model/book.model')
 const LanguageModel = require('../model/language.model')
+const Account = require('../model/account.model')
 const AuthorModel = require('../model/author.model')
 const GenreModel = require('../model/genres.model')
+const Review = require('../model/review.model')
 const generateSlug = require('../common/slug')
 const UpdateModel = require('../common/updateModel')
 const uploadImage = require('../common/uploadImage')
@@ -278,6 +280,23 @@ const getBooks = async (query, page, perPage) => {
     .populate({ path: 'authors', select: '_id slug fullName birthDate' })
     .populate('language')
     .lean()
+    const allAccount=await Account.find()
+    let totalBookBought=0
+    allAccount.forEach((account,index)=>{
+      if(account.library.includes(books[0]._id)){
+        totalBookBought++
+      }
+    })
+    const allReviewOfBook=await Review.find({book:books[0]._id})
+    let totalRating=0
+    allReviewOfBook.forEach((value,index)=>{
+      totalRating+=value.rating
+    })
+    books[0].avarageRating=totalRating/allReviewOfBook.length
+    books[0].countReview=allReviewOfBook.length
+    books[0].countBookBought=totalBookBought
+
+    // console.log("books",books)
   return books
 }
 
