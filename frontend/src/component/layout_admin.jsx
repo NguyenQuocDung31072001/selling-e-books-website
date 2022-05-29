@@ -66,14 +66,14 @@ function LayoutAdmin() {
         <Menu.Item icon={<LineChartOutlined />} key="author">
           <Link to="/admin/author">Tác giả</Link>
         </Menu.Item>
-        <Menu.Item key="confirm">
+        <Menu.Item icon={<CheckOutlined />} key="confirm">
           <Link to="/admin/confirm"> Phê duyệt</Link>
         </Menu.Item>
-        <Menu.Item key="anonymous">
+        <Menu.Item icon={<CheckOutlined /> }key="anonymous">
           <Link to="/admin/anonymous"> Khách vãng lai</Link>
         </Menu.Item>
-        <Menu.Item key="voucher">
-          <Link to="/admin/voucher"> Khuyễn mãi</Link>
+        <Menu.Item icon={<AppstoreOutlined />} key="voucher">
+          <Link to="/admin/voucher"> Khuyến mãi</Link>
         </Menu.Item>
       </Menu>
     </div>

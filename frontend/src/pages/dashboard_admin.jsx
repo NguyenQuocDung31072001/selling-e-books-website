@@ -4,6 +4,7 @@ import { BookOutlined, MoneyCollectOutlined, ShoppingOutlined, UserOutlined } fr
 import RatingChart from '../component/rating_chart';
 import BookBoughtChart from '../component/book_bought_chart';
 import {getInfoDashboard}from "../redux/api_request"
+import Footer from '../component/footer';
 const DashboardAdmin = () => {
     // const user=useSpring({users:200,from:{users:0}})
     // const book=useSpring({books:1287,from:{books:0}})
@@ -118,7 +119,7 @@ const DashboardAdmin = () => {
                     <RatingChart/> 
                 </div>
             </div>
-            
+            <Footer />
         </div>
     );
 };
