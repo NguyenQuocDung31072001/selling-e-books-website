@@ -1,7 +1,18 @@
 import { useState } from 'react'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined
+} from '@ant-design/icons'
 import { useDispatch } from 'react-redux'
-import { createNewGenre, softDeleteGenre, updateGenre } from '../../redux/api_request'
+import {
+  createNewGenre,
+  softDeleteGenre,
+  updateGenre
+} from '../../redux/api_request'
+import { Modal } from 'antd'
 function GenreRow(data) {
   const { genre, removeInsertRow, className } = data
   const [defaultData, setDefaultData] = useState(genre)
@@ -10,12 +21,25 @@ function GenreRow(data) {
   const [isEditing, setIsEditing] = useState(genre ? false : true)
   const [required, setRequired] = useState(false)
   const dispatch = useDispatch()
+  const { confirm } = Modal
+
   const DeleteGenre = async () => {
-    const confirm = window.confirm('Bạn có chắc chắn xóa thể loại này')
-    if (confirm) {
-      const result = await softDeleteGenre(dispatch, genre)
-      console.log(result)
-    }
+    confirm({
+      title: 'Xác nhận xóa',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Dữ liệu về thể loại sẽ bị xóa! Bạn có muốn tiếp tục',
+      okText: 'Tiếp tục',
+      cancelText: 'Hủy',
+      onOk() {
+        const handleDelete = async () => {
+          const result = await softDeleteGenre(dispatch, genre)
+        }
+        handleDelete()
+      },
+      onCancel() {
+        console.log('Cancel')
+      }
+    })
   }
 
   const CancelEdit = () => {
@@ -100,7 +124,7 @@ function GenreRow(data) {
             onChange={e => setName(e.target.value)}
             placeholder="Tên thể loại"
             disabled={!isEditing}
-            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 ${
+            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 ${
               required && !name && 'ring-red-500'
             }`}
             required
@@ -114,7 +138,7 @@ function GenreRow(data) {
             onChange={e => setDescription(e.target.value)}
             placeholder="Mô tả"
             disabled={!isEditing}
-            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 ${
+            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 ${
               required && !description && 'ring-red-500'
             }`}
             required

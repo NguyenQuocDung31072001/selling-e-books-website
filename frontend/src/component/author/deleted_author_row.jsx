@@ -1,17 +1,33 @@
-import { DeleteOutlined, UndoOutlined } from '@ant-design/icons'
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  UndoOutlined
+} from '@ant-design/icons'
+import { Modal } from 'antd'
 import { useDispatch } from 'react-redux'
 import { hardDeleteAuthor, restoreDeletedAuthor } from '../../redux/api_request'
 function DeletedAuthorRow(data) {
   const { author, className } = data
   const dispatch = useDispatch()
+  const { confirm } = Modal
   const deleteAuthor = async () => {
-    const confirm = window.confirm(
-      'Tác giả này sẽ bị xóa hoàn toàn khỏi bộ nhớ hệ thống, bạn có muốn tiếp tục?'
-    )
-    if (confirm) {
-      const result = await hardDeleteAuthor(dispatch, author)
-      console.log(result)
-    }
+    confirm({
+      title: 'Xác nhận xóa',
+      icon: <ExclamationCircleOutlined />,
+      content:
+        'Dữ liệu về tác giả sẽ bị xóa hoàn toàn khỏi hệ thống! Bạn có muốn tiếp tục',
+      okText: 'Tiếp tục',
+      cancelText: 'Hủy',
+      onOk() {
+        const handleDelete = async () => {
+          const result = await hardDeleteAuthor(dispatch, author)
+        }
+        handleDelete()
+      },
+      onCancel() {
+        console.log('Cancel')
+      }
+    })
   }
 
   const restoreAuthor = async () => {

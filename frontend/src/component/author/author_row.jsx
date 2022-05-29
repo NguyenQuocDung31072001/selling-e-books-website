@@ -1,8 +1,18 @@
 import { useState } from 'react'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
-import { Avatar, Image } from 'antd'
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined
+} from '@ant-design/icons'
+import { Avatar, Image, Modal } from 'antd'
 import { useDispatch } from 'react-redux'
-import { createNewAuthor, softDeleteAuthor, updateAuthor } from '../../redux/api_request'
+import {
+  createNewAuthor,
+  softDeleteAuthor,
+  updateAuthor
+} from '../../redux/api_request'
 function AuthorRow(data) {
   const { author, removeInsertRow, className } = data
   const [defaultData, setDefaultData] = useState(author)
@@ -14,13 +24,24 @@ function AuthorRow(data) {
   const [isEditing, setIsEditing] = useState(author ? false : true)
   const [required, setRequired] = useState(false)
   const dispatch = useDispatch()
-
+  const { confirm } = Modal
   const DeleteGenre = async () => {
-    const confirm = window.confirm('Bạn có chắc chắn xóa tác giả này này')
-    if (confirm) {
-      const result = await softDeleteAuthor(dispatch, author)
-      console.log(result)
-    }
+    confirm({
+      title: 'Xác nhận xóa',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Dữ liệu về tác giả sẽ bị xóa! Bạn có muốn tiếp tục',
+      okText: 'Tiếp tục',
+      cancelText: 'Hủy',
+      onOk() {
+        const handleDelete = async () => {
+          const result = await softDeleteAuthor(dispatch, author)
+        }
+        handleDelete()
+      },
+      onCancel() {
+        console.log('Cancel')
+      }
+    })
   }
 
   const CancelEdit = () => {
@@ -57,7 +78,12 @@ function AuthorRow(data) {
       }
     } else {
       if (fullName && birthDate && address) {
-        const newAuthor = { ...author, fullName: fullName, birthDate: birthDate, address: address }
+        const newAuthor = {
+          ...author,
+          fullName: fullName,
+          birthDate: birthDate,
+          address: address
+        }
         if (avatarBase64) newAuthor.avatarBase64 = avatarBase64
         const result = await updateAuthor(dispatch, newAuthor)
         if (result) {
@@ -143,7 +169,7 @@ function AuthorRow(data) {
             onChange={e => setFullName(e.target.value)}
             placeholder="Họ và Tên"
             disabled={!isEditing}
-            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 ${
+            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 ${
               required && !fullName && 'ring-red-500'
             }`}
           />
@@ -156,7 +182,7 @@ function AuthorRow(data) {
             onChange={e => setBirthDate(e.target.value)}
             placeholder="Ngày sinh"
             disabled={!isEditing}
-            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 ${
+            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 ${
               required && !birthDate && 'ring-red-500'
             }`}
           />
@@ -170,7 +196,7 @@ function AuthorRow(data) {
             onChange={e => setAddress(e.target.value)}
             placeholder="Địa chỉ"
             disabled={!isEditing}
-            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 ${
+            className={`disabled:bg-transparent bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 ${
               required && !address && 'ring-red-500'
             }`}
           />

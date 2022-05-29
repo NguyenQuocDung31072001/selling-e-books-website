@@ -1,5 +1,5 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { Spin } from 'antd'
+import { Spin, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import DeletedGenreTable from '../component/genre/deleted_genre_table'
@@ -11,6 +11,7 @@ import {
 } from '../redux/api_request'
 
 function GenreManage() {
+  const { Title } = Typography
   const genreState = useSelector(state => state.genre)
   const dispatch = useDispatch()
   const [openGenreTable, setOpenGenreTable] = useState(true)
@@ -39,6 +40,9 @@ function GenreManage() {
       )}
 
       <div className="px-10 py-4 flex flex-col items-center space-y-4 relative">
+        <Title level={3} style={{ margin: 0 }}>
+          QUẢN LÍ THỂ LOẠI
+        </Title>
         <div className="w-full flex-col items-start space-y-1">
           <div
             className="flex flex-row w-fit items-center space-x-2 text-xl font-semibold cursor-pointer"

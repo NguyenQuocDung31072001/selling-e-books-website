@@ -8,7 +8,12 @@ import FilterAuthorRow from './filter_author_row'
 function AuthorTable() {
   const authors = useSelector(state => state.author.authors)
   const [authorsRenderData, setAuthorRenderData] = useState([])
-  const [filter, setFilter] = useState({ _id: '', fullName: '', birthDate: '', address: '' })
+  const [filter, setFilter] = useState({
+    _id: '',
+    fullName: '',
+    birthDate: '',
+    address: ''
+  })
   const [sort, setSort] = useState({ field: 'fullName', value: 1 })
   const [openInsertRow, setOpenInsertRow] = useState(false)
   const [page, setPage] = useState({
@@ -24,7 +29,8 @@ function AuthorTable() {
 
   useEffect(() => {
     let _currentPage = page.current
-    if (authors.length % page.pageSize == 0 && page.total > authors.length) _currentPage--
+    if (authors.length % page.pageSize == 0 && page.total > authors.length)
+      _currentPage--
     const _page = {
       ...page,
       current: _currentPage,
@@ -47,13 +53,21 @@ function AuthorTable() {
     if (authors) {
       const filterField = Object.getOwnPropertyNames(filter)
       const _authorsRenderData = [].concat(authors).filter(author => {
-        if (!filter._id && !filter.fullName && !filter.birthDate && !filter.address) return true
+        if (
+          !filter._id &&
+          !filter.fullName &&
+          !filter.birthDate &&
+          !filter.address
+        )
+          return true
         else {
           let match = true
           filterField.forEach(field => {
             if (
               filter[field] &&
-              author[field].toLowerCase().indexOf(filter[field].toLowerCase()) === -1
+              author[field]
+                .toLowerCase()
+                .indexOf(filter[field].toLowerCase()) === -1
             )
               match = false
           })
@@ -85,14 +99,28 @@ function AuthorTable() {
   }
 
   return (
-    <table className="w-full text-lg font-bold ">
-      <AuthorTableHead changeSort={changeSort} sort={sort} tableName="Tất cả tác giả" />
+    <table className="w-full text-lg bg-white">
+      <AuthorTableHead
+        changeSort={changeSort}
+        sort={sort}
+        tableName="Tất cả tác giả"
+      />
       <tbody>
-        <FilterAuthorRow changeFilter={changeFilter} openInsertRow={() => setOpenInsertRow(true)} />
-        {openInsertRow && <AuthorRow removeInsertRow={() => setOpenInsertRow(false)} />}
-        {authorsRenderData.map((author, index) => (
-          <AuthorRow key={author._id} author={author} />
-        ))}
+        <FilterAuthorRow
+          changeFilter={changeFilter}
+          openInsertRow={() => setOpenInsertRow(true)}
+        />
+        {openInsertRow && (
+          <AuthorRow removeInsertRow={() => setOpenInsertRow(false)} />
+        )}
+        {authorsRenderData
+          .slice(
+            (page.current - 1) * page.pageSize,
+            page.current * page.pageSize
+          )
+          .map((author, index) => (
+            <AuthorRow key={author._id} author={author} />
+          ))}
       </tbody>
       <tfoot>
         <tr>

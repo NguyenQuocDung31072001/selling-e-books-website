@@ -90,8 +90,20 @@ function SettingUser() {
     }
   }
 
-  const updateAccount = e => {
+  const updateAccount = async e => {
     e.preventDefault()
+    if (!checkDate(birthDate)) {
+      notification.open({
+        message: 'Cảnh báo',
+        description: 'Ngày sinh không hợp lệ, vui lòng kiểm tra lại!',
+        style: {
+          width: 400,
+          backgroundColor: '#f1c40f',
+          color: '#535c68'
+        }
+      })
+      return
+    }
     const account = {
       email: email,
       username: username,
@@ -115,7 +127,29 @@ function SettingUser() {
       avatarBase64: imageBase64
     }
     // console.log(account)
-    updateAccountAdmin(currentUser, account, dispatch)
+    const result = await updateAccountAdmin(currentUser, account, dispatch)
+    if (result) {
+      notification.open({
+        message: 'Chúc mừng',
+        description: 'Bạn đã cập nhật thông tin tài khoản thành công!',
+        style: {
+          width: 400,
+          backgroundColor: '#2ecc71',
+          color: '#535c68'
+        }
+      })
+    }
+  }
+
+  function checkDate(dateString) {
+    var q = new Date()
+    var m = q.getMonth()
+    var d = q.getDate()
+    var y = q.getFullYear()
+
+    var toDate = new Date(y, m, d)
+    var date = new Date(dateString)
+    return date <= toDate
   }
 
   const logout_fnc = () => {
@@ -123,8 +157,7 @@ function SettingUser() {
     dispatch(cleanBookBought())
   }
 
-  const updatePassword = async() => {
-
+  const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
       notification.open({
         message: 'Cảnh báo',
@@ -141,20 +174,19 @@ function SettingUser() {
         oldPassword: oldPassword,
         newPassword: newPassword
       }
-      await updateAccountPassword(currentUser, account, dispatch)
-      .then(res=>{
-        if(res.message==='invalid_password'){
+      await updateAccountPassword(currentUser, account, dispatch).then(res => {
+        if (res.message === 'invalid_password') {
           notification.open({
             message: 'Cảnh báo',
-            description: 'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!',
+            description:
+              'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!',
             style: {
               width: 400,
               backgroundColor: '#f1c40f',
               color: '#535c68'
             }
           })
-
-        }else{
+        } else {
           notification.open({
             message: 'Chúc mừng',
             description: 'Bạn đã thay đổi mật khẩu thành công!',
@@ -164,7 +196,6 @@ function SettingUser() {
               color: '#535c68'
             }
           })
-
         }
       })
     }
@@ -172,9 +203,9 @@ function SettingUser() {
     setNewPassword('')
     setConfirmPassword('')
   }
-useEffect(() => {
-  console.log("old password")
-},[oldPassword])
+  useEffect(() => {
+    console.log('old password')
+  }, [oldPassword])
   const updateProvince = value => {
     const _province = provinceData.find(
       province => province.ProvinceID == value
@@ -204,7 +235,7 @@ useEffect(() => {
   return (
     <div className="flex flex-col justify-center items-center w-full relative space-y-10">
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
-        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 ">
+        <div className="w-full lg:w-2/3 xl:w-2/3 px-6 ">
           <h2 className="text-xl font-semibold text-left mb-0">
             Hồ sơ của tôi
           </h2>
@@ -213,7 +244,7 @@ useEffect(() => {
           </h3>
           <hr className="my-3" />
         </div>
-        <div className="flex flex-col lg:flex-row justify-center items-stretch space-y-8 lg:space-x-8  lg:space-y-0 w-full lg:w-2/3 xl:w-1/2 px-6">
+        <div className="flex flex-col lg:flex-row justify-center items-stretch space-y-8 lg:space-x-8  lg:space-y-0 w-full lg:w-2/3 xl:w-2/3 px-6">
           <div className="flex flex-col h-full justify-start items-center space-y-6  w-full  lg:w-1/3 order-1 lg:order-2">
             <Image
               width={150}
@@ -239,7 +270,7 @@ useEffect(() => {
               onChange={changeImage}
             />
           </div>
-          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-6 w-full order-2 lg:order-1 ">
+          <div className="flex flex-col h-full text-sm space-y-6 md:space-y-6 w-full lg:w-2/3 order-2 lg:order-1 ">
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
                 <label className="text-right whitespace-nowrap text-gray-600">
@@ -257,7 +288,7 @@ useEffect(() => {
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
                 <label className="text-right whitespace-nowrap text-gray-600">
-                  Tên đăng nhập
+                  Họ tên
                 </label>
               </div>
               <Input
@@ -302,10 +333,11 @@ useEffect(() => {
                     Địa chỉ
                   </label>
                 </div>
-                <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 relative w-full">
+                <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-1 relative">
                   <Select
                     size="large"
-                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    className="w-1/3"
+                    // style={{ width: '33.33%', maxWidth: '33.33%' }}
                     name="provice"
                     id=""
                     onChange={updateProvince}
@@ -324,7 +356,8 @@ useEffect(() => {
                   </Select>
                   <Select
                     size="large"
-                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    className="w-1/3"
+                    // style={{ width: '33.33%', maxWidth: '33.33%' }}
                     name="district"
                     id=""
                     onChange={updateDistrict}
@@ -343,7 +376,8 @@ useEffect(() => {
                   </Select>
                   <Select
                     size="large"
-                    style={{ width: '33.33%', maxWidth: '33.33%' }}
+                    className="w-1/3"
+                    // style={{ width: '33.33%', maxWidth: '33.33%' }}
                     name="ward"
                     id=""
                     onChange={updateWard}
@@ -394,7 +428,7 @@ useEffect(() => {
       </div>
 
       <div className="flex flex-col justify-center items-center w-full relative space-y-4">
-        <div className="w-full lg:w-2/3 xl:w-1/2 px-6">
+        <div className="w-full lg:w-2/3 xl:w-2/3 px-6 relative">
           <h2 className="text-xl font-semibold text-left mb-0">
             Thay đổi mật khẩu
           </h2>
@@ -404,97 +438,80 @@ useEffect(() => {
           <hr className="my-3" />
         </div>
 
-        <div className="w-full lg:w-2/3 xl:w-1/2 px-6 flex flex-col space-y-6">
+        <div className="w-full lg:w-2/3 xl:w-2/3 px-6 flex flex-col space-y-6">
           <Form
+            className="w-full lg:w-2/3"
             form={form}
             name="updatePassword"
-            labelCol={{ span: 0 }}
-            wrapperCol={{ span: 24 }}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
             // onFinish={handler}
             autoComplete="off"
           >
-            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-              <div className="w-40 min-w-[8rem] text-right">
-                <label className="text-right whitespace-nowrap text-gray-600">
-                  Mật Khẩu Hiện Tại
-                </label>
-              </div>
-              <Form.Item
-                name="old_password"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mật khẩu!'
-                  },
-                  {
-                    type: 'string',
-                    min: 6,
-                    message: 'Mật khẩu phải ít nhất 6 kí tự'
-                  },
-        
-                ]}
-              >
-                <Input.Password
-                  size="large"
-                  value={oldPassword}
-                  onChange={e => setOldPassword(e.target.value)}
-                />
-              </Form.Item>
-            </div>
-            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-              <div className="w-40 min-w-[8rem] text-right">
-                <label className="text-right whitespace-nowrap text-gray-600">
-                  Mật Khẩu Mới
-                </label>
-              </div>
-              <Form.Item
-                name="new_password"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mật khẩu!'
-                  },
-                  {
-                    type: 'string',
-                    min: 6,
-                    message: 'Mật khẩu phải ít nhất 6 kí tự'
-                  }
-                ]}
-              >
-                <Input.Password
-                  size="large"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                />
-              </Form.Item>
-            </div>
-            <div className="flex flex-row items-center space-x-4  w-full lg:w-2/3 ">
-              <div className="w-40 min-w-[8rem] text-right">
-                <label className="text-right whitespace-nowrap text-gray-600">
-                  Xác Nhận Mật Khẩu
-                </label>
-              </div>
-              <Form.Item
-                name="confirm_password"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mật khẩu!'
-                  },
-                  {
-                    type: 'string',
-                    min: 6,
-                    message: 'Mật khẩu phải ít nhất 6 kí tự'
-                  }
-                ]}
-              >
-                <Input.Password
-                  size="large"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                />
-              </Form.Item>
-            </div>
+            <Form.Item
+              label="Mật Khẩu Hiện Tại"
+              name="old_password"
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng nhập mật khẩu!'
+                },
+                {
+                  type: 'string',
+                  min: 6,
+                  message: 'Mật khẩu phải ít nhất 6 kí tự'
+                }
+              ]}
+            >
+              <Input.Password
+                size="large"
+                value={oldPassword}
+                onChange={e => setOldPassword(e.target.value)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Mật khẩu mới"
+              name="new_password"
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng nhập mật khẩu!'
+                },
+                {
+                  type: 'string',
+                  min: 6,
+                  message: 'Mật khẩu phải ít nhất 6 kí tự'
+                }
+              ]}
+            >
+              <Input.Password
+                size="large"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Xác Nhận Mật Khẩu"
+              name="confirm_password"
+              rules={[
+                {
+                  required: true,
+                  message: 'Vui lòng nhập mật khẩu!'
+                },
+                {
+                  type: 'string',
+                  min: 6,
+                  message: 'Mật khẩu phải ít nhất 6 kí tự'
+                }
+              ]}
+            >
+              <Input.Password
+                size="large"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+              />
+            </Form.Item>
           </Form>
         </div>
 
@@ -507,9 +524,9 @@ useEffect(() => {
           </Button>
           <Button
             // className="w-[100px] h-[60px] bg-teal-500 text-white rounded-[5px]"
-            onClick={()=>navigate('/forgotPassword')}
+            onClick={() => navigate('/forgotPassword')}
           >
-            Reset 
+            Quên mật khẩu
           </Button>
         </div>
       </div>

@@ -9,7 +9,12 @@ import FilterAuthorRow from './filter_author_row'
 function DeleteAuthorTable() {
   const deletedAuthors = useSelector(state => state.author.deletedAuthors)
   const [authorsRenderData, setAuthorRenderData] = useState([])
-  const [filter, setFilter] = useState({ _id: '', fullName: '', birthDate: '', address: '' })
+  const [filter, setFilter] = useState({
+    _id: '',
+    fullName: '',
+    birthDate: '',
+    address: ''
+  })
   const [sort, setSort] = useState({ field: 'fullName', value: 1 })
   const [page, setPage] = useState({
     total: deletedAuthors.length,
@@ -24,7 +29,10 @@ function DeleteAuthorTable() {
 
   useEffect(() => {
     let _currentPage = page.current
-    if (deletedAuthors.length % page.pageSize == 0 && page.total > deletedAuthors.length)
+    if (
+      deletedAuthors.length % page.pageSize == 0 &&
+      page.total > deletedAuthors.length
+    )
       _currentPage--
     const _page = {
       ...page,
@@ -48,13 +56,21 @@ function DeleteAuthorTable() {
     if (deletedAuthors) {
       const filterField = Object.getOwnPropertyNames(filter)
       const _authorsRenderData = [].concat(deletedAuthors).filter(author => {
-        if (!filter._id && !filter.fullName && !filter.birthDate && !filter.address) return true
+        if (
+          !filter._id &&
+          !filter.fullName &&
+          !filter.birthDate &&
+          !filter.address
+        )
+          return true
         else {
           let match = true
           filterField.forEach(field => {
             if (
               filter[field] &&
-              author[field].toLowerCase().indexOf(filter[field].toLowerCase()) === -1
+              author[field]
+                .toLowerCase()
+                .indexOf(filter[field].toLowerCase()) === -1
             )
               match = false
           })
@@ -86,21 +102,26 @@ function DeleteAuthorTable() {
   }
 
   return (
-    <table className="w-full">
+    <table className="w-full bg-white">
       <AuthorTableHead
         sort={sort}
         changeSort={changeSort}
         tableName={
           <>
             Thùng rác
-            <DeleteFilled style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }} />
+            <DeleteFilled
+              style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }}
+            />
           </>
         }
       />
       <tbody>
         <FilterAuthorRow changeFilter={changeFilter} />
         {authorsRenderData
-          .slice((page.current - 1) * page.pageSize, page.current * page.pageSize)
+          .slice(
+            (page.current - 1) * page.pageSize,
+            page.current * page.pageSize
+          )
           .map((author, index) => (
             <DeletedAuthorRow key={author._id} author={author} />
           ))}

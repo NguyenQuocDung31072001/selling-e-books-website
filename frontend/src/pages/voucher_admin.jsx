@@ -1,4 +1,4 @@
-import { Anchor, Button, Table, Tag, Typography } from 'antd'
+import { Anchor, Button, Spin, Table, Tag, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { getAllVoucher, getOrders } from '../redux/api_request'
 import moment from 'moment'
@@ -15,7 +15,7 @@ function VoucherManage(props) {
   const [sortedInfo, setSortedInfo] = useState({})
 
   const [openInsertModal, setOpenInsertModal] = useState(false)
-
+  const [load, setLoad] = useState(false)
   const [data, setData] = useState([])
 
   const handleChange = (pagination, filters, sorter) => {
@@ -28,9 +28,12 @@ function VoucherManage(props) {
     newData.splice(index, 1, voucher)
     console.log(newData)
     setData(newData)
+    setLoad(false)
   }
 
-  const loading = () => {}
+  const loading = () => {
+    setLoad(true)
+  }
 
   useEffect(() => {
     const getOrderData = async () => {
@@ -46,17 +49,20 @@ function VoucherManage(props) {
     let newData = [...data]
     newData.splice(index, 1, updatedOrder)
     setData(newData)
+    setLoad(false)
   }
 
   function deleteVoucher(voucher) {
     const newData = data.filter(item => item._id !== voucher._id)
     setData(newData)
+    setLoad(false)
   }
 
   function insertVoucher(voucher) {
     const newData = [...data, voucher]
     setData(newData)
     setOpenInsertModal(false)
+    setLoad(false)
   }
 
   const columns = [
@@ -128,18 +134,22 @@ function VoucherManage(props) {
   ]
 
   return (
-    <div className="py-4 px-4 flex flex-col justify-start items-center  space-y-4">
-      <div className="flex flex-row justify-between items-center w-full">
-        <Title level={2} style={{ margin: 0 }}>
-          Danh sách đơn đặt hàng
+    <div className="py-4 px-4 flex flex-col justify-start items-center">
+      {load && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full  bg-gray-400 bg-opacity-30 flex justify-center items-center z-10">
+          <Spin spinning={loading} size="large" tip="Loading..."></Spin>
+        </div>
+      )}
+      <div className="py-3 px-4 flex flex-row justify-between items-center w-full bg-white border">
+        <Title level={3} style={{ margin: 0 }}>
+          Mã giảm giá
         </Title>
         <Button
           type="primary"
-          icon={<PlusOutlined />}
-          size="large"
+          size="middle"
           onClick={() => setOpenInsertModal(true)}
         >
-          Thêm mới
+          Thêm mã giảm
         </Button>
       </div>
       <Table

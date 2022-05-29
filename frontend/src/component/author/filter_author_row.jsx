@@ -12,7 +12,10 @@ function FilterAuthorRow(data) {
       <tr className="hover:bg-slate-100">
         <td className="border">
           {openInsertRow && (
-            <button className=" pb-2 pt-1 bg-blue-400 rounded-sm w-2/3" onClick={openInsertRow}>
+            <button
+              className=" pb-2 pt-1 bg-blue-400 rounded-sm w-2/3"
+              onClick={openInsertRow}
+            >
               <PlusOutlined style={{ fontSize: '1.25rem', color: 'white' }} />
             </button>
           )}
@@ -30,7 +33,7 @@ function FilterAuthorRow(data) {
               changeFilter(e)
             }}
             placeholder="Họ Tên"
-            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1"
+            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1"
           />
         </td>
 
@@ -44,7 +47,7 @@ function FilterAuthorRow(data) {
               changeFilter(e)
             }}
             placeholder="Ngày sinh"
-            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1 "
+            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1 "
             required
           />
         </td>
@@ -59,7 +62,7 @@ function FilterAuthorRow(data) {
               changeFilter(e)
             }}
             placeholder="Địa chỉ"
-            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-md outline-none disabled:ring-0 ring-1"
+            className="disabled:bg-transparent text-base text-gray-700 font-normal bg-white px-2 py-[0.4rem] w-full text-left border-0 rounded-sm outline-none disabled:ring-0 ring-1"
           />
         </td>
       </tr>

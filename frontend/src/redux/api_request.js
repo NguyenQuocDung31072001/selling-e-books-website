@@ -79,7 +79,7 @@ export const loginApi = async (user, dispatch, navigate) => {
 }
 export const updateAccountAdmin = async (currentUser, account, dispatch) => {
   try {
-    console.log("account",account)
+    console.log('account', account)
     const res = await axios.post(
       API_URL + '/v1/selling_e_books/account/setting/' + currentUser._id,
       account,
@@ -99,10 +99,12 @@ export const updateAccountAdmin = async (currentUser, account, dispatch) => {
       birthDate: res.data.birthDate,
       address: res.data.address
     }
-    console.log(payloadAction)
+    console.log(res.data)
     dispatch(updateCurrentUser(payloadAction))
+    return true
   } catch (error) {
     console.log(error)
+    return false
   }
 }
 
@@ -890,9 +892,7 @@ export const updateNewPassword = async (email, code, password) => {
 }
 export const getInfoDashboard = async () => {
   try {
-    const res = await axios.get(
-      API_URL + `/v1/selling_e_books/dashboard/info`
-    )
+    const res = await axios.get(API_URL + `/v1/selling_e_books/dashboard/info`)
     // console.log(res.data)
     return res.data
   } catch (error) {

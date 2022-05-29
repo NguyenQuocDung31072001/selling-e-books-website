@@ -1,17 +1,35 @@
-import { DeleteOutlined, UndoOutlined } from '@ant-design/icons'
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  UndoOutlined
+} from '@ant-design/icons'
+import { Modal } from 'antd'
 import { useDispatch } from 'react-redux'
 import { hardDeleteGenre, restoreDeletedGenre } from '../../redux/api_request'
 function DeletedGenreRow(data) {
   const { genre, className } = data
   const dispatch = useDispatch()
+
+  const { confirm } = Modal
+
   const deleteGenre = async () => {
-    const confirm = window.confirm(
-      'Thể loại sẽ bị xóa hoàn toàn khỏi bộ nhớ hệ thống, bạn có muốn tiếp tục?'
-    )
-    if (confirm) {
-      const result = await hardDeleteGenre(dispatch, genre)
-      console.log(result)
-    }
+    confirm({
+      title: 'Xác nhận xóa',
+      icon: <ExclamationCircleOutlined />,
+      content:
+        'Dữ liệu về mã thể loại sẽ bị xóa hoàn toàn khỏi hệ thống! Bạn có muốn tiếp tục',
+      okText: 'Tiếp tục',
+      cancelText: 'Hủy',
+      onOk() {
+        const handleDelete = async () => {
+          const result = await hardDeleteGenre(dispatch, genre)
+        }
+        handleDelete()
+      },
+      onCancel() {
+        console.log('Cancel')
+      }
+    })
   }
 
   const restoreGenre = async () => {

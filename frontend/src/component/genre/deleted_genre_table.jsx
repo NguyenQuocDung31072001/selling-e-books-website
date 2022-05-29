@@ -28,7 +28,10 @@ function DeletedGenreTable() {
 
   useEffect(() => {
     let _currentPage = page.current
-    if (deletedGenres.length % page.pageSize == 0 && page.total > deletedGenres.length)
+    if (
+      deletedGenres.length % page.pageSize == 0 &&
+      page.total > deletedGenres.length
+    )
       _currentPage--
     const _page = {
       ...page,
@@ -57,7 +60,9 @@ function DeletedGenreTable() {
           filterField.forEach(field => {
             if (
               filter[field] &&
-              genre[field].toLowerCase().indexOf(filter[field].toLowerCase()) === -1
+              genre[field]
+                .toLowerCase()
+                .indexOf(filter[field].toLowerCase()) === -1
             )
               match = false
           })
@@ -89,21 +94,26 @@ function DeletedGenreTable() {
   }
 
   return (
-    <table className="w-full">
+    <table className="w-full bg-white">
       <GenreTableHead
         sort={sort}
         changeSort={changeSort}
         tableName={
           <>
             Thùng rác
-            <DeleteFilled style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }} />
+            <DeleteFilled
+              style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }}
+            />
           </>
         }
       />
       <tbody>
         <InsertAndFindRow changeFilter={changeFilter} />
         {genresRenderData
-          .slice((page.current - 1) * page.pageSize, page.current * page.pageSize)
+          .slice(
+            (page.current - 1) * page.pageSize,
+            page.current * page.pageSize
+          )
           .map((genre, index) => (
             <DeletedGenreRow key={genre._id} genre={genre} />
           ))}

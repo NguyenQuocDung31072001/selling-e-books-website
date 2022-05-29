@@ -55,13 +55,13 @@ function OrderManage() {
 
   return (
     <div className="py-4 px-4 flex flex-col justify-start items-center  space-y-4">
-      {/* {loading && (
+      {loading && (
         <div className="z-[2000] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full  bg-gray-400 bg-opacity-30 flex justify-center items-center">
           <Spin spinning={loading} size="large" tip="Loading..."></Spin>
         </div>
-      )} */}
-      <Title level={2} style={{ margin: 0 }}>
-        Danh sách đơn đặt hàng
+      )}
+      <Title level={3} style={{ margin: 0 }}>
+        QUẢN LÍ ĐƠN ĐẶT HÀNG
       </Title>
       <div className="flex flex-row justify-center items-center ">
         <Form
@@ -74,19 +74,19 @@ function OrderManage() {
           }}
           onValuesChange={changeFilter}
         >
-          <Form.Item name="customer" label="Khách hàng">
-            <Input></Input>
+          <Form.Item name="customer">
+            <Input placeholder="Khách hàng"></Input>
           </Form.Item>
 
-          <Form.Item name="time" label="Thời gian">
+          <Form.Item name="time">
             <RangePicker
               placeholder={['Từ ngày', 'Đến ngày']}
               format="DD/MM/YYYY"
             />
           </Form.Item>
 
-          <Form.Item name="status" label="Tình trạng">
-            <Select style={{ minWidth: 225 }}>
+          <Form.Item name="status">
+            <Select style={{ minWidth: 225 }} placeholder="Tình trạng">
               <Option value={5}>Tất cả</Option>
               <Option value={0}>Đang chờ</Option>
               <Option value={1}>Đã xác nhận</Option>
@@ -98,16 +98,16 @@ function OrderManage() {
             </Select>
           </Form.Item>
 
-          <Form.Item name="paid" label="Trạng thái thanh toán">
-            <Select style={{ minWidth: 150 }}>
+          <Form.Item name="paid">
+            <Select style={{ minWidth: 150 }} placeholder="Thanh toán">
               <Option value={2}>Tất cả</Option>
               <Option value={1}>Đã thanh toán</Option>
               <Option value={0}>Chưa thanh toán</Option>
             </Select>
           </Form.Item>
 
-          <Form.Item name="payment" label="Phương thức thanh toán">
-            <Select style={{ minWidth: 85 }}>
+          <Form.Item name="payment">
+            <Select style={{ minWidth: 85 }} placeholder="Hình thức thanh toán">
               <Option value={2}>Tất cả</Option>
               <Option value={0}>COD</Option>
               <Option value={1}>Paypal</Option>

@@ -1,5 +1,5 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { Spin } from 'antd'
+import { Spin, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import AuthorTable from '../component/author/author_table'
@@ -7,6 +7,7 @@ import DeleteAuthorTable from '../component/author/deleted_author_table'
 import { getAllAuthor, getDeletedAuthor } from '../redux/api_request'
 
 function AuthorManage() {
+  const { Title } = Typography
   const authorState = useSelector(state => state.author)
   const dispatch = useDispatch()
   const [openAuthorTable, setOpenAuthorTable] = useState(true)
@@ -25,11 +26,18 @@ function AuthorManage() {
     <>
       {authorState.loading && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full  bg-gray-400 bg-opacity-30 flex justify-center items-center z-10">
-          <Spin spinning={authorState.loading} size="large" tip="Loading..."></Spin>
+          <Spin
+            spinning={authorState.loading}
+            size="large"
+            tip="Loading..."
+          ></Spin>
         </div>
       )}
 
       <div className="px-10 py-4 flex flex-col items-center space-y-4 relative">
+        <Title level={3} style={{ margin: 0 }}>
+          QUẢN LÍ TÁC GIẢ
+        </Title>
         <div className="w-full flex-col items-start space-y-1">
           <div
             className="flex flex-row w-fit items-center space-x-2 text-xl font-semibold cursor-pointer"

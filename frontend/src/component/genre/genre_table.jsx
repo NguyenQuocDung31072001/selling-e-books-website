@@ -29,7 +29,8 @@ function GenreTable() {
 
   useEffect(() => {
     let _currentPage = page.current
-    if (genres.length % page.pageSize == 0 && page.total > genres.length) _currentPage--
+    if (genres.length % page.pageSize == 0 && page.total > genres.length)
+      _currentPage--
     const _page = {
       ...page,
       current: _currentPage,
@@ -58,7 +59,9 @@ function GenreTable() {
           filterField.forEach(field => {
             if (
               filter[field] &&
-              genre[field].toLowerCase().indexOf(filter[field].toLowerCase()) === -1
+              genre[field]
+                .toLowerCase()
+                .indexOf(filter[field].toLowerCase()) === -1
             )
               match = false
           })
@@ -90,22 +93,30 @@ function GenreTable() {
   }
 
   return (
-    <table className="w-full">
+    <table className="w-full bg-white">
       <GenreTableHead
         sort={sort}
         changeSort={changeSort}
         tableName={
           <>
             Tất cả thể loại{' '}
-            <TableOutlined style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }} />
+            <TableOutlined
+              style={{ marginLeft: '0.5rem', paddingTop: '0.25rem' }}
+            />
           </>
         }
       />
       <tbody>
-        <InsertAndFindRow changeFilter={changeFilter} openInsertRow={() => setInsertRow(true)} />
+        <InsertAndFindRow
+          changeFilter={changeFilter}
+          openInsertRow={() => setInsertRow(true)}
+        />
         {insertRow && <GenreRow removeInsertRow={() => setInsertRow(false)} />}
         {genresRenderData
-          .slice((page.current - 1) * page.pageSize, page.current * page.pageSize)
+          .slice(
+            (page.current - 1) * page.pageSize,
+            page.current * page.pageSize
+          )
           .map((genre, index) => (
             <GenreRow key={genre._id} genre={genre} />
           ))}
