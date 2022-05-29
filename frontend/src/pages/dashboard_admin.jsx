@@ -40,8 +40,8 @@ const DashboardAdmin = () => {
      },[])
     return (
         <div className='w-full '>
-            <div className='w-full flex justify-start p-4 mb-4 border-b-[1px] border-solid border-gray-300'>
-                <p className='text-xl font-medium px-4'>Dashboard</p>
+            <div className='w-full flex justify-center px-4 pt-4 mb-4 border-b-[1px] border-solid border-gray-300'>
+                <p className='text-3xl font-medium px-4'>Trang chủ</p>
             </div>
             <div className='flex justify-around'>
                 <div className='bg-white flex justify-start items-center w-[270px] h-[113px]'>
@@ -55,7 +55,7 @@ const DashboardAdmin = () => {
                                 {user.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
-                        <p className='text-xl font-medium'>Users</p>
+                        <p className='text-xl font-medium'>Người dùng</p>
                     </div>
                 </div>
                 <div className='bg-white flex justify-start items-center w-[270px] h-[113px]'>
@@ -69,7 +69,7 @@ const DashboardAdmin = () => {
                                 {book.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
-                        <p className='text-xl font-medium'>Books</p>
+                        <p className='text-xl font-medium'>Sách</p>
                     </div>
                 </div>
                 <div className='bg-white flex justify-start items-center w-[270px] h-[113px]'>
@@ -83,7 +83,7 @@ const DashboardAdmin = () => {
                                 {order.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
-                        <p className='text-xl font-medium'>Orders</p>
+                        <p className='text-xl font-medium'>Đơn hàng</p>
                     </div>
                 </div>
                 <div className='bg-white flex justify-start items-center w-[270px] h-[113px]'>
@@ -97,7 +97,7 @@ const DashboardAdmin = () => {
                                 {bought.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
-                        <p className='text-xl font-medium'>Bought</p>
+                        <p className='text-xl font-medium'>Sách đã mua</p>
                     </div>
                 </div>
 

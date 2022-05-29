@@ -9,7 +9,7 @@ function BreadcrumbsUser() {
             {genre_name && !name_book &&  (
                 <div className='flex'>
                     <Link to="/user/home">
-                        Home
+                        BookSto
                     </Link>
                     <span>/</span>
                     <span>{genre_name}</span>
@@ -19,7 +19,7 @@ function BreadcrumbsUser() {
             {genre_name && name_book && (
                 <div className='flex'>
                     <Link to="/user/home">
-                        Home
+                        BookSto
                     </Link>
                     <span>/</span>
                     <Link to={`/user/home/${genre_slug}`}>

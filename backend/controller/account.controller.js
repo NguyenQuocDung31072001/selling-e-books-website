@@ -49,7 +49,7 @@ const updateAccount = async (req, res) => {
     res.status(200).json(account)
   } catch (error) {
     console.log(error)
-    res.status(500).json(error)
+    res.status(500).json({message:error.message})
   }
 }
 

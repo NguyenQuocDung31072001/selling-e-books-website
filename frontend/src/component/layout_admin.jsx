@@ -50,9 +50,9 @@ function LayoutAdmin() {
         theme="dark"
       >
         <Menu.Item icon={<AreaChartOutlined />} key="dashboard">
-          <Link to="/admin/dashboard">Dashboard</Link>
+          <Link to="/admin/dashboard">Trang chủ</Link>
         </Menu.Item>
-        <SubMenu key="sub1" icon={<SettingOutlined />} title="Manage book">
+        <SubMenu key="sub1" icon={<SettingOutlined />} title="Quản lý sách">
           <Menu.Item icon={<AppstoreAddOutlined />} key="add_book">
             <Link to="/admin/add_book">Thêm sách</Link>
           </Menu.Item>

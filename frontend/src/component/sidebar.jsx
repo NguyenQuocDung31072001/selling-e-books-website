@@ -70,10 +70,10 @@ function SideBar() {
         theme="light"
       >
         <Menu.Item icon={<HomeOutlined />} key="dashboard">
-          <Link to="/user/home">HomePage</Link>
+          <Link to="/user/home">Trang chính</Link>
         </Menu.Item>
         <Menu.Item icon={<FilterOutlined />} key="category">
-          <Link to="/user/category">Category Book</Link>
+          <Link to="/user/category">Trang tìm kiếm</Link>
         </Menu.Item>
         <Menu.Item icon={<ShoppingCartOutlined />} key="cart">
           <Link to="/user/cart">Giỏ hàng</Link>

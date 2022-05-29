@@ -117,10 +117,10 @@ function SettingAdmin() {
             className=" p-4 bg-teal-500 text-white rounded-[5px]"
             onClick={updateAccount}
           >
-            Update Account
+            Chỉnh sửa
           </button>
           <button  className=" ml-4 p-4 bg-red-400 text-white rounded-[5px]" onClick={() => Logout()}>
-            logout
+            Đăng xuất
           </button>
         </div>
       </div>

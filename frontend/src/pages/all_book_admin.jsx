@@ -94,8 +94,8 @@ export default function AllBookAdmin() {
   },[bookData])
   return (
     <div className="p-4 ">
-      <div className='w-full flex justify-start px-4 mb-4 border-b-[1px] border-solid border-gray-400'>
-        <p className='text-xl font-medium'> All Book</p>
+      <div className='w-full flex justify-center px-4 mb-4 border-b-[1px] border-solid border-gray-400'>
+        <p className='text-3xl font-medium'>Tất cả sách</p>
       </div>
       <Table columns={columns} dataSource={data} />
     </div>

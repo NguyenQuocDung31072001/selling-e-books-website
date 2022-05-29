@@ -48,7 +48,7 @@ export default function CategoryUser() {
     })()
     const breadcrum = {
       genre_slug: 'Home Pages',
-      genre_name: 'Category Pages',
+      genre_name: 'Trang tìm kiếm',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrum))

@@ -267,7 +267,7 @@ export default function Checkout(props) {
             />
           </div>
 
-          <div className="w-full py-3 px-8 bg-white flex flex-row ">
+          <div className="w-full py-3 px-8 bg-white">
             <div className="w-full text-left flex flex-row justify-between items-center space-x-6">
               <Text strong className="text-lg whitespace-nowrap">
                 Mã giảm giá:
@@ -289,6 +289,9 @@ export default function Checkout(props) {
               >
                 Áp dụng
               </Button>
+            </div>
+            <div className="flex">
+              {voucher.error && <p className="ml-[130px] text-red-500">*{voucher.message}</p>}
             </div>
           </div>
 

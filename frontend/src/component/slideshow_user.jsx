@@ -13,9 +13,6 @@ const slideImages = [
     url: 'http://don16obqbay2c.cloudfront.net/wp-content/uploads/Sell-Ebooks-Online-1579266163.png'
   },
   {
-    url: 'https://www.000webhost.com/blog/wp-content/uploads/sites/15/2019/04/how-to-make-ebook.png'
-  },
-  {
     url: 'https://www.sodapdf.com/blog/wp-content/uploads/2019/06/ereaders.jpg'
   }
 ]

@@ -68,7 +68,7 @@ function TopUser() {
             )}
           </div>
         </div>
-        {(breadcrumbName==='Home Pages' || breadcrumbName==='Category Pages') && (
+        {(breadcrumbName==='Trang chính' || breadcrumbName==='Trang tìm kiếm') && (
           <div className="flex w-[120px] md:w-[300px] items-center rounded-[5px]">
             <Input
               size="large"

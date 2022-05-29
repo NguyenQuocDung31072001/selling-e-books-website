@@ -47,7 +47,7 @@ function SettingUser() {
     window.scrollTo(0, 0)
     const breadcrumb = {
       genre_slug: 'setting',
-      genre_name: 'Setting',
+      genre_name: 'Thông tin cá nhân',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrumb))
@@ -288,7 +288,7 @@ function SettingUser() {
             <div className="flex flex-row items-center space-x-4">
               <div className="w-24 min-w-[6rem] text-right ">
                 <label className="text-right whitespace-nowrap text-gray-600">
-                  Họ tên
+                  Tên
                 </label>
               </div>
               <Input

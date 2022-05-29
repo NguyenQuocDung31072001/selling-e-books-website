@@ -21,7 +21,7 @@ export default function HomePagesUser() {
     })()
     const breadcrum = {
       genre_slug: 'Home Pages',
-      genre_name: 'Home Pages',
+      genre_name: 'Trang chính',
       name_book: ''
     }
     dispatch(updateBreadcrumb(breadcrum))
