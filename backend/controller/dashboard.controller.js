@@ -335,11 +335,40 @@ const getAccounts = async (req, res) => {
     res.status(500)
   }
 }
+const getInfoDashboard=async (req,res)=>{
+  try {
+    let allAccount=0
+    let allBook=0
+    let allOrder=0
+    let allBookBought=0
+    const account=await Account.find()
+    const book=await Book.find()
+    const order=await Order.find()
+    account.forEach((account,index)=>{
+      allBookBought+=account.library.length
+    })
+    allAccount=account.length
+    allBook=book.length
+    allOrder=order.length
 
+    let infoDashboard={
+      allAccount:allAccount,
+      allBook:allBook,
+      allOrder:allOrder,
+      allBookBought:allBookBought
+    }
+    // console.log("infoDashboard",infoDashboard)
+    return res.status(200).json({infoDashboard:infoDashboard})
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({message:error.message})
+  }
+}
 module.exports = {
   getRevenue,
   getAccounts,
   getBookData,
   getGenreData,
-  getAuthorsData
+  getAuthorsData,
+  getInfoDashboard
 }

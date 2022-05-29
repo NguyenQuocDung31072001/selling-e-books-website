@@ -1,14 +1,42 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useSpring, animated } from '@react-spring/web'
 import { BookOutlined, MoneyCollectOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons';
 import RatingChart from '../component/rating_chart';
 import BookBoughtChart from '../component/book_bought_chart';
-
+import {getInfoDashboard}from "../redux/api_request"
 const DashboardAdmin = () => {
-    const user=useSpring({users:200,from:{users:0}})
-    const book=useSpring({books:1287,from:{books:0}})
-    const order=useSpring({orders:431,from:{orders:0}})
-    const bought=useSpring({boughts:312,from:{boughts:0}})
+    // const user=useSpring({users:200,from:{users:0}})
+    // const book=useSpring({books:1287,from:{books:0}})
+    // const order=useSpring({orders:431,from:{orders:0}})
+    // const bought=useSpring({boughts:312,from:{boughts:0}})
+
+    const [{user}, setUser] = useSpring( () => ({
+        user: 0, 
+        config: {precision: 0.01, duration: undefined}
+     }) );
+    const [{book}, setBook] = useSpring( () => ({
+        book: 0, 
+        config: {precision: 0.01, duration: undefined}
+     }) );
+    const [{order}, setOrder] = useSpring( () => ({
+        order: 0, 
+        config: {precision: 0.01, duration: undefined}
+     }) );
+    const [{bought}, setBought] = useSpring( () => ({
+        bought: 0, 
+        config: {precision: 0.01, duration: undefined}
+     }) );
+     useEffect(() => {
+         ;(async function (){
+            const info=await getInfoDashboard()
+            console.log(info)
+            setUser({user: info.infoDashboard.allAccount})
+            setBook({book: info.infoDashboard.allBook})
+            setOrder({order: info.infoDashboard.allOrder})
+            setBought({bought: info.infoDashboard.allBookBought})
+         })()
+
+     },[])
     return (
         <div className='w-full '>
             <div className='w-full flex justify-start p-4 mb-4 border-b-[1px] border-solid border-gray-300'>
@@ -21,8 +49,9 @@ const DashboardAdmin = () => {
                     </div>
                     <div className='ml-4 mt-4'>
                         <div className='text-4xl font-bold'>
-                            <animated.div>
-                                {user.users.to((val)=>Math.floor(val))}
+                            <animated.div >
+                                {/* {user.users.to((val)=>Math.floor(val))} */}
+                                {user.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
                         <p className='text-xl font-medium'>Users</p>
@@ -35,7 +64,8 @@ const DashboardAdmin = () => {
                     <div className='ml-4 mt-4'>
                         <div className='text-4xl font-bold'>
                             <animated.div>
-                                {book.books.to((val)=>Math.floor(val))}
+                                {/* {book.books.to((val)=>Math.floor(val))} */}
+                                {book.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
                         <p className='text-xl font-medium'>Books</p>
@@ -48,7 +78,8 @@ const DashboardAdmin = () => {
                     <div className='ml-4 mt-4'>
                         <div className='text-4xl font-bold'>
                             <animated.div>
-                                {order.orders.to((val)=>Math.floor(val))}
+                                {/* {order.orders.to((val)=>Math.floor(val))} */}
+                                {order.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
                         <p className='text-xl font-medium'>Orders</p>
@@ -61,7 +92,8 @@ const DashboardAdmin = () => {
                     <div className='ml-4 mt-4'>
                         <div className='text-4xl font-bold'>
                             <animated.div>
-                                {bought.boughts.to((val)=>Math.floor(val))}
+                                {/* {bought.boughts.to((val)=>Math.floor(val))} */}
+                                {bought.interpolate(x => x.toFixed(0))}
                             </animated.div>
                         </div>
                         <p className='text-xl font-medium'>Bought</p>

@@ -68,7 +68,7 @@ export const loginApi = async (user, dispatch, navigate) => {
 
     dispatch(loginSuccess(res.data))
     if (res.data.role === 'admin') {
-      navigate('/admin/home')
+      navigate('/admin/dashboard')
     }
     if (res.data.role === 'user') {
       navigate('/user/home')
@@ -881,6 +881,18 @@ export const updateNewPassword = async (email, code, password) => {
       }
     )
     console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+export const getInfoDashboard = async () => {
+  try {
+    const res = await axios.get(
+      API_URL + `/v1/selling_e_books/dashboard/info`
+    )
     // console.log(res.data)
     return res.data
   } catch (error) {

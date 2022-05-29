@@ -6,4 +6,6 @@ router.get('/accounts', DashboardController.getAccounts)
 router.get('/book', DashboardController.getBookData)
 router.get('/genres', DashboardController.getGenreData)
 router.get('/authors', DashboardController.getAuthorsData)
+router.get('/info', DashboardController.getInfoDashboard)
+
 module.exports = router

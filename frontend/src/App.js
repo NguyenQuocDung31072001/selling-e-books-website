@@ -50,7 +50,7 @@ function App() {
     return currentUser?.role === 'admin' ? (
       children
     ) : (
-      <Navigate to="/user/home" />
+      <Navigate to="/user/dashboard" />
     )
   }
   return (
