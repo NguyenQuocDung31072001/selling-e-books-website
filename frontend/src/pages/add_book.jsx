@@ -98,7 +98,7 @@ function AddBook() {
           <div className="flex justify-center w-[350px] mt-[100px] ml-[20px] h-[450px] rounded-lg shadow-xl bg-gray-50 border-dashed border-2">
             <div className="">
               <label className="inline-block mb-2 text-gray-500">
-                File Upload
+                Tải ảnh lên
               </label>
               <div className="flex items-center justify-center w-full">
                 {imageBook && <img src={URL.createObjectURL(imageBook)} alt="" />}
@@ -131,40 +131,40 @@ function AddBook() {
                   </label>
                 )}
               </div>
-              <Button onClick={() => setImageBook('')}>reset</Button>
+              <Button onClick={() => setImageBook('')}>Xóa ảnh</Button>
             </div>
           </div>
           <div className="w-[400px] h-[450px] ml-[20px] mt-[100px]">
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Name book</label>
+              <label className="w-[120px]">Tên sách</label>
               <Input
-                placeholder="Name"
+                placeholder="Tên sách"
                 onChange={e => setNameBook(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">PushlishBy</label>
+              <label className="w-[120px]">Nhà xuất bản</label>
               <Input
-                placeholder="PushlishBy"
+                placeholder="Nhà xuất bản"
                 onChange={e => setPushlishBy(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Pages</label>
+              <label className="w-[120px]">Số trang</label>
               <Input
-                placeholder="Pages"
+                placeholder="Số trang"
                 onChange={e => setPage(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Amount</label>
+              <label className="w-[120px]">Số lượng</label>
               <Input
-                placeholder="Amount"
+                placeholder="Số lượng"
                 onChange={e => setAmount(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">PushlishDate</label>
+              <label className="w-[100px]">Ngày xuất bản</label>
               <DatePicker
                 style={{ width: 320 }}
                 defaultValue={moment(`${defaultDate}`, 'YYYY-MM-DD')}
@@ -175,7 +175,7 @@ function AddBook() {
           </div>
           <div className="w-[400px] h-[450px] ml-[20px] mt-[100px]">
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Author</label>
+              <label className="w-[100px]">Tác giả</label>
               {/* <Input
                 placeholder="Author"
                 onChange={e => setAuthor(e.target.value)}
@@ -198,14 +198,14 @@ function AddBook() {
               )}
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Price</label>
+              <label className="w-[120px]">Giá</label>
               <Input
-                placeholder="Price"
+                placeholder="Giá"
                 onChange={e => setPrice(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">Genres</label>
+              <label className="w-[100px]">Thể loại</label>
               {allGenres.length > 0 && (
                 <Select
                   // defaultValue={allGenres[0]}
@@ -223,7 +223,7 @@ function AddBook() {
               )}
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">Decription</label>
+              <label className="w-[100px]">Mô tả</label>
               <TextArea
                 showCount
                 maxLength={100}
@@ -236,7 +236,7 @@ function AddBook() {
         </div>
       </div>
       <div>
-        <Button onClick={handleAddBook}>Add Book</Button>
+        <Button onClick={handleAddBook}>Thêm sách</Button>
       </div>
     </div>
   )

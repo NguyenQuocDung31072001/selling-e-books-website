@@ -20,7 +20,7 @@ import { getAllBookBought, getAllBookReview } from '../redux/book_bought_slices'
 
 const { Title } = Typography
 const { TextArea } = Input
-const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful']
+const desc = ['quá tệ', 'tệ', 'cũng được', 'tốt', 'quá tốt']
 function DetailBookUser() {
   const { genre, slug } = useParams()
   const dispatch = useDispatch()
@@ -58,6 +58,7 @@ function DetailBookUser() {
             dispatch(getAllBookBought(bookBought))
             dispatch(getAllBookReview(bookReview))
           }
+          console.log(bookApi)
           setBook(bookApi)
           setLoading(false)
         }

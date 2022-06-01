@@ -67,7 +67,7 @@ export default function TopRatingSlider() {
                     <Rate
                       allowHalf
                       disabled
-                      defaultValue={book.rating}
+                      defaultValue={book.avarageRating}
                       style={{ fontSize: 12 }}
                     />
                   </div>

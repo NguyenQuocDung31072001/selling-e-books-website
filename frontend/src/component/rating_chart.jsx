@@ -20,7 +20,7 @@ export default function RatingChart() {
       topBook.forEach(book => {
         _book.push({
           name: book.name,
-          rate: book.rating
+          rate: book.avarageRating
         })
       })
       setData(_book)

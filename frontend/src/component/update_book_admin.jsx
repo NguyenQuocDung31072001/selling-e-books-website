@@ -113,15 +113,16 @@ export default function UpdateBookAdmin({ book }) {
   return (
     <>
       <Button type="primary" onClick={showModal}>
-        Update Book
+        Chỉnh sửa sách
       </Button>
       <Modal
-        title="Update book"
+        title="Chỉnh sửa sách"
         width={900}
         style={{ marginBottom: 40 }}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
+        
       >
         <div className="flex ">
           <div className="flex justify-center items-center w-[350px] ml-[20px] h-[450px]">
@@ -151,39 +152,39 @@ export default function UpdateBookAdmin({ book }) {
           </div>
           <div className="w-[400px] ml-[20px]">
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Name book</label>
+              <label className="w-[120px]">Tên sách</label>
               <Input
-                placeholder="Name"
+                placeholder="Tên sách"
                 value={nameBook}
                 onChange={e => setNameBook(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">PushlishBy</label>
+              <label className="w-[120px]">Nhà xuất bản</label>
               <Input
-                placeholder="PushlishBy"
+                placeholder="Nhà xuất bản"
                 value={publishedBy}
                 onChange={e => setPublishedBy(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Pages</label>
+              <label className="w-[120px]">Số trang</label>
               <Input
-                placeholder="Pages"
+                placeholder="Số trang"
                 value={page}
                 onChange={e => setPage(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Amount</label>
+              <label className="w-[120px]">Số lượng</label>
               <Input
-                placeholder="Amount"
+                placeholder="Số lượng"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">PushlishDate</label>
+              <label className="w-[100px]">Ngày xuất bản</label>
               <DatePicker
                 style={{ width: 320 }}
                 defaultValue={moment(
@@ -194,7 +195,7 @@ export default function UpdateBookAdmin({ book }) {
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Author</label>
+              <label className="w-[100px]">Tác giả</label>
 
               {allAuthor.length > 0 && (
                 <Select
@@ -214,15 +215,15 @@ export default function UpdateBookAdmin({ book }) {
               )}
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[120px]">Price</label>
+              <label className="w-[120px]">Giá</label>
               <Input
-                placeholder="Price"
+                placeholder="Giá"
                 value={price}
                 onChange={e => setPrice(e.target.value)}
               />
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">Genres</label>
+              <label className="w-[100px]">Thể loại</label>
               {allGenres.length > 0 && (
                 <Select
                   // defaultValue={allGenres[0]}
@@ -241,7 +242,7 @@ export default function UpdateBookAdmin({ book }) {
               )}
             </div>
             <div className="flex mb-[20px]">
-              <label className="w-[100px]">Decription</label>
+              <label className="w-[100px]">Mô tả</label>
               <TextArea
                 showCount
                 maxLength={100}

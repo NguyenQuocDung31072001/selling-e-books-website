@@ -9,7 +9,7 @@ import { numberFormat } from '../utils/formatNumber'
 import PaginationFunc from './pagination'
 const { Title } = Typography
 const RenderBookComponent = ({ books }) => {
-  // console.log(books)
+
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
   const [bookRender, setBookRender] = useState()
@@ -111,6 +111,7 @@ const RenderBookComponent = ({ books }) => {
     let _bookRender = [...books].slice(limit * (current - 1), limit * current)
     setBookRender(_bookRender)
   }
+
   return (
     <div className="w-full flex flex-col items-center justify-center mb-8">
       <div className="md:flex md:flex-wrap bg-white h-fit md:w-[97%] mb-4">
@@ -148,9 +149,10 @@ const RenderBookComponent = ({ books }) => {
                   <Rate
                     allowHalf
                     disabled
-                    defaultValue={book.rating}
+                    defaultValue={book.avarageRating}
                     style={{ fontSize: 12 }}
                   />
+                  {/* {console.log("book.avarageRating",book.avarageRating)} */}
                   <div className="">
                     <p className="text-lg font-bold">
                       {numberFormat(book.price)}

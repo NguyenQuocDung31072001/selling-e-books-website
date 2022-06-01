@@ -57,7 +57,7 @@ function LoginAndRegister() {
       </div>
       {isLogin && (
         <Modal
-          title="Login"
+          title="Đăng nhập"
           visible={isModalVisible}
           width={400}
           onCancel={handleCancel}
@@ -81,7 +81,7 @@ function LoginAndRegister() {
             </Form.Item>
 
             <Form.Item
-              label="Password"
+              label="Mật khẩu"
               name="password"
               rules={[
                 { required: true, message: 'Please input your password!' }
@@ -102,7 +102,7 @@ function LoginAndRegister() {
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Button type="primary" htmlType="submit" onClick={loginSubmit}>
-                Submit
+                Đăng nhập
               </Button>
             </Form.Item>
             <Form.Item className="flex flex-col items-center justify-center">
@@ -124,7 +124,7 @@ function LoginAndRegister() {
       )}
       {!isLogin && (
         <Modal
-          title="Register"
+          title="Đăng kí"
           visible={isModalVisible}
           width={400}
           onCancel={handleCancel}
@@ -146,7 +146,7 @@ function LoginAndRegister() {
               <Input onChange={e => setEmail(e.target.value)} />
             </Form.Item>
             <Form.Item
-              label="Password"
+              label="Mật khẩu"
               name="password"
               rules={[
                 { required: true, message: 'Please input your password!' }
@@ -155,7 +155,7 @@ function LoginAndRegister() {
               <Input.Password onChange={e => setPassword(e.target.value)} />
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               name="remember"
               valuePropName="checked"
               wrapperCol={{ offset: 8, span: 16 }}
@@ -163,20 +163,20 @@ function LoginAndRegister() {
               <Checkbox onChange={e => console.log(e.target.checked)}>
                 Remember me
               </Checkbox>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Button type="primary" htmlType="submit" onClick={registerSubmit}>
-                Register
+                Đăng kí
               </Button>
             </Form.Item>
             <Form.Item className="flex justify-center">
-              <span>If you alraedy have account?</span>
+              <span>Nếu bạn đã có tài khoản hãy </span>
               <span
                 className="text-sky-500 cursor-pointer"
                 onClick={() => setIsLogin(true)}
               >
-                Login
+                Đăng nhập
               </span>
             </Form.Item>
           </Form>

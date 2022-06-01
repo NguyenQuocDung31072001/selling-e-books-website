@@ -8,7 +8,7 @@ export default function AllBookAdmin() {
   const [data,setData]=useState([])
   const columns = [ 
     {
-      title: 'No',
+      title: 'STT',
       dataIndex: 'no',
       key:'no',
       render: no=>(
@@ -16,7 +16,7 @@ export default function AllBookAdmin() {
       )
     },
     {
-      title: 'Book Image',
+      title: 'Ảnh bìa',
       dataIndex: 'bookImage',
       key:'bookImage',
       render:bookImage=>(
@@ -24,37 +24,37 @@ export default function AllBookAdmin() {
       )
     },
     {
-      title: 'Book Name',
+      title: 'Tên sách',
       dataIndex: 'bookName',
       key:'bookName',
       render: bookName=><p>{bookName}</p>
     },
     {
-      title: 'Book Category',
+      title: 'Thể loại',
       dataIndex: 'bookCategory',
       key:'bookCategory',
       render: bookCategory=><p>{bookCategory}</p>
     },
     {
-      title: 'Book Author',
+      title: 'Tác giả',
       dataIndex: 'bookAuthor',
       key:'bookAuthor',
       render:bookAuthor=><p>{bookAuthor}</p>
     },
     {
-      title: 'Book Description',
+      title: 'Mô tả',
       dataIndex: 'bookDescription',
       key:'bookDescription',
       render: bookDescription=><p>{bookDescription}</p>
     },
     {
-      title: 'Book Price',
+      title: 'Giá',
       dataIndex: 'bookPrice',
       key:'bookPrice',
       render:bookPrice=><p>{bookPrice}</p>
     },
     {
-      title: 'Action',
+      title: 'Tính năng',
       dataIndex: 'action',
       key:'action',
       render:(action)=>{
@@ -93,7 +93,7 @@ export default function AllBookAdmin() {
     }
   },[bookData])
   return (
-    <div className="p-4 ">
+    <div className="p-4">
       <div className='w-full flex justify-center px-4 mb-4 border-b-[1px] border-solid border-gray-400'>
         <p className='text-3xl font-medium'>Tất cả sách</p>
       </div>
