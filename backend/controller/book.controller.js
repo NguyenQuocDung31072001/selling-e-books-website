@@ -136,6 +136,13 @@ const UpdateBook = async (req, res) => {
 
 const GetAllBook = async (req, res) => {
   try {
+    // const allAccount=await Account.find()
+    // allAccount.forEach((account,index)=>{
+    //   if(account.library.includes(books[0]._id)){
+    //     totalBookBought++
+    //   }
+    // })
+    // books[0].avarageRating=totalRating/allReviewOfBook.length
     const queryObj = { deleted: false }
 
     const perPage = 20
@@ -280,23 +287,35 @@ const getBooks = async (query, page, perPage) => {
     .populate({ path: 'authors', select: '_id slug fullName birthDate' })
     .populate('language')
     .lean()
-    const allAccount=await Account.find()
-    let totalBookBought=0
-    allAccount.forEach((account,index)=>{
-      if(account.library.includes(books[0]._id)){
+
+  const allAccount = await Account.find()
+
+  if (books.length > 1) {
+    for (let i = 0; i < books.length; i++) {
+      let allReviewOfBook = await Review.find({ book: books[i]._id })
+      let totalRating = 0
+      allReviewOfBook.forEach(value => {
+        totalRating += value.rating
+      })
+      books[i].avarageRating = totalRating / allReviewOfBook.length
+    }
+  } else if (books.length === 1) {
+    let totalBookBought = 0
+    allAccount.forEach((account, index) => {
+      if (account.library.includes(books[0]._id)) {
         totalBookBought++
       }
     })
-    const allReviewOfBook=await Review.find({book:books[0]._id})
-    let totalRating=0
-    allReviewOfBook.forEach((value,index)=>{
-      totalRating+=value.rating
+    const allReviewOfBook = await Review.find({ book: books[0]._id })
+    let totalRating = 0
+    allReviewOfBook.forEach((value, index) => {
+      totalRating += value.rating
     })
-    books[0].avarageRating=totalRating/allReviewOfBook.length
-    books[0].countReview=allReviewOfBook.length
-    books[0].countBookBought=totalBookBought
+    books[0].avarageRating = totalRating / allReviewOfBook.length
+    books[0].countReview = allReviewOfBook.length
+    books[0].countBookBought = totalBookBought
+  }
 
-    // console.log("books",books)
   return books
 }
 
@@ -348,12 +367,30 @@ const restore = async (req, res) => {
 const GetTop = async (req, res) => {
   try {
     const { top, field } = req.query
+    const newArray = []
     const books = await BookModel.find({})
       .sort({ [field]: -1 })
       .limit(top)
       .populate('authors')
       .populate('genres')
-    res.json(books)
+      if(field==='rating'){
+        for (let i = 0; i < books.length; i++) {
+          let allReviewOfBook = await Review.find({ book: books[i]._id })
+          let totalRating = 0
+          allReviewOfBook.forEach(value => {
+            totalRating += value.rating
+          })
+          books[i].avarageRating = totalRating / allReviewOfBook.length
+        }
+        for (let i = 0; i < books.length; i++) {
+          newArray.push({
+            ...books[i]._doc,
+            avarageRating: books[i].avarageRating > 0 ? books[i].avarageRating : 0
+          })
+        }
+        newArray.sort((a, b) => b.avarageRating - a.avarageRating)
+      }
+    return res.status(200).json(field==='rating'?newArray:books)
   } catch (error) {
     console.log(error)
     res.status(500)
