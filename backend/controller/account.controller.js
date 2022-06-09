@@ -163,7 +163,7 @@ const updateCartAccount = async (accountId, bookId, amount, deleteBook) => {
   if (!mongoose.isValidObjectId(accountId))
     throw new Error('Invalid account id')
   if (!mongoose.isValidObjectId(bookId)) throw new Error('Invalid book id')
-  console.log()
+
   if (typeof deleteBook !== 'boolean')
     throw new Error('type of deleteBook must be boolean')
   const account = await Account.findById(accountId)

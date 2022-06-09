@@ -2,6 +2,9 @@ const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
 async function sendEmail(receiverEmail, subject, text, html) {
   console.log('sending Email to ', receiverEmail)
+  // console.log('subject ', subject)
+  // console.log('text ', text)
+  // console.log('html ', html)
   try {
     let transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -9,7 +12,7 @@ async function sendEmail(receiverEmail, subject, text, html) {
       secure: false,
       auth: {
         user: 'testdoan2022@gmail.com',
-        pass: 'doan12022'
+        pass: 'n i i z o j w e y j p f f f u x'
       }
     })
 
@@ -21,7 +24,7 @@ async function sendEmail(receiverEmail, subject, text, html) {
       html: html // html body
     })
   } catch (error) {
-    console.log(error)
+    console.log(error.message)
     throw error
   }
 }

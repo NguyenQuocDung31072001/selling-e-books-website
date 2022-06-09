@@ -291,7 +291,7 @@ export default function Checkout(props) {
               </Button>
             </div>
             <div className="flex">
-              {voucher.error && <p className="ml-[130px] text-red-500">*{voucher.message}</p>}
+              {voucher.error && <p className="ml-[130px] text-red-500">{voucher.message}</p>}
             </div>
           </div>
 
