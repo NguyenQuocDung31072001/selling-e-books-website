@@ -128,6 +128,7 @@ function DetailBookUser() {
         if (dataCartWhenNotLogin === null) {
           dataCartWhenNotLogin = []
           dataCartWhenNotLogin.push({
+            id:0,
             key: 0,
             product: {
               _id: book._id,
@@ -145,6 +146,7 @@ function DetailBookUser() {
           })
         } else {
           dataCartWhenNotLogin.push({
+            id: dataCartWhenNotLogin.length,
             key: dataCartWhenNotLogin.length,
             product: {
               _id: book._id,

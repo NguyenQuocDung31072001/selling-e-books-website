@@ -5,6 +5,7 @@ import { updateOrder } from '../../redux/api_request'
 import DetailModal from './detail_modal'
 
 function ActionContainer(props) {
+  console.log("props in ActionContainer", props)
   const { data, onUpdate, onLoading, ...other } = props
   const [openModal, setOpenModal] = useState({})
   //   const showModal = action => {

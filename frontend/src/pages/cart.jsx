@@ -90,7 +90,7 @@ export default function Cart() {
     }
   ]
   useEffect(() => {
-    if(!currentUser){
+    if (!currentUser) {
       navigate('/user/cart_for_free')
     }
     window.scrollTo(0, 0)
@@ -102,7 +102,7 @@ export default function Cart() {
     }
     dispatch(updateBreadcrumb(breadcrumb))
     ;(async function () {
-      if(currentUser){
+      if (currentUser) {
         const _cart = getCart(currentUser._id)
         const _info = getShippingInfo(currentUser._id)
         Promise.all([_cart, _info]).then(([cart, info]) => {
@@ -201,6 +201,7 @@ export default function Cart() {
     }
   }
   const deleteProduct = key => {
+    console.log('key delete', key)
     setLoading(true)
     let indexKeyOfArray
     for (let i = 0; i < data.length; i++) {
@@ -209,7 +210,9 @@ export default function Cart() {
         break
       }
     }
-    setTotalFinal(prev => prev - data[indexKeyOfArray].total)
+    if (rowChecked.includes(key)) {
+      setTotalFinal(prev => prev - data[indexKeyOfArray].total)
+    }
     const deleteCartFnc = async (id_account, id_book) => {
       await deleteCart(id_account, id_book)
       setLoading(false)
@@ -221,6 +224,7 @@ export default function Cart() {
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
+      console.log("row checked : ",selectedRowKeys)
       setRowChecked(selectedRowKeys)
       setSelectedRows(selectedRows)
       let tong_cong = 0
@@ -291,27 +295,31 @@ export default function Cart() {
                           setOpenShipModal(true)
                         }}
                       >
-                        <span className="text-[15px] font-medium">Thay đổi</span>
+                        <span className="text-[15px] font-medium">
+                          Thay đổi
+                        </span>
                       </Link>
                     </div>
                   )}
                 </div>
                 {currentUser && (
                   <>
-                  <div className="flex ">
-                    <p className="text-[15px] font-medium">{shipData.username}</p>
-                    <p className="text-[15px] font-medium ml-16">
-                      {shipData.phoneNumber}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-start mb-[20px] text-gray-500">
-                    <p>{shipData.address?.street}</p>
                     <div className="flex ">
-                      <p>{shipData.address?.ward.WardName}, </p>
-                      <p>{shipData.address?.district.DistrictName}, </p>
-                      <p>{shipData.address?.province.ProvinceName}</p>
+                      <p className="text-[15px] font-medium">
+                        {shipData.username}
+                      </p>
+                      <p className="text-[15px] font-medium ml-16">
+                        {shipData.phoneNumber}
+                      </p>
                     </div>
-                  </div>
+                    <div className="flex flex-col items-start mb-[20px] text-gray-500">
+                      <p>{shipData.address?.street}</p>
+                      <div className="flex ">
+                        <p>{shipData.address?.ward.WardName}, </p>
+                        <p>{shipData.address?.district.DistrictName}, </p>
+                        <p>{shipData.address?.province.ProvinceName}</p>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -332,26 +340,22 @@ export default function Cart() {
                 </div>
               </div>
               <div className="flex justify-center w-full ">
-                <Button
-                  className=""
-                  style={{ width: 170 }}
-                  onClick={checkout}
-                >
+                <Button className="" style={{ width: 170 }} onClick={checkout}>
                   Mua hàng
                 </Button>
               </div>
             </div>
           </div>
         </div>
-        {!currentUser &&(
-        <div className="mt-[170px]">
-          <Footer />
-        </div>
+        {!currentUser && (
+          <div className="mt-[170px]">
+            <Footer />
+          </div>
         )}
-        {currentUser &&(
-        <div className="mt-[50px]">
-          <Footer />
-        </div>
+        {currentUser && (
+          <div className="mt-[50px]">
+            <Footer />
+          </div>
         )}
       </div>
     </>

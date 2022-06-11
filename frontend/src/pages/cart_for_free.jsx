@@ -73,12 +73,14 @@ export default function CartForFree() {
     },
     {
       title: <DeleteFilled />,
-      render: record => (
+      render: record => {
+        // console.log("recorrd  xdaxda",record)
+        return (
         <DeleteOutlined
           onClick={() => deleteCartFnc(record.key)}
           className="text-[20px] cursor-pointer"
         />
-      )
+      )}
     }
   ]
   useEffect(() => {
@@ -105,11 +107,15 @@ export default function CartForFree() {
     let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
     dataRowItem.count.value += 1
     dataRowItem.count.status = true
-    if (rowChecked.includes(dataRowItem.key)) {
+    if (rowChecked.includes(dataRowItem.id)) {
       setTotalFinal(value => (value = value + dataRowItem.price))
     }
     dataRowItem.total = dataRowItem.count.value * dataRowItem.price
-    dataOfLocalStorage[dataRowItem.key] = dataRowItem
+    console.log('-----------------------------------------------------------------')
+    console.log("dataRowItem ",dataRowItem)
+    console.log("dataOfLocalStorage[dataRowItem.id]",dataOfLocalStorage[dataRowItem.id])
+    console.log('-------------------------------------------------------------')
+    // dataOfLocalStorage[dataRowItem.id] = dataRowItem
     localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
     setFlat(flat => (flat += 1))
   }
@@ -118,7 +124,12 @@ export default function CartForFree() {
     let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
     if (dataRowItem.count.value > 1) {
       dataRowItem.count.value -= 1
-      if (rowChecked.includes(dataRowItem.key)) {
+      console.log('------------------------------------------------------------')
+      console.log("row checked", rowChecked)
+      console.log("recordKey", recordKey)
+      console.log('------------------------------------------------------------')
+
+      if (rowChecked.includes(recordKey)) {
         setTotalFinal(value => (value = value - dataRowItem.price))
       }
       if (dataRowItem.count.value === 1) {
@@ -127,27 +138,55 @@ export default function CartForFree() {
         dataRowItem.count.status = true
       }
       dataRowItem.total = dataRowItem.count.value * dataRowItem.price
-      dataOfLocalStorage[dataRowItem.key] = dataRowItem
+      console.log('-----------------------------------------------------------------')
+      console.log("dataRowItem ",dataRowItem)
+      console.log("dataOfLocalStorage[dataRowItem.id]",dataOfLocalStorage[dataRowItem.id])
+      console.log('-------------------------------------------------------------')
+      // dataOfLocalStorage[dataRowItem.key] = dataRowItem
       localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
       setFlat(flat => (flat += 1))
     }
   }
+
   const deleteCartFnc = recordKey => {
     let dataOfLocalStorage = JSON.parse(localStorage.getItem('dataCart'))
+    console.log('dataOfLocalStorage before',dataOfLocalStorage)
+
     let dataRowItem = dataOfLocalStorage.find(item => item.key === recordKey)
-    if (rowChecked.includes(dataRowItem.key)) {
+    if (rowChecked.includes(recordKey)) {
       setTotalFinal(value => (value = value - dataRowItem.total))
     }
-    dataOfLocalStorage.splice(dataRowItem.key, 1)
-    dataOfLocalStorage.forEach((item, index) => {
-      item.key = index
+
+    let newData=dataOfLocalStorage.filter((item,index) => {
+      // console.log('inedx is', index)
+      return item.key!== recordKey 
     })
+    console.log("----------------------------------------")
+    console.log(newData)
+    console.log("----------------------------------------")
+
+    for(let i=0;i<newData.length;i++){
+      console.log("index delete", i, newData[i].id, newData[i])
+      newData[i].id=i 
+      console.log('newData[i].id',newData[i].id)
+    }
+    console.log("----------------------------------------")
+    console.log(newData)
+    console.log("----------------------------------------")
+
+    dataOfLocalStorage=newData
+
+    console.log('recordKey',recordKey)
+    console.log('dataOfLocalStorage after',dataOfLocalStorage)
+
     localStorage.setItem('dataCart', JSON.stringify(dataOfLocalStorage))
     setFlat(flat => (flat += 1))
+    // console.log('rowChecked after delete ',rowChecked)
   }
+
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
-      // console.log(selectedRowKeys,selectedRows)
+      console.log(selectedRowKeys, selectedRows)
       setRowChecked(selectedRowKeys)
       setSelectedRows(selectedRows)
       let tong_cong = 0

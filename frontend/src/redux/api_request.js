@@ -562,6 +562,7 @@ export const getAnonymousOrders = async (page, sorter, filter) => {
 }
 
 export const updateOrder = async order => {
+  console.log("order ",order)
   try {
     const res = await axios.put(
       API_URL + '/v1/selling_e_books/order/' + order._id,

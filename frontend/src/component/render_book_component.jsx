@@ -41,6 +41,7 @@ const RenderBookComponent = ({ books }) => {
         if (dataCartWhenNotLogin === null) {
           dataCartWhenNotLogin = []
           dataCartWhenNotLogin.push({
+            id:0,
             key: 0,
             product: {
               genres: _bookClick.genres[0].name,
@@ -58,6 +59,7 @@ const RenderBookComponent = ({ books }) => {
           })
         } else {
           dataCartWhenNotLogin.push({
+            id: dataCartWhenNotLogin.length,
             key: dataCartWhenNotLogin.length,
             product: {
               genres: _bookClick.genres[0].name,

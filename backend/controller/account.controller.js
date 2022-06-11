@@ -204,16 +204,19 @@ const getAccountShipping = async (req, res) => {
 }
 
 const updateAccountLibrary = async (accountID, books) => {
+  console.log("accountID",accountID,"books",books)
   try {
     const bookIDs = books.map(item => item.book.toString())
-    const account = await Account.findById(accountID)
-    const newBooks = bookIDs.filter(item => {
-      return account.library.indexOf(item) === -1
-    })
-    const updatedAccount = await Account.findByIdAndUpdate(accountID, {
-      $push: { library: { $each: newBooks } }
-    })
-    return updatedAccount
+    if(accountID){
+      const account = await Account.findById(accountID)
+      const newBooks = bookIDs.filter(item => {
+        return account.library.indexOf(item) === -1
+      })
+      const updatedAccount = await Account.findByIdAndUpdate(accountID, {
+        $push: { library: { $each: newBooks } }
+      })
+      return updatedAccount
+    }
   } catch (error) {
     console.log(error)
     throw error
