@@ -23,6 +23,7 @@ export default function Checkout(props) {
   const [voucherCode, setVoucherCode] = useState()
   const [payment, setPayment] = useState('cod')
   const [openShipModal, setOpenShipModal] = useState(false)
+  const [loading, setLoading] = useState(false)
   const currentUser = useSelector(state => state.auth.login.currentUser)
 
   const calSubTotal = () => {
@@ -119,6 +120,7 @@ export default function Checkout(props) {
 
   const createNewOrderFnc = async () => {
     if (!checkData()) return
+    setLoading(true)
     const address = {
       ProvinceID: shipData.address.province.ProvinceID,
       DistrictID: shipData.address.district.DistrictID,
@@ -164,6 +166,7 @@ export default function Checkout(props) {
           break
         }
       }
+      setLoading(false)
     } else {
       if (result.redirect) {
         window.location.replace(result.redirectTo)
@@ -291,7 +294,9 @@ export default function Checkout(props) {
               </Button>
             </div>
             <div className="flex">
-              {voucher.error && <p className="ml-[130px] text-red-500">{voucher.message}</p>}
+              {voucher.error && (
+                <p className="ml-[130px] text-red-500">{voucher.message}</p>
+              )}
             </div>
           </div>
 
@@ -371,6 +376,7 @@ export default function Checkout(props) {
               size="large"
               danger
               onClick={createNewOrderFnc}
+              disabled={loading}
             >
               Đặt Hàng
             </Button>
