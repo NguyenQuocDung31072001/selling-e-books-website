@@ -8,17 +8,18 @@ import Slider from 'react-slick'
 import { PATH_NAME } from '../config/pathName'
 import { getTopBook } from '../redux/api_request'
 import { numberFormat } from '../utils/formatNumber'
+import { useGetTopBookRating } from "../utils/cacheData";
 export default function TopRatingSlider() {
   const [topBookRating, setTopBookRating] = useState()
+
+  const {data,isLoading}=useGetTopBookRating()
+
   useEffect(() => {
-    ;(async function () {
-      let arr = await getTopBook(10, 'rating')
-      setTopBookRating(arr)
-    })()
+    setTopBookRating(data)
     return () => {
       setTopBookRating()
     }
-  }, [])
+  }, [data])
   const settings = {
     dots: true,
     infinite: true,

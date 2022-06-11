@@ -9,6 +9,7 @@ import { numberFormat } from '../utils/formatNumber'
 import PaginationFunc from './pagination'
 const { Title } = Typography
 const RenderBookComponent = ({ books }) => {
+  // console.log("RenderBookComponent", books)
 
   const currentUser = useSelector(state => state.auth.login.currentUser)
   const navigate = useNavigate()
@@ -17,6 +18,9 @@ const RenderBookComponent = ({ books }) => {
     if (books) {
       let limit = 16
       setBookRender(books.slice(0, limit))
+    }
+    return ()=>{
+      setBookRender()
     }
   }, [books])
 

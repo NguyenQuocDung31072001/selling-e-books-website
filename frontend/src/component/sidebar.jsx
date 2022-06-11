@@ -78,7 +78,7 @@ function SideBar() {
         <Menu.Item icon={<ShoppingCartOutlined />} key="cart">
           <Link to="/user/cart">Giỏ hàng</Link>
         </Menu.Item>
-
+{/* 
         <SubMenu key="sub2" icon={<MedicineBoxOutlined />} title="Thể loại">
           {allGenres.length > 0 &&
             allGenres.map((genres, index) => (
@@ -95,7 +95,7 @@ function SideBar() {
                 <Link to={`/user/home/${authors.slug}`}>{authors.name}</Link>
               </Menu.Item>
             ))}
-        </SubMenu>
+        </SubMenu> */}
         <Menu.Item icon={<ShopOutlined />} key="purchase">
           <Link to="/user/purchase">Đơn hàng của bạn</Link>
         </Menu.Item>

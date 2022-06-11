@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  getAllBook,
   getAllGenresForAddBook,
   getAllAuthorForAddBook
 } from '../redux/api_request'
@@ -11,9 +10,11 @@ import { SearchOutlined } from '@ant-design/icons'
 import { updateBreadcrumb } from '../redux/breadcrumb_slices'
 import RenderBookComponent from '../component/render_book_component'
 import Footer from '../component/footer'
-import { ConvertViToEn } from '../utils/convertViToEn'
+import { useGetAllBook } from '../utils/cacheData'
+import { HandleQuerySearch } from '../utils/handleQuerySearch'
 const { Title } = Typography
 const { Option } = Select
+
 export default function CategoryUser() {
   const querySearch = useSelector(state => state.search.search)
   const [bookData, setBookData] = useState([])
@@ -24,27 +25,36 @@ export default function CategoryUser() {
   const [authorSearch, setAuthorsSearch] = useState('')
   const [inputSearch, setInputSearch] = useState('')
   const dispatch = useDispatch()
+
+  const { data, isLoading } = useGetAllBook()
+
   useEffect(() => {
+    setBookData(data)
+    setBookRender(data)
+    return () => {
+      setBookData()
+      setBookRender()
+    }
+  }, [data])
+
+  useEffect(() => {
+    let abortController = new AbortController()
     window.scrollTo(0, 0)
     ;(async function () {
-      const _data = getAllBook()
       const _allGenre = getAllGenresForAddBook()
       const _allAuthor = getAllAuthorForAddBook()
-      Promise.all([_data, _allGenre, _allAuthor]).then(
-        ([data, allGenre, allAuthor]) => {
-          setBookData(data)
-          const allGenreName = ['']
-          for (let i = 0; i < allGenre.length; i++) {
-            allGenreName.push(allGenre[i].name)
-          }
-          const allAuthorName = ['']
-          for (let i = 0; i < allAuthor.length; i++) {
-            allAuthorName.push(allAuthor[i].fullName)
-          }
-          setAllGenres(allGenreName)
-          setAllAuthors(allAuthorName)
+      Promise.all([_allGenre, _allAuthor]).then(([allGenre, allAuthor]) => {
+        const allGenreName = ['']
+        for (let i = 0; i < allGenre.length; i++) {
+          allGenreName.push(allGenre[i].name)
         }
-      )
+        const allAuthorName = ['']
+        for (let i = 0; i < allAuthor.length; i++) {
+          allAuthorName.push(allAuthor[i].fullName)
+        }
+        setAllGenres(allGenreName)
+        setAllAuthors(allAuthorName)
+      })
     })()
     const breadcrum = {
       genre_slug: 'Home Pages',
@@ -53,47 +63,21 @@ export default function CategoryUser() {
     }
     dispatch(updateBreadcrumb(breadcrum))
     return () => {
+      abortController.abort()
       setAllGenres()
       setAllAuthors()
     }
   }, [])
 
   useEffect(() => {
-    if (bookData?.length > 0) {
-      setBookRender(bookData)
-    }
-    return () => {
-      setBookRender()
-    }
-  }, [bookData])
-
-  useEffect(() => {
-    let dataQuery=''
-    let querySeachName=' '
-    if(querySearch.query.name){
-      querySeachName = ConvertViToEn(querySearch.query.name.toLowerCase())
-    }
-    if (querySearch.type === 'name') {
-      dataQuery = bookData?.filter(book =>
-        ConvertViToEn(book.name.toLowerCase()).includes(querySeachName)
-      )
-    }
-    if (querySearch.type === 'many') {
-      dataQuery = bookData?.filter(
-        book =>
-          book.genres[0]?.name.includes(querySearch.query.genres) &&
-          book.authors[0]?.fullName.includes(querySearch.query.authors) &&
-          ConvertViToEn(book.name.toLowerCase()).includes(querySeachName)
-      )
-    }
-    if (querySearch.type === 'all') {
-      dataQuery = bookData
-    }
+    let abortController = new AbortController()
+    const dataQuery=HandleQuerySearch(querySearch,bookData)
     setBookRender(dataQuery)
     return () => {
       setBookRender()
+      abortController.abort()
     }
-  }, [querySearch])
+  }, [bookData, querySearch])
 
   const searchFnc = () => {
     let search = {
@@ -117,7 +101,7 @@ export default function CategoryUser() {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-wrap w-full justify-center">
-        {bookData?.length === 0 && (
+        {isLoading && (
           <div className="w-full h-full flex items-center justify-center">
             <Spin tip="Loading..." />
           </div>
