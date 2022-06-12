@@ -39,6 +39,9 @@ function SettingUser() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
+  const [errorOldPassword, setErrorOldPassword] = useState()
+  const [errorNewPassword, setErrorNewPassword] = useState()
+
   const [form] = Form.useForm()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -175,18 +178,20 @@ function SettingUser() {
         newPassword: newPassword
       }
       await updateAccountPassword(currentUser, account, dispatch).then(res => {
-        if (res.message === 'invalid_password') {
-          notification.open({
-            message: 'Cảnh báo',
-            description:
-              'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!',
-            style: {
-              width: 400,
-              backgroundColor: '#f1c40f',
-              color: '#535c68'
-            }
-          })
+        // console.log("res ", res)
+        if (res.error === true) {
+          if (res.errorOldPassword) {
+            setErrorOldPassword(res.message)
+            setErrorNewPassword()
+          }
+          if (res.errorNewPassword) {
+            setErrorOldPassword()
+            setErrorNewPassword(res.message)
+          }
         } else {
+          console.log('success', res)
+          setErrorNewPassword()
+          setErrorOldPassword()
           notification.open({
             message: 'Chúc mừng',
             description: 'Bạn đã thay đổi mật khẩu thành công!',
@@ -197,15 +202,27 @@ function SettingUser() {
             }
           })
         }
+        // if (res.message === 'invalid_password') {
+        //   notification.open({
+        //     message: 'Cảnh báo',
+        //     description:
+        //       'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!',
+        //     style: {
+        //       width: 400,
+        //       backgroundColor: '#f1c40f',
+        //       color: '#535c68'
+        //     }
+        //   })
+        // } else {
+
+        // }
       })
     }
     setOldPassword('')
     setNewPassword('')
     setConfirmPassword('')
   }
-  useEffect(() => {
-    console.log('old password')
-  }, [oldPassword])
+
   const updateProvince = value => {
     const _province = provinceData.find(
       province => province.ProvinceID == value
@@ -468,6 +485,9 @@ function SettingUser() {
                 value={oldPassword}
                 onChange={e => setOldPassword(e.target.value)}
               />
+              {errorOldPassword && (
+                <p className="text-red-500">{`*${errorOldPassword}`}</p>
+              )}
             </Form.Item>
 
             <Form.Item
@@ -490,6 +510,9 @@ function SettingUser() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
               />
+              {errorNewPassword && (
+                <p className="text-red-500">{`*${errorNewPassword}`}</p>
+              )}
             </Form.Item>
             <Form.Item
               label="Xác Nhận Mật Khẩu"
@@ -511,6 +534,9 @@ function SettingUser() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
               />
+              {errorNewPassword && (
+                <p className="text-red-500">{`*${errorNewPassword}`}</p>
+              )}
             </Form.Item>
           </Form>
         </div>

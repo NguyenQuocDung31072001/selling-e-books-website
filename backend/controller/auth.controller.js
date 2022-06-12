@@ -9,16 +9,37 @@ const bcrypt = require('bcrypt')
 const refreshTokens = []
 
 const register = async (req, res, next) => {
-  //username,email,password
+  //email,password
   try {
-    const { username, email, password } = req.body
+    const { email, password } = req.body
+    console.log(req.body)
     const { error } = userValidate(req.body)
     if (error) {
-      throw createHttpError.BadRequest(error.details[0].message)
+      // console.log('error.details[0].path',error.details[0].path[0])
+      if(error.details[0].path[0]==='email'){
+        return res.json({
+          success: false,
+          errorEmail: true,
+          message:'Email không tồn tại!'
+        })
+      }
+      else if(error.details[0].path[0]==='password'){
+        return res.json({
+          success: false,
+          errorPassword: true,
+          message:'Mật khẩu phải nhiều hơn 6 kí tự!'
+        })
+      }
+
+    
     }
     const isExist = await Account.findOne({ email: email })
     if (isExist) {
-      throw createHttpError.Conflict(`${email} already exists`)
+      return res.json({
+        success: false,
+        errorEmail: true,
+        message:'Email đã được đăng kí!'
+      })
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -69,21 +90,33 @@ function generateRefreshToken(id) {
 const login = async (req, res) => {
   //email,password
   try {
-    console.log(req.body)
     const { email, password } = req.body
-    console.log({ email, password })
     const account = await Account.findOne({ email: email })
-    // console.log('account',account)
-    if (!account)
-      throw createHttpError.Unauthorized('Incorrect email or password')
+    if (!account){
+      return res.json({
+        success: false,
+        errorEmail: true,
+        message: 'Email chưa đăng kí!'
+      })
+    }
+    if(account && !account.isVerified){
+      return res.json({
+        success: false,
+        errorEmail: true,
+        message: 'Vui lòng xác thực email!'
+      })
+    }
     if(email==='admin@gmail.com' && password==='123'){
       return res.status(200).json(account)
     }
     const isValid = await account.isCheckPassword(password)
-    console.log(isValid)
-    if (!isValid)
-      throw createHttpError.Unauthorized('Incorrect email or password')
-
+    if (!isValid){
+      return res.json({
+        success: false,
+        errorPassword: true,
+        message: 'Mật khẩu không đúng!'
+      })
+    }
     const accessToken = generateAccessToken(account.id)
     const refreshToken = generateRefreshToken(account.id)
     refreshTokens.push(refreshToken)

@@ -42,8 +42,9 @@ export const registerApi = async (user, dispatch) => {
       user
     )
     const data = res.data
-    if (data.error) {
+    if (data.success===false) {
       dispatch(registerFailed())
+      return data
     } else {
       dispatch(registerSuccess())
     }
@@ -61,7 +62,7 @@ export const loginApi = async (user, dispatch, navigate) => {
       API_URL + '/v1/selling_e_books/auth/login',
       user
     )
-    if (res.data.error) {
+    if (res.data.success===false) {
       dispatch(loginFailed())
       return res.data
     }

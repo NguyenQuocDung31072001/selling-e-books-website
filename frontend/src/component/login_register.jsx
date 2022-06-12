@@ -8,8 +8,9 @@ function LoginAndRegister() {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [errorEmail, setErrorEmail] = useState()
+  const [errorPassword, setErrorPassword] = useState()
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -22,7 +23,6 @@ function LoginAndRegister() {
   }
   useEffect(() => {
     setEmail('')
-    setUsername('')
     setPassword('')
   }, [isLogin])
 
@@ -32,28 +32,55 @@ function LoginAndRegister() {
       email: email,
       password: password
     }
-    loginApi(user, dispatch, navigate)
+
+    ;(async function () {
+      let result = await loginApi(user, dispatch, navigate)
+      console.log('result login', result)
+      if (result.success === false) {
+        if (result.errorEmail) {
+          setErrorEmail(result.message)
+          setErrorPassword()
+        }
+        if (result.errorPassword) {
+          setErrorPassword(result.message)
+          setErrorEmail()
+        }
+      }
+    })()
   }
 
   const registerSubmit = e => {
     e.preventDefault()
     const user = {
-      // username: username,
       email: email,
       password: password
     }
-    // console.log(user)
-    registerApi(user, dispatch)
-    setIsLogin(true)
+    // registerApi(user, dispatch)
+    ;(async function () {
+      let result = await registerApi(user, dispatch)
+      console.log('result register', result)
+      if (result.success === false) {
+        if (result.errorEmail) {
+          setErrorEmail(result.message)
+          setErrorPassword()
+        }
+        if (result.errorPassword) {
+          setErrorPassword(result.message)
+          setErrorEmail()
+        }
+      } else {
+        setIsLogin(true)
+      }
+    })()
   }
-
+  useEffect(() => {
+    setErrorEmail()
+    setErrorPassword()
+  }, [isLogin])
   return (
     <div>
-      <div
-        className=" cursor-pointer"
-        onClick={showModal}
-      >
-        <p className='text-blue-700'>Đăng nhập/Đăng kí</p>
+      <div className=" cursor-pointer" onClick={showModal}>
+        <p className="text-blue-700">Đăng nhập/Đăng kí</p>
       </div>
       {isLogin && (
         <Modal
@@ -78,8 +105,8 @@ function LoginAndRegister() {
               rules={[{ required: true, message: 'Please input your email!' }]}
             >
               <Input onChange={e => setEmail(e.target.value)} />
+              {errorEmail && <p className="text-red-500">{`*${errorEmail}`}</p>}
             </Form.Item>
-
             <Form.Item
               label="Mật khẩu"
               name="password"
@@ -88,8 +115,10 @@ function LoginAndRegister() {
               ]}
             >
               <Input.Password onChange={e => setPassword(e.target.value)} />
+              {errorPassword && (
+                <p className="text-red-500">{`*${errorPassword}`}</p>
+              )}
             </Form.Item>
-
             {/* <Form.Item
               name="remember"
               valuePropName="checked"
@@ -106,7 +135,7 @@ function LoginAndRegister() {
               </Button>
             </Form.Item>
             <Form.Item className="flex flex-col items-center justify-center">
-            <p
+              <p
                 className="text-sky-500 cursor-pointer"
                 onClick={() => navigate('/forgotPassword')}
               >
@@ -144,6 +173,7 @@ function LoginAndRegister() {
               rules={[{ required: true, message: 'Please input your email!' }]}
             >
               <Input onChange={e => setEmail(e.target.value)} />
+              {errorEmail && <p className="text-red-500">{`*${errorEmail}`}</p>}
             </Form.Item>
             <Form.Item
               label="Mật khẩu"
@@ -153,6 +183,9 @@ function LoginAndRegister() {
               ]}
             >
               <Input.Password onChange={e => setPassword(e.target.value)} />
+              {errorPassword && (
+                <p className="text-red-500">{`*${errorPassword}`}</p>
+              )}
             </Form.Item>
 
             {/* <Form.Item

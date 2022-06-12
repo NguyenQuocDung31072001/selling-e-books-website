@@ -10,6 +10,7 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { sendConfirmOrderEmail, sendForgotEmail } = require('../utils/senEmail')
 const { date } = require('joi')
+const { passwordValidate } = require('../utils/validation')
 
 const updateAccount = async (req, res) => {
   //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
@@ -49,7 +50,7 @@ const updateAccount = async (req, res) => {
     res.status(200).json(account)
   } catch (error) {
     console.log(error)
-    res.status(500).json({message:error.message})
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -65,22 +66,37 @@ function checkDate(dateString) {
 }
 
 const updatePasswordAccount = async (req, res) => {
-  //nhận các giá trị từ client req.params.id, req.body.email,username,password,avatarBase64
+  console.log(req.body)
   try {
     const id = req.params.id
-    if (!mongoose.isValidObjectId(id)) throw new Error('Invalid account id')
     const account = await Account.findById(id)
     const isValid = await account.isCheckPassword(req.body.oldPassword)
     if (isValid) {
+      const { error } = passwordValidate(req.body)
+      // console.log("error validate setting account error", error)
+      // console.log("error validate setting account detail meo", error.details[0].path[0])
+      if (error) {
+        if (error.details[0].path[0] === 'password') {
+          return res.json({
+            error: true,
+            errorNewPassword: true,
+            message: 'Mật khẩu phải nhiều hơn 5 kí tự!'
+          })
+        }
+      }
       const salt = await bcrypt.genSalt(10)
       const hashPassword = await bcrypt.hash(req.body.newPassword, salt)
       account.password = hashPassword
-    }else{
-      return res.json({message: 'invalid_password'})
+    } else {
+      return res.json({
+        error: true,
+        errorOldPassword: true,
+        message: 'Mật khẩu bị sai, nhập lại mật khẩu hoặc reset mật khẩu!'
+      })
     }
     await account.save()
     delete account.password
-    return res.status(200).json({message: 'update_success',account:account})
+    return res.status(200).json({ message: 'update_success', account: account })
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
@@ -204,10 +220,10 @@ const getAccountShipping = async (req, res) => {
 }
 
 const updateAccountLibrary = async (accountID, books) => {
-  console.log("accountID",accountID,"books",books)
+  console.log('accountID', accountID, 'books', books)
   try {
     const bookIDs = books.map(item => item.book.toString())
-    if(accountID){
+    if (accountID) {
       const account = await Account.findById(accountID)
       const newBooks = bookIDs.filter(item => {
         return account.library.indexOf(item) === -1

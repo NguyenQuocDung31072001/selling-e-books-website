@@ -7,7 +7,7 @@ const verifyEmail = async (req, res, next) => {
   else
     res.json({
       success: false,
-      error: true,
+      errorEmail: true,
       message: 'Vui lòng xác thực email trước khi tiến hành đăng nhập!'
     })
 }

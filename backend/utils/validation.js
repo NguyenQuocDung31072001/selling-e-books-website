@@ -7,6 +7,12 @@ const userValidate = data => {
   })
   return userSchema.validate(data)
 }
+const passwordValidate = data => {
+  const passwordSchema = joi.object({
+    newPassword: joi.string().min(6).max(32).required(),
+  })
+  return passwordSchema.validate(data)
+}
 
 const authorValidate = data => {
   const authorSchema = joi.object({
@@ -87,6 +93,7 @@ const reviewValidate = data => {
 
 module.exports = {
   userValidate,
+  passwordValidate,
   authorValidate,
   bookValidate,
   genreValidate,
