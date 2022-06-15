@@ -14,11 +14,11 @@ const { searchGenres } = require('./genre.controller')
 const CreateNewBook = async (req, res) => {
   try {
     const slug = await generateSlug(BookModel, req.body.name)
-    const genre = await GenreModel.find({ name: req.body.genres })
-    const genreIds = genre[0]._id
+    const genre = await GenreModel.findById(req.body.genres)
+    const genreIds = genre._id
 
     // const genreIds = req.body.genres ? [].concat(req.body.genres) : []
-    const author = await AuthorModel.findOne({ fullName: req.body.authors })
+    const author = await AuthorModel.findById(req.body.authors)
     const authorIds = author._id
     // // const authorIds = req.body.authors ? [].concat(req.body.authors) : []
     // // console.log(authorIds._id)
@@ -64,10 +64,10 @@ const CreateNewBook = async (req, res) => {
     )
 
     await Promise.all([updatedGenres, updatedAuthors])
-    res.status(200).json(savedBook)
+    res.status(200).json({ success: true, message: '', book: savedBook })
   } catch (error) {
     console.log({ CreateNewBookError: error })
-    res.status(500).json(error)
+    res.status(500).json({ success: false, message: 'Create fail', book: null })
   }
 }
 
@@ -75,10 +75,10 @@ const UpdateBook = async (req, res) => {
   try {
     const bookId = req.params.id
 
-    const genre = await GenreModel.find({ name: req.body.genres })
-    const genreIds = genre[0]._id
+    const genre = await GenreModel.findById(req.body.genres)
+    const genreIds = genre._id
 
-    const author = await AuthorModel.findOne({ fullName: req.body.authors })
+    const author = await AuthorModel.findById(req.body.authors)
     const authorIds = author._id
 
     const newName = req.body.name
@@ -106,9 +106,10 @@ const UpdateBook = async (req, res) => {
 
     const updatedBook = await BookModel.findOneAndUpdate(
       { _id: bookId },
-      updateInfo,
-      { new: true }
+      updateInfo
+      // { new: true }
     )
+
     if (!updatedBook) throw new Error('Book does not exist')
 
     if (newName && newName.toLowerCase() != updatedBook.name.toLowerCase()) {
@@ -116,6 +117,14 @@ const UpdateBook = async (req, res) => {
       updatedBook.slug = slug
       updatedBook.name = req.body.name
     }
+    await Promise.all([
+      UpdateModel.RemoveBook(AuthorModel, updatedBook.authors, updatedBook._id),
+      UpdateModel.RemoveBook(GenreModel, updatedBook.genres, updatedBook._id)
+    ])
+    const [newAuthor, newGenre] = await Promise.all([
+      UpdateModel.AddBook(AuthorModel, [].concat(authorIds), updatedBook._id),
+      UpdateModel.AddBook(GenreModel, [].concat(genreIds), updatedBook._id)
+    ])
 
     if (req.body.base64Image) {
       await uploadImage(
@@ -127,10 +136,22 @@ const UpdateBook = async (req, res) => {
     }
 
     await updatedBook.save()
-    res.status(200).json({ ...updatedBook._doc, genre_slug: genre[0].slug })
+    const responseBook = {
+      ...updatedBook._doc,
+      genres: [newGenre],
+      authors: [newAuthor]
+    }
+
+    res.status(200).json({
+      success: true,
+      message: '',
+      book: { ...responseBook, genre_slug: genre.slug }
+    })
   } catch (error) {
     console.log({ CreateNewBookError: error })
-    res.status(500).json(error)
+    res
+      .status(500)
+      .json({ success: false, message: 'Update failed', book: null })
   }
 }
 
@@ -145,7 +166,7 @@ const GetAllBook = async (req, res) => {
     // books[0].avarageRating=totalRating/allReviewOfBook.length
     const queryObj = { deleted: false }
 
-    const perPage = 20
+    const perPage = 100
     const page = req.query.page || 1
 
     const { search, author, genre, maxPrice, minPrice } = req.query
@@ -193,6 +214,70 @@ const GetAllBook = async (req, res) => {
     const maxItem = await BookModel.countDocuments(queryObj)
     const maxPage = Math.ceil(maxItem / perPage)
     const books = await getBooks(queryObj, page, perPage)
+
+    res.status(200).json({
+      currentPage: page,
+      maxPage: maxPage,
+      books: books
+    })
+  } catch (error) {
+    // console.log({ GetBookError: error })
+    res.status(500).json(error)
+  }
+}
+
+const GetAllBookForUser = async (req, res) => {
+  try {
+    const queryObj = { deleted: false }
+
+    const perPage = 100
+    const page = req.query.page || 1
+
+    const { search, author, genre, maxPrice, minPrice } = req.query
+
+    if (author || genre) {
+      let regex = new RegExp(search, 'i')
+      queryObj.name = regex
+      if (author) {
+        const authors = await searchAuthor({ slug: author })
+        queryObj.authors = authors[0]._id
+      }
+      if (genre) {
+        const genres = await searchGenres({ slug: genre })
+        queryObj.genres = genres[0]._id
+      }
+
+      if (maxPrice || minPrice) queryObj['$and'] = []
+      if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
+      if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
+    } else {
+      if (search) {
+        let regex = new RegExp(search, 'i')
+        const authorQuery = {
+          deleted: false,
+          fullName: regex
+        }
+        const authors = await searchAuthor(authorQuery)
+        const genreQuery = {
+          deleted: false,
+          name: regex
+        }
+        const genres = await searchGenres(genreQuery)
+        queryObj['$or'] = [
+          { name: regex },
+          { genres: { $in: genres } },
+          { authors: { $in: authors } }
+        ]
+      }
+
+      if (maxPrice || minPrice) queryObj['$and'] = []
+      if (minPrice) queryObj['$and'].push({ price: { $gte: minPrice } })
+      if (maxPrice) queryObj['$and'].push({ price: { $lte: maxPrice } })
+    }
+
+    const maxItem = await BookModel.countDocuments(queryObj)
+    const maxPage = Math.ceil(maxItem / perPage)
+    const books = await getBooksForUser(queryObj, page, perPage)
 
     res.status(200).json({
       currentPage: page,
@@ -319,6 +404,50 @@ const getBooks = async (query, page, perPage) => {
   return books
 }
 
+const getBooksForUser = async (query, page, perPage) => {
+  const books = await BookModel.find(query)
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .populate({ path: 'genres', select: '_id slug name' })
+    .populate({ path: 'authors', select: '_id slug fullName birthDate' })
+    .populate('language')
+    .lean()
+
+  const allAccount = await Account.find()
+
+  if (books.length > 1) {
+    for (let i = 0; i < books.length; i++) {
+      if (books[i].genres.length === 0 || books[i].authors.length === 0)
+        books.splice(i, 1)
+      else {
+        let allReviewOfBook = await Review.find({ book: books[i]._id })
+        let totalRating = 0
+        allReviewOfBook.forEach(value => {
+          totalRating += value.rating
+        })
+        books[i].avarageRating = totalRating / allReviewOfBook.length
+      }
+    }
+  } else if (books.length === 1) {
+    let totalBookBought = 0
+    allAccount.forEach((account, index) => {
+      if (account.library.includes(books[0]._id)) {
+        totalBookBought++
+      }
+    })
+    const allReviewOfBook = await Review.find({ book: books[0]._id })
+    let totalRating = 0
+    allReviewOfBook.forEach((value, index) => {
+      totalRating += value.rating
+    })
+    books[0].avarageRating = totalRating / allReviewOfBook.length
+    books[0].countReview = allReviewOfBook.length
+    books[0].countBookBought = totalBookBought
+  }
+
+  return books
+}
+
 const SoftDelete = async (req, res) => {
   try {
     const bookId = req.params.id
@@ -327,10 +456,10 @@ const SoftDelete = async (req, res) => {
       { deleted: true },
       { new: true }
     )
-    res.status(200).json(deletedBook)
+    res.status(200).json({ success: true, message: '' })
   } catch (error) {
     console.log({ SoftDeleteBookError: error })
-    res.status(500).json(error)
+    res.status(500).json({ success: false, message: error })
   }
 }
 
@@ -373,24 +502,24 @@ const GetTop = async (req, res) => {
       .limit(top)
       .populate('authors')
       .populate('genres')
-      if(field==='rating'){
-        for (let i = 0; i < books.length; i++) {
-          let allReviewOfBook = await Review.find({ book: books[i]._id })
-          let totalRating = 0
-          allReviewOfBook.forEach(value => {
-            totalRating += value.rating
-          })
-          books[i].avarageRating = totalRating / allReviewOfBook.length
-        }
-        for (let i = 0; i < books.length; i++) {
-          newArray.push({
-            ...books[i]._doc,
-            avarageRating: books[i].avarageRating > 0 ? books[i].avarageRating : 0
-          })
-        }
-        newArray.sort((a, b) => b.avarageRating - a.avarageRating)
+    if (field === 'rating') {
+      for (let i = 0; i < books.length; i++) {
+        let allReviewOfBook = await Review.find({ book: books[i]._id })
+        let totalRating = 0
+        allReviewOfBook.forEach(value => {
+          totalRating += value.rating
+        })
+        books[i].avarageRating = totalRating / allReviewOfBook.length
       }
-    return res.status(200).json(field==='rating'?newArray:books)
+      for (let i = 0; i < books.length; i++) {
+        newArray.push({
+          ...books[i]._doc,
+          avarageRating: books[i].avarageRating > 0 ? books[i].avarageRating : 0
+        })
+      }
+      newArray.sort((a, b) => b.avarageRating - a.avarageRating)
+    }
+    return res.status(200).json(field === 'rating' ? newArray : books)
   } catch (error) {
     console.log(error)
     res.status(500)
@@ -401,6 +530,7 @@ module.exports = {
   CreateNewBook,
   UpdateBook,
   GetAllBook,
+  GetAllBookForUser,
   GetBookOfGenre,
   getBookOfAuthor,
   SoftDelete,

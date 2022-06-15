@@ -1,4 +1,4 @@
-import { Button, Row, Col, Table, notification, Input } from 'antd'
+import { Button, Row, Col, Table, notification, Input, Spin } from 'antd'
 import Text from 'antd/lib/typography/Text'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -9,6 +9,7 @@ import {
 } from '../redux/api_request'
 import ShipModal from '../component/checkout/ship_modal'
 import { useSelector } from 'react-redux'
+import { openNotification } from '../utils/notification'
 
 export default function Checkout(props) {
   const { state } = useLocation()
@@ -46,6 +47,8 @@ export default function Checkout(props) {
 
   const applyVoucher = async () => {
     const voucher = await getVoucher(calSubTotal(), voucherCode)
+    if (voucher.error)
+      openNotification('error', 'Không thành công!', voucher.message)
     setVoucher(voucher)
   }
 
@@ -80,17 +83,13 @@ export default function Checkout(props) {
     setOpenShipModal(false)
   }
 
-  const openNotification = message => {
-    notification.error({
-      message: `Không thành công`,
-      description: message,
-      placement: 'topRight'
-    })
-  }
-
   const checkData = () => {
     if (!shipData) {
-      openNotification('Vui lòng nhập đầy đủ thông tin nhận hàng')
+      openNotification(
+        'error',
+        'Không thành công!',
+        'Vui lòng nhập đầy đủ thông tin nhận hàng'
+      )
       return false
     }
 
@@ -106,12 +105,20 @@ export default function Checkout(props) {
       !shipData.username ||
       !phoneNumber
     ) {
-      openNotification('Vui lòng nhập đầy đủ thông tin nhận hàng')
+      openNotification(
+        'error',
+        'Không thành công!',
+        'Vui lòng nhập đầy đủ thông tin nhận hàng'
+      )
       return false
     }
 
     if (books.length === 0) {
-      openNotification('Đơn hàng phải gồm ít nhất một sản phẩm!')
+      openNotification(
+        'error',
+        'Không thành công!',
+        'Đơn hàng phải gồm ít nhất một sản phẩm!'
+      )
       return false
     }
 
@@ -144,15 +151,27 @@ export default function Checkout(props) {
     if (result.error) {
       switch (result.status) {
         case 1: {
-          openNotification('Tài khoản không hợp lệ')
+          openNotification(
+            'error',
+            'Không thành công!',
+            'Tài khoản không hợp lệ'
+          )
           break
         }
         case 2: {
-          openNotification('Phương thức thanh toán không hợp lệ')
+          openNotification(
+            'error',
+            'Không thành công!',
+            'Phương thức thanh toán không hợp lệ'
+          )
           break
         }
         case 4: {
-          openNotification('Số lượng sách còn lại không đủ')
+          openNotification(
+            'error',
+            'Không thành công!',
+            'Số lượng sách còn lại không đủ'
+          )
           break
         }
         case 5: {
@@ -161,6 +180,8 @@ export default function Checkout(props) {
         }
         default: {
           openNotification(
+            'error',
+            'Không thành công!',
             'Đã xảy ra lỗi trong quá trình tạo đơn hàng, vui lòng kiểm tra và thử lại'
           )
           break
@@ -378,6 +399,7 @@ export default function Checkout(props) {
               onClick={createNewOrderFnc}
               disabled={loading}
             >
+              {loading && <Spin style={{ marginRight: '10px' }} />}
               Đặt Hàng
             </Button>
           </div>

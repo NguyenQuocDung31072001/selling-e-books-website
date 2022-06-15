@@ -1,10 +1,11 @@
-import { Button, Col, Modal, Row } from 'antd'
+import { Button, Col, Modal, Row, Spin } from 'antd'
 import Text from 'antd/lib/typography/Text'
 import { useState } from 'react'
 import BooksTable from './books_table'
 
 export default function DetailModal(props) {
   const {
+    loading,
     data,
     onClose,
     onConfirm,
@@ -59,13 +60,21 @@ export default function DetailModal(props) {
         onCancel={onClose}
         width={768}
         footer={[
-          <Button key="back" onClick={action === 'show' ? onRefuse : onClose}>
+          <Button
+            key="back"
+            onClick={action === 'show' ? onRefuse : onClose}
+            disabled={loading}
+          >
+            {loading && <Spin style={{ marginRight: '10px' }} />}
             {refuseTitle()}
           </Button>,
           <Button
             key="next"
             onClick={action === 'refuse' ? onRefuse : onConfirm}
+            type="primary"
+            disabled={loading}
           >
+            {loading && <Spin style={{ marginRight: '10px' }} />}
             {confirmTitle()}
           </Button>
         ]}

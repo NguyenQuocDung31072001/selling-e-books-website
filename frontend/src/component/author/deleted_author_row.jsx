@@ -6,6 +6,7 @@ import {
 import { Modal } from 'antd'
 import { useDispatch } from 'react-redux'
 import { hardDeleteAuthor, restoreDeletedAuthor } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 function DeletedAuthorRow(data) {
   const { author, className } = data
   const dispatch = useDispatch()
@@ -21,6 +22,11 @@ function DeletedAuthorRow(data) {
       onOk() {
         const handleDelete = async () => {
           const result = await hardDeleteAuthor(dispatch, author)
+          openNotification(
+            'success',
+            'Xóa thành công!',
+            'Thông tin tác giả đã được xóa thành công!'
+          )
         }
         handleDelete()
       },
@@ -33,6 +39,11 @@ function DeletedAuthorRow(data) {
   const restoreAuthor = async () => {
     console.log('restore')
     const result = await restoreDeletedAuthor(dispatch, author)
+    openNotification(
+      'success',
+      'Khôi phục thành công!',
+      'Thông tin tác giả đã được khôi phục thành công!'
+    )
     console.log(result)
   }
 

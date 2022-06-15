@@ -13,6 +13,7 @@ import {
   updateGenre
 } from '../../redux/api_request'
 import { Modal } from 'antd'
+import { openNotification } from '../../utils/notification'
 function GenreRow(data) {
   const { genre, removeInsertRow, className } = data
   const [defaultData, setDefaultData] = useState(genre)
@@ -33,6 +34,11 @@ function GenreRow(data) {
       onOk() {
         const handleDelete = async () => {
           const result = await softDeleteGenre(dispatch, genre)
+          openNotification(
+            'success',
+            'Xóa thành công!',
+            'Thông tin thể loại đã được xóa thành công!'
+          )
         }
         handleDelete()
       },
@@ -72,6 +78,11 @@ function GenreRow(data) {
             description: result.description
           }
           setDefaultData(newDefaultData)
+          openNotification(
+            'success',
+            'Cập nhật thành công!',
+            'Thông tin thể loại đã được cập nhật thành công!'
+          )
         }
       } else {
         const newGenre = {
@@ -82,6 +93,11 @@ function GenreRow(data) {
         if (removeInsertRow) {
           removeInsertRow()
         }
+        openNotification(
+          'success',
+          'Thêm thành công',
+          'Thông tin thể loại đã được thêm thành công!'
+        )
       }
     }
     //send save request

@@ -18,6 +18,14 @@ const VoucherSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  imageID: {
+    type: String,
+    required: true
+  },
+  imageUrl: {
+    type: String,
+    required: true
+  },
   discountCap: {
     type: Number,
     min: 0

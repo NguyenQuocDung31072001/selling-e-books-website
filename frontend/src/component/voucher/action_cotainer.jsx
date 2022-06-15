@@ -9,10 +9,11 @@ import {
 import { Button, Modal, Space, Tooltip } from 'antd'
 import { useState } from 'react'
 import { deleteVoucher } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 import VoucherDetailModal from './detail_modal'
 
 function VoucherActionContainer(props) {
-  const { data, onUpdate, onLoading, onDelete, onError, ...other } = props
+  const { data, onUpdate, onDelete, onError, ...other } = props
   const [openModal, setOpenModal] = useState(false)
   const { confirm } = Modal
   const hideModal = () => {
@@ -46,8 +47,21 @@ function VoucherActionContainer(props) {
 
   const handleDelete = async () => {
     const result = await deleteVoucher(data)
-    if (result.success) onDelete(data)
-    else onError('Không thành công!')
+    if (result.success) {
+      onDelete(data)
+      openNotification(
+        'success',
+        'Xóa thành công!',
+        'Thông tin mã khuyến mãi đã được xóa thành công!'
+      )
+    } else {
+      onError('Không thành công!')
+      openNotification(
+        'error',
+        'Xóa không thành công!',
+        'Xóa thông tin mã khuyến mãi không thành công!'
+      )
+    }
   }
 
   return (
@@ -75,7 +89,6 @@ function VoucherActionContainer(props) {
           visible={openModal}
           onClose={hideModal}
           onUpdate={updatedVoucher}
-          onLoading={onLoading}
         />
       )}
     </Space>

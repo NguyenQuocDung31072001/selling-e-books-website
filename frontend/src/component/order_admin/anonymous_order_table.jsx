@@ -85,10 +85,7 @@ function AnonymousOrderTable(props) {
       render: books => (
         <div className="flex flex-col max-h-40  hover:overflow-auto overflow-hidden">
           {books.map(item => (
-            <a
-              href="/"
-              title={`${item.book.name} - sl: ${item.amount}`}
-            >{`${item.book.name} - sl: ${item.amount}`}</a>
+            <span>{`${item.book.name} - sl: ${item.amount}`}</span>
           ))}
         </div>
       )
@@ -97,6 +94,14 @@ function AnonymousOrderTable(props) {
       title: 'Tổng tiền',
       dataIndex: 'total',
       key: 'total',
+      render: total => (
+        <>
+          {new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          }).format(total)}
+        </>
+      ),
       sorter: (a, b) => {},
       sortOrder: sortedInfo.columnKey === 'total' && sortedInfo.order,
       ellipsis: true
