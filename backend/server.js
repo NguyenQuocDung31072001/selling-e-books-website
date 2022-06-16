@@ -21,6 +21,7 @@ const shippingRouter = require('./router/shipping.router')
 const dashboardRouter = require('./router/dashboard.router')
 const anonymousRouter = require('./router/anonymousOrder.router')
 const voucherRouter = require('./router/voucher.router')
+const goodsReceivedRouter = require('./router/goodsReceived.router')
 dotenv.config()
 
 app.use(cors())
@@ -58,6 +59,7 @@ app.use('/v1/selling_e_books/shipping', shippingRouter)
 app.use('/v1/selling_e_books/dashboard', dashboardRouter)
 app.use('/v1/selling_e_books/anonymous', anonymousRouter)
 app.use('/v1/selling_e_books/voucher', voucherRouter)
+app.use('/v1/selling_e_books/goodsReceived', goodsReceivedRouter)
 app.use((error, req, res, next) => {
   res.json({
     success: false,

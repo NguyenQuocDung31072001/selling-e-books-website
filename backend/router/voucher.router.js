@@ -5,15 +5,17 @@ const {
   getAllVoucher,
   getVoucher,
   tryApplyVoucher,
-  deleteVoucher
+  deleteVoucher,
+  getAllVoucherForUser
 } = require('../controller/voucher.controller')
 const router = express.Router()
 
+router.get('/user', getAllVoucherForUser)
+router.get('/:code', getVoucher)
 router.get('/', getAllVoucher)
 router.post('/', createNewVoucher)
 router.post('/apply', tryApplyVoucher)
 router.delete('/:voucherID', deleteVoucher)
 router.put('/:voucherID', updateVoucher)
-router.get('/:code', getVoucher)
 
 module.exports = router

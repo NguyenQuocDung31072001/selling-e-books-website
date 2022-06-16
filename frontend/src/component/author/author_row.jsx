@@ -13,6 +13,7 @@ import {
   softDeleteAuthor,
   updateAuthor
 } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 function AuthorRow(data) {
   const { author, removeInsertRow, className } = data
   const [defaultData, setDefaultData] = useState(author)
@@ -35,6 +36,11 @@ function AuthorRow(data) {
       onOk() {
         const handleDelete = async () => {
           const result = await softDeleteAuthor(dispatch, author)
+          openNotification(
+            'success',
+            'Xóa thành công!',
+            'Thông tin tác giả đã được xóa thành công!'
+          )
         }
         handleDelete()
       },
@@ -73,6 +79,11 @@ function AuthorRow(data) {
         const result = await createNewAuthor(dispatch, newAuthor)
         if (result) removeInsertRow()
         console.log(result)
+        openNotification(
+          'success',
+          'Cập nhật thành công!',
+          'Thông tin tác giả đã được cập nhật thành công!'
+        )
       } else {
         console.log('Error')
       }
@@ -90,6 +101,11 @@ function AuthorRow(data) {
           setIsEditing(false)
           setDefaultData(result)
         }
+        openNotification(
+          'success',
+          'Thêm thành công!',
+          'Thông tin tác giả đã được thêm thành công!'
+        )
       } else {
         console.log('Error')
       }

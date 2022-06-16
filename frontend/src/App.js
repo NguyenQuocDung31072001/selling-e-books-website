@@ -37,6 +37,7 @@ import CartForFree from './pages/cart_for_free'
 import AnonymousOrdersManage from './pages/anonymous_order_admin'
 import VoucherManage from './pages/voucher_admin'
 import ForgotPasswordPage from './pages/forgot_password'
+import GoodsReceived from './pages/goods_received'
 function App() {
   const currentUser = useSelector(state => state.auth.login.currentUser)
   function ProtectRouterUser({ children }) {
@@ -50,7 +51,7 @@ function App() {
     return currentUser?.role === 'admin' ? (
       children
     ) : (
-      <Navigate to="/user/dashboard" />
+      <Navigate to="/admin/dashboard" />
     )
   }
   return (
@@ -130,6 +131,14 @@ function App() {
               element={
                 <ProtectRouterAdmin>
                   <AddBook />
+                </ProtectRouterAdmin>
+              }
+            />
+            <Route
+              path="goodsReceived"
+              element={
+                <ProtectRouterAdmin>
+                  <GoodsReceived />
                 </ProtectRouterAdmin>
               }
             />

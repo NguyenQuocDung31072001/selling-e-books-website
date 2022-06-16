@@ -19,7 +19,7 @@ export default function UserPurchase() {
     dispatch(updateBreadcrumb(breadcrum))
   }, [])
   return (
-    <div className="w-full h-full bg-slate-100 flex flex-col items-center">
+    <div className="w-full h-full  flex flex-col items-center">
       <div className="max-w-screen-lg container py-10">
         <Tabs defaultActiveKey="1" onChange={() => {}} type="card">
           <TabPane tab="Tất cả" key="1">

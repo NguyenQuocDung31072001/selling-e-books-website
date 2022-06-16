@@ -52,9 +52,23 @@ const DeleteBooks = async (model, bookIds) => {
   }
 }
 
+const RemoveBook = async (model, modelIds, bookId) => {
+  try {
+    const updatedModel = await model.findOneAndUpdate(
+      { _id: { $in: modelIds } },
+      { $pull: { books: bookId } },
+      { new: true }
+    )
+    return updatedModel
+  } catch (error) {
+    console.log({ AuthorAddBookError: error })
+  }
+}
+
 module.exports = {
   AddBook,
   AddBooks,
   DeleteBook,
-  DeleteBooks
+  DeleteBooks,
+  RemoveBook
 }

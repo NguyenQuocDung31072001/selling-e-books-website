@@ -1,103 +1,197 @@
 import { Table, Tag, Space } from 'antd'
 import { useEffect, useState } from 'react'
-import { getAllBook } from '../redux/api_request'
+import { getAllBook, getAllBookForAdmin } from '../redux/api_request'
 import UpdateBookAdmin from '../component/update_book_admin'
+import DeleteBook from '../component/book_manage/delete_book'
+import NewGoodsReceivedModal from '../component/goodsReceived/create_goods_received'
+import { openNotification } from '../utils/notification'
 
 export default function AllBookAdmin() {
-  const [bookData,setBookData]=useState([])
-  const [data,setData]=useState([])
-  const columns = [ 
+  const [bookData, setBookData] = useState([])
+  const [data, setData] = useState([])
+  const columns = [
     {
       title: 'STT',
       dataIndex: 'no',
-      key:'no',
-      render: no=>(
-        <p>{no}</p>
-      )
+      key: 'no',
+      render: no => <p>{no}</p>
     },
     {
       title: 'Ảnh bìa',
       dataIndex: 'bookImage',
-      key:'bookImage',
-      render:bookImage=>(
-        <img className='w-[70px] h-[100px] object-cover' src={bookImage} alt="" />
+      key: 'bookImage',
+      render: bookImage => (
+        <img
+          className="w-[70px] h-[100px] object-cover"
+          src={bookImage}
+          alt=""
+        />
       )
     },
     {
       title: 'Tên sách',
       dataIndex: 'bookName',
-      key:'bookName',
-      render: bookName=><p>{bookName}</p>
+      key: 'bookName',
+      render: bookName => <p>{bookName}</p>
     },
     {
       title: 'Thể loại',
       dataIndex: 'bookCategory',
-      key:'bookCategory',
-      render: bookCategory=><p>{bookCategory}</p>
+      key: 'bookCategory',
+      render: bookCategory => <p>{bookCategory}</p>
     },
     {
       title: 'Tác giả',
       dataIndex: 'bookAuthor',
-      key:'bookAuthor',
-      render:bookAuthor=><p>{bookAuthor}</p>
+      key: 'bookAuthor',
+      render: bookAuthor => <p>{bookAuthor}</p>
     },
     {
       title: 'Mô tả',
       dataIndex: 'bookDescription',
-      key:'bookDescription',
-      render: bookDescription=><p>{bookDescription}</p>
+      key: 'bookDescription',
+      render: bookDescription => <p>{bookDescription}</p>
     },
     {
       title: 'Giá',
       dataIndex: 'bookPrice',
-      key:'bookPrice',
-      render:bookPrice=><p>{bookPrice}</p>
+      key: 'bookPrice',
+      render: bookPrice => <p>{bookPrice}</p>
     },
     {
       title: 'Tính năng',
       dataIndex: 'action',
-      key:'action',
-      render:(action)=>{
+      key: 'action',
+      render: action => {
         return (
-        <UpdateBookAdmin book={action}/>
+          <>
+            <div className="flex flex-row justify-around items-center">
+              <UpdateBookAdmin
+                book={action}
+                onSuccess={updateBookData}
+                onError={handleError}
+              />
+              <DeleteBook book={action} onDeleted={updateDeletedBook} />
+              <NewGoodsReceivedModal
+                book={action}
+                buttonType=""
+                buttonSize="normal"
+                onSuccess={updateReceived}
+                onError={handleError}
+              />
+            </div>{' '}
+          </>
         )
       }
     }
   ]
-  useEffect(()=>{
-    ;(async function(){
-        let data = await getAllBook()
-        setBookData(data || [])
+  useEffect(() => {
+    ;(async function () {
+      let data = await getAllBookForAdmin()
+      setBookData(data || [])
     })()
-    return ()=>{
+    return () => {
       setBookData([])
     }
-  },[])
-  useEffect(()=>{
-    let _data=[]
-    bookData.forEach((book,index)=>{
+  }, [])
+  useEffect(() => {
+    let _data = []
+    bookData.forEach((book, index) => {
       _data.push({
-        no:index+1,
-        bookImage:book.coverUrl,
-        bookName:book.name,
-        bookCategory:book.genres[0].name,
-        bookAuthor:book.authors[0].fullName,
-        bookDescription:book.description,
-        bookPrice:book.price,
-        action:book
+        no: index + 1,
+        bookImage: book.coverUrl,
+        bookName: book.name,
+        bookCategory: book.genres[0]?.name,
+        bookAuthor: book.authors[0]?.fullName,
+        bookDescription: book.description,
+        bookPrice: book.price,
+        action: book
       })
     })
     setData(_data)
-    return ()=>{
+    return () => {
       setData([])
     }
-  },[bookData])
+  }, [bookData])
+
+  const updateDeletedBook = deletedBook => {
+    const newBookData = bookData.filter(book => {
+      return book._id !== deletedBook._id
+    })
+    setBookData(newBookData)
+    openNotification(
+      'success',
+      'Xóa thành công!',
+      'Thông tin sách xóa khỏi hệ thống!'
+    )
+  }
+
+  const updateReceived = goodsReceived => {
+    const updatedBook = goodsReceived.book
+    const index = bookData.findIndex(book => book._id == updatedBook._id)
+    const newBookData = {
+      ...updatedBook,
+      genres: bookData[index].genres,
+      authors: bookData[index].authors
+    }
+    let newData = [...bookData]
+    newData.splice(index, 1, newBookData)
+    let _data = []
+    newData.forEach((book, index) => {
+      _data.push({
+        no: index + 1,
+        bookImage: book.coverUrl,
+        bookName: book.name,
+        bookCategory: book.genres[0]?.name,
+        bookAuthor: book.authors[0]?.fullName,
+        bookDescription: book.description,
+        bookPrice: book.price,
+        action: book
+      })
+    })
+    setData(_data)
+    openNotification(
+      'success',
+      'Nhập sách thành công!',
+      'Sách đã được nhập thành công, bạn có thể kiểm tra phiếu nhập sách ở trang "Nhập Sách"!'
+    )
+  }
+
+  const updateBookData = updatedBook => {
+    const index = bookData.findIndex(book => book._id == updatedBook._id)
+    let newData = [...bookData]
+    newData.splice(index, 1, updatedBook)
+    let _data = []
+    newData.forEach((book, index) => {
+      _data.push({
+        no: index + 1,
+        bookImage: book.coverUrl,
+        bookName: book.name,
+        bookCategory: book.genres[0]?.name,
+        bookAuthor: book.authors[0]?.fullName,
+        bookDescription: book.description,
+        bookPrice: book.price,
+        action: book
+      })
+    })
+    setData(_data)
+    openNotification(
+      'success',
+      'Cập nhật thông tin sách thành công!',
+      'Thông tin sách đã được cập nhật và lưu vào hệ thống!'
+    )
+  }
+
+  const handleError = (message, description) => {
+    openNotification('error', message, description)
+  }
+
   return (
     <div className="p-4">
-      <div className='w-full flex justify-center px-4 mb-4 border-b-[1px] border-solid border-gray-400'>
-        <p className='text-3xl font-medium'>Tất cả sách</p>
+      <div className="w-full flex justify-center px-4 mb-4 border-b-[1px] border-solid border-gray-400">
+        <p className="text-3xl font-medium">Tất cả sách</p>
       </div>
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} rowKey="no" />
     </div>
   )
 }

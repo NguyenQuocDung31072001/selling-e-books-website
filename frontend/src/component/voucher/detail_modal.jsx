@@ -8,16 +8,24 @@ import {
   DatePicker,
   Radio,
   Checkbox,
-  Space
+  Space,
+  Upload,
+  Spin
 } from 'antd'
 import { useState } from 'react'
 import moment from 'moment'
 import { createNewVoucher, updateVoucher } from '../../redux/api_request'
+import {
+  EditOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+  RedoOutlined,
+  UploadOutlined
+} from '@ant-design/icons'
+import { openNotification } from '../../utils/notification'
 
 export default function VoucherDetailModal(props) {
-  const { data, onClose, onUpdate, onLoading, onError, visible } = props
-  // const [visible, setVisible] = useState(false)
-  const [confirmLoading, setConfirmLoading] = useState(false)
+  const { data, onClose, onUpdate, onError, visible } = props
   const [type, setType] = useState(
     data && typeof data.discountPercentage !== 'undefined' ? 1 : 2
   )
@@ -31,33 +39,80 @@ export default function VoucherDetailModal(props) {
       ? true
       : false
   )
+
+  const [imageUrl, setImageUrl] = useState(
+    data && typeof data.imageUrl !== 'undefined' ? data.imageUrl : ''
+  )
+  const [imageBase64, setImageBase64] = useState()
+
+  const [loading, setLoading] = useState(false)
+
   const { RangePicker } = DatePicker
 
   const saveUpdateVoucher = async value => {
     if (data) {
-      onLoading()
+      setLoading(true)
       const voucher = {
         ...value,
         startTime: value.time[0].toDate(),
         endTime: value.time[1].toDate(),
-        _id: data._id
+        _id: data._id,
+        image: imageBase64
       }
-      console.log('new voucher', voucher)
       const res = await updateVoucher(voucher)
-      if (res.success) onUpdate(res.voucher)
-      else onError(res.message)
+      if (res.success) {
+        onUpdate(res.voucher)
+        openNotification(
+          'success',
+          'Cập nhật thông tin thành công!',
+          'Thông tin mã khuyến mãi đã được cập nhật thành công!'
+        )
+      } else {
+        onError(res.message)
+        openNotification(
+          'error',
+          'Cập nhật thông tin không thành công!',
+          'Thông tin mã khuyến mãi cập nhật không thành công!'
+        )
+      }
+      setLoading(false)
     } else {
-      onLoading()
+      setLoading(true)
       const voucher = {
         ...value,
         startTime: value.time[0].toDate(),
-        endTime: value.time[1].toDate()
+        endTime: value.time[1].toDate(),
+        image: imageBase64
       }
-      console.log('value', value)
-      console.log('new voucher', voucher)
       const res = await createNewVoucher(voucher)
-      if (res.success) onUpdate(res.voucher)
-      else onError(res.message)
+      if (res.success) {
+        onUpdate(res.voucher)
+        openNotification(
+          'success',
+          'Cập nhật thông tin thành công!',
+          'Thông tin mã khuyến mãi đã được cập nhật thành công!'
+        )
+      } else {
+        onError(res.message)
+        openNotification(
+          'error',
+          'Cập nhật thông tin không thành công!',
+          'Thông tin mã khuyến mãi cập nhật không thành công!'
+        )
+      }
+      setLoading(false)
+    }
+  }
+
+  const handleChangeImage = e => {
+    const reader = new FileReader()
+    reader.readAsDataURL(e.target.files[0])
+    reader.onloadend = () => {
+      setImageUrl(URL.createObjectURL(e.target.files[0]))
+      setImageBase64(reader.result)
+    }
+    reader.onerror = () => {
+      console.error('error!!')
     }
   }
 
@@ -72,6 +127,35 @@ export default function VoucherDetailModal(props) {
         width={768}
         footer={null}
       >
+        <div
+          className={`mb-3 relative  ${
+            imageUrl
+              ? ''
+              : 'border-2 border-dashed border-emerald-600 w-full h-52 '
+          }`}
+        >
+          <input
+            type="file"
+            id="image"
+            className={`opacity-0 cursor-pointer ${
+              imageUrl ? '' : 'w-full h-full'
+            }`}
+            onChange={handleChangeImage}
+          />
+          {imageUrl && <img src={imageUrl} alt=" w-full" className="" />}
+          <label
+            htmlFor="image"
+            className={`${
+              imageUrl
+                ? 'mt-2'
+                : 'absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2'
+            } cursor-pointer flex flex-row space-x-1 items-center font-medium text-lg justify-center text-blue-800`}
+          >
+            <span>{imageUrl ? 'Thay đổi' : 'Tải lên'}</span>
+            {imageUrl ? <EditOutlined /> : <UploadOutlined />}
+          </label>
+        </div>
+
         <Form
           name="voucher"
           labelCol={{ span: 6 }}
@@ -86,7 +170,8 @@ export default function VoucherDetailModal(props) {
                   limit: data.limit,
                   minSpend: data.minSpend,
                   time: [moment(data.startTime), moment(data.endTime)],
-                  description: data.description
+                  description: data.description,
+                  disabled: data.disabled
                 }
               : {}
           }
@@ -260,9 +345,25 @@ export default function VoucherDetailModal(props) {
           >
             <Input.TextArea />
           </Form.Item>
+          <Form.Item
+            name="disabled"
+            label="Tình trạng"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng chọn tình trạng!'
+              }
+            ]}
+          >
+            <Radio.Group>
+              <Radio value={false}>Khả dụng</Radio>
+              <Radio value={true}>Dừng khuyến mãi</Radio>
+            </Radio.Group>
+          </Form.Item>
           <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
             <Space size={16}>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={loading}>
+                {loading && <Spin style={{ marginRight: '10px' }} />}
                 Lưu
               </Button>
               <Button type="" onClick={onClose}>

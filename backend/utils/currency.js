@@ -1,23 +1,10 @@
-const { default: mongoose } = require('mongoose')
-const fetch = require('node-fetch')
-const { Headers } = require('node-fetch')
+const CC = require('currency-converter-lt')
+
 const convertCurrency = async () => {
   try {
-    var myHeaders = new Headers()
-    myHeaders.append('apikey', process.env.CURRENCY_API_KEY)
-
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow',
-      headers: myHeaders
-    }
-
-    const response = await fetch(
-      'https://api.apilayer.com/exchangerates_data/convert?to=USD&from=VND&amount=1',
-      requestOptions
-    )
-    const data = await response.json()
-    return data.result
+    let currencyConverter = new CC({ from: 'USD', to: 'VND' })
+    const result = await currencyConverter.rates()
+    return 1 / result
   } catch (error) {
     console.log(error)
     return 1 / 23182

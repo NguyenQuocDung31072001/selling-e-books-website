@@ -2,11 +2,13 @@ import { CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons'
 import { Button, Space, Tooltip } from 'antd'
 import { useState } from 'react'
 import { updateOrder } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 import DetailModal from './detail_modal'
 
 function ActionContainer(props) {
-  const { data, onUpdate, onLoading, ...other } = props
+  const { data, onUpdate, onLoading, loading, ...other } = props
   const [openModal, setOpenModal] = useState({})
+
   //   const showModal = action => {
 
   //   }
@@ -34,6 +36,11 @@ function ActionContainer(props) {
         ...openModal,
         open: false
       })
+      openNotification(
+        'success',
+        'Cập nhật thành công!',
+        'Trạng thái đơn hàng đã được cập nhật thành công!'
+      )
     }
   }
 
@@ -52,6 +59,11 @@ function ActionContainer(props) {
         ...openModal,
         open: false
       })
+      openNotification(
+        'success',
+        'Cập nhật thành công!',
+        'Trạng thái đơn hàng đã được cập nhật thành công!'
+      )
     }
   }
 
@@ -118,6 +130,7 @@ function ActionContainer(props) {
         </Tooltip>
       )}
       <DetailModal
+        loading={loading}
         visible={openModal.open}
         onClose={() => hideModal()}
         data={data}

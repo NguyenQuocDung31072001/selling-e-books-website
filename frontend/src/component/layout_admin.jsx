@@ -11,7 +11,8 @@ import {
   CheckOutlined,
   AreaChartOutlined,
   BarChartOutlined,
-  LineChartOutlined
+  LineChartOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 
 const IMAGE_URL = 'http://localhost:5000/image_avatar/avatar_admin.png'
@@ -59,6 +60,9 @@ function LayoutAdmin() {
           <Menu.Item icon={<EyeOutlined />} key="book">
             <Link to="/admin/all_book">Xem sách</Link>
           </Menu.Item>
+          <Menu.Item icon={<DownloadOutlined />} key="goodsReceived">
+            <Link to="/admin/goodsReceived">Nhập sách</Link>
+          </Menu.Item>
         </SubMenu>
         <Menu.Item icon={<BarChartOutlined />} key="genre">
           <Link to="/admin/genre">Thể loại</Link>
@@ -69,7 +73,7 @@ function LayoutAdmin() {
         <Menu.Item icon={<CheckOutlined />} key="confirm">
           <Link to="/admin/confirm"> Phê duyệt</Link>
         </Menu.Item>
-        <Menu.Item icon={<CheckOutlined /> }key="anonymous">
+        <Menu.Item icon={<CheckOutlined />} key="anonymous">
           <Link to="/admin/anonymous"> Khách vãng lai</Link>
         </Menu.Item>
         <Menu.Item icon={<AppstoreOutlined />} key="voucher">

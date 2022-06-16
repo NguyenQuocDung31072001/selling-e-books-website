@@ -42,7 +42,7 @@ export const registerApi = async (user, dispatch) => {
       user
     )
     const data = res.data
-    if (data.success===false) {
+    if (data.success === false) {
       dispatch(registerFailed())
       return data
     } else {
@@ -62,7 +62,7 @@ export const loginApi = async (user, dispatch, navigate) => {
       API_URL + '/v1/selling_e_books/auth/login',
       user
     )
-    if (res.data.success===false) {
+    if (res.data.success === false) {
       dispatch(loginFailed())
       return res.data
     }
@@ -137,6 +137,28 @@ export const getAllBook = async () => {
     console.log(error)
   }
 }
+
+export const getAllBookForAdmin = async () => {
+  try {
+    const res = await axios.get(API_URL + '/v1/selling_e_books/book/admin')
+    // console.log(res.data.books)
+    return res.data.books
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const softDeleteBook = async id => {
+  try {
+    const res = await axios.delete(API_URL + '/v1/selling_e_books/book/' + id)
+    // console.log(res.data.books)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return { success: false, message: 'Error' }
+  }
+}
+
 export const getBookOfGenres = async genres => {
   try {
     const res = await axios.get(
@@ -165,6 +187,7 @@ export const addBook = async new_book => {
       description: res.description
     }
     console.log(res.data)
+    return res.data
   } catch (error) {
     console.log(error)
   }
@@ -563,7 +586,7 @@ export const getAnonymousOrders = async (page, sorter, filter) => {
 }
 
 export const updateOrder = async order => {
-  console.log("order ",order)
+  console.log('order ', order)
   try {
     const res = await axios.put(
       API_URL + '/v1/selling_e_books/order/' + order._id,
@@ -796,6 +819,18 @@ export const getAllVoucher = async query => {
   }
 }
 
+export const getAllVoucherForUser = async () => {
+  try {
+    const res = await axios.get(API_URL + `/v1/selling_e_books/voucher/user`)
+    console.log(res.data)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
 export const createNewVoucher = async voucher => {
   try {
     const res = await axios.post(
@@ -895,6 +930,47 @@ export const updateNewPassword = async (email, code, password) => {
 export const getInfoDashboard = async () => {
   try {
     const res = await axios.get(API_URL + `/v1/selling_e_books/dashboard/info`)
+    // console.log(res.data)
+    return res.data
+  } catch (error) {
+    console.log(error)
+    return {}
+  }
+}
+
+//goodsReceived API
+export const getAllGoodsReceived = async (page, sorter, filter) => {
+  try {
+    const queryObj = {}
+    if (page) queryObj.page = page
+    if (sorter && sorter.field && sorter.order) {
+      const fields = [].concat(sorter.field)
+      queryObj.sorterField = fields[0]
+      queryObj.sorterOrder = sorter.order == 'ascend' ? 1 : -1
+    }
+    const propNames = Object.getOwnPropertyNames(filter)
+    propNames.forEach(prop => {
+      if (filter[prop] != undefined) queryObj[prop] = filter[prop]
+    })
+
+    const queryString = new URLSearchParams(queryObj).toString()
+    console.log(queryString)
+    const res = await axios.get(
+      API_URL + '/v1/selling_e_books/goodsReceived?' + queryString
+    )
+    return res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const createNewGoodsReceived = async data => {
+  try {
+    const res = await axios.post(
+      API_URL + `/v1/selling_e_books/goodsReceived`,
+      data
+    )
+    console.log(res.data)
     // console.log(res.data)
     return res.data
   } catch (error) {

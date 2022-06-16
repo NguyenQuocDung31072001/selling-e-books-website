@@ -2,6 +2,7 @@ import { CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons'
 import { Button, Space, Tooltip } from 'antd'
 import { useState } from 'react'
 import { updateAnonymousOrder, updateOrder } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 import DetailModal from './detail_modal'
 
 function AnonymousActionContainer(props) {
@@ -27,6 +28,11 @@ function AnonymousActionContainer(props) {
       ...openModal,
       open: false
     })
+    openNotification(
+      'success',
+      'Xác thực thành công!',
+      'Đơn hàng đã được xác thực thành công'
+    )
   }
 
   const handleCancel = async () => {
@@ -42,6 +48,12 @@ function AnonymousActionContainer(props) {
       ...openModal,
       open: false
     })
+
+    openNotification(
+      'success',
+      'Xác thực thành công!',
+      'Đơn hàng đã được từ chối thành công'
+    )
   }
 
   function showDetailModal() {

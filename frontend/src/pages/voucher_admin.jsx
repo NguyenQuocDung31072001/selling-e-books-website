@@ -15,7 +15,6 @@ function VoucherManage(props) {
   const [sortedInfo, setSortedInfo] = useState({})
 
   const [openInsertModal, setOpenInsertModal] = useState(false)
-  const [load, setLoad] = useState(false)
   const [data, setData] = useState([])
 
   const handleChange = (pagination, filters, sorter) => {
@@ -26,13 +25,7 @@ function VoucherManage(props) {
     const newData = [...data]
     const index = newData.findIndex(item => item._id === voucher._id)
     newData.splice(index, 1, voucher)
-    console.log(newData)
     setData(newData)
-    setLoad(false)
-  }
-
-  const loading = () => {
-    setLoad(true)
   }
 
   useEffect(() => {
@@ -49,20 +42,17 @@ function VoucherManage(props) {
     let newData = [...data]
     newData.splice(index, 1, updatedOrder)
     setData(newData)
-    setLoad(false)
   }
 
   function deleteVoucher(voucher) {
     const newData = data.filter(item => item._id !== voucher._id)
     setData(newData)
-    setLoad(false)
   }
 
   function insertVoucher(voucher) {
     const newData = [...data, voucher]
     setData(newData)
     setOpenInsertModal(false)
-    setLoad(false)
   }
 
   const columns = [
@@ -71,7 +61,7 @@ function VoucherManage(props) {
       dataIndex: 'code',
       key: 'code',
       sorter: (a, b) => {
-        // return moment(a.createdAt) > moment(b.createdAt) ? 1 : -1
+        return a.code > b.code ? 1 : -1
       },
 
       sortOrder: sortedInfo.columnKey === 'code' && sortedInfo.order,
@@ -82,7 +72,7 @@ function VoucherManage(props) {
       dataIndex: 'startTime',
       key: 'startTime',
       sorter: (a, b) => {
-        // return moment(a.createdAt) > moment(b.createdAt) ? 1 : -1
+        return moment(a.startTime) > moment(b.startTime) ? 1 : -1
       },
       render: time => <> {moment(time).format('LT DD-MM-YYYY')}</>,
       sortOrder: sortedInfo.columnKey === 'startTime' && sortedInfo.order,
@@ -93,7 +83,7 @@ function VoucherManage(props) {
       dataIndex: 'endTime',
       key: 'endTime',
       sorter: (a, b) => {
-        // return moment(a.createdAt) > moment(b.createdAt) ? 1 : -1
+        return moment(a.endTime) > moment(b.endTime) ? 1 : -1
       },
       render: time => <> {moment(time).format('LT DD-MM-YYYY')}</>,
       sortOrder: sortedInfo.columnKey === 'endTime' && sortedInfo.order,
@@ -104,7 +94,7 @@ function VoucherManage(props) {
       dataIndex: 'minSpend',
       key: 'minSpend',
       sorter: (a, b) => {
-        // return moment(a.createdAt) > moment(b.createdAt) ? 1 : -1
+        return a.minSpend - b.minSpend
       },
       render: value => (
         <>
@@ -118,13 +108,33 @@ function VoucherManage(props) {
       ellipsis: true
     },
     {
+      title: 'Số lượng tối đa',
+      dataIndex: 'limit',
+      key: 'limit',
+      sorter: (a, b) => {
+        return a.used - b.used
+      },
+      render: value => <>{value || 'Không giới hạn'}</>,
+      sortOrder: sortedInfo.columnKey === 'endTime' && sortedInfo.order,
+      ellipsis: true
+    },
+    {
+      title: 'Đã dùng',
+      dataIndex: 'used',
+      key: 'used',
+      sorter: (a, b) => {
+        return a.used - b.used
+      },
+      sortOrder: sortedInfo.columnKey === 'endTime' && sortedInfo.order,
+      ellipsis: true
+    },
+    {
       title: 'Hành động',
       key: '',
       render: data => (
         <VoucherActionContainer
           data={data}
           onUpdate={updateVoucher}
-          onLoading={loading}
           onDelete={deleteVoucher}
         />
       ),
@@ -135,11 +145,6 @@ function VoucherManage(props) {
 
   return (
     <div className="py-4 px-4 flex flex-col justify-start items-center">
-      {load && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full  bg-gray-400 bg-opacity-30 flex justify-center items-center z-10">
-          <Spin spinning={loading} size="large" tip="Loading..."></Spin>
-        </div>
-      )}
       <div className="py-3 px-4 flex flex-row justify-between items-center w-full bg-white border">
         <Title level={3} style={{ margin: 0 }}>
           Mã giảm giá
@@ -165,7 +170,6 @@ function VoucherManage(props) {
             setOpenInsertModal(false)
           }}
           onUpdate={insertVoucher}
-          onLoading={loading}
           visible={true}
         />
       )}

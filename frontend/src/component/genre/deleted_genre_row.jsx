@@ -6,6 +6,7 @@ import {
 import { Modal } from 'antd'
 import { useDispatch } from 'react-redux'
 import { hardDeleteGenre, restoreDeletedGenre } from '../../redux/api_request'
+import { openNotification } from '../../utils/notification'
 function DeletedGenreRow(data) {
   const { genre, className } = data
   const dispatch = useDispatch()
@@ -23,6 +24,11 @@ function DeletedGenreRow(data) {
       onOk() {
         const handleDelete = async () => {
           const result = await hardDeleteGenre(dispatch, genre)
+          openNotification(
+            'success',
+            'Xóa thành công!',
+            'Thông tin thể loại đã được xóa thành công!'
+          )
         }
         handleDelete()
       },
@@ -35,7 +41,11 @@ function DeletedGenreRow(data) {
   const restoreGenre = async () => {
     console.log('restore')
     const result = await restoreDeletedGenre(dispatch, genre)
-    console.log(result)
+    openNotification(
+      'success',
+      'Khôi phục thành công!',
+      'Thông tin thể loại đã được khôi phục thành công!'
+    )
   }
 
   return (

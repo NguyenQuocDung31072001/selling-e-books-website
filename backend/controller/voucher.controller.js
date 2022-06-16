@@ -1,6 +1,7 @@
 const VoucherModel = require('../model/voucher.model')
 const createHttpError = require('http-errors')
 const { object } = require('joi')
+const uploadImage = require('../common/uploadImage')
 const createNewVoucher = async (req, res) => {
   try {
     const {
@@ -11,7 +12,8 @@ const createNewVoucher = async (req, res) => {
       limit,
       discountCap,
       discountPercentage,
-      minSpend
+      minSpend,
+      image
     } = req.body
 
     if (discountCap === undefined && discountPercentage == undefined)
@@ -35,6 +37,9 @@ const createNewVoucher = async (req, res) => {
       discountPercentage,
       minSpend
     })
+
+    await uploadImage(newVoucher, 'imageID', 'imageUrl', image)
+
     const savedVoucher = await newVoucher.save()
     res.status(200).json({
       success: true,
@@ -65,7 +70,8 @@ const updateVoucher = async (req, res) => {
       discountCap,
       discountPercentage,
       minSpend,
-      disabled
+      disabled,
+      image
     } = req.body
 
     const updateInfo = {
@@ -79,6 +85,9 @@ const updateVoucher = async (req, res) => {
       minSpend,
       disabled
     }
+
+    if (image) await uploadImage(updateInfo, 'imageID', 'imageUrl', image)
+
     let unset = {}
     const propNames = Object.getOwnPropertyNames(updateInfo)
     propNames.forEach(prop => {
@@ -186,12 +195,14 @@ const applyVoucher = async (order, voucherCode) => {
     if (voucher.discountCap > order.subTotal) finalDiscount = order.subTotal
     else finalDiscount = voucher.discountCap
   }
-  if (typeof finalDiscount !== 'undefined')
+  if (typeof finalDiscount !== 'undefined') {
+    voucher.used++
+    await voucher.save()
     return {
       code: voucherCode,
       discount: finalDiscount
     }
-  else throw createHttpError.Conflict('Không thể sử dụng voucher')
+  } else throw createHttpError.Conflict('Không thể sử dụng voucher')
 }
 
 const tryApplyVoucher = async (req, res) => {
@@ -216,6 +227,20 @@ const tryApplyVoucher = async (req, res) => {
   }
 }
 
+const getAllVoucherForUser = async (req, res) => {
+  try {
+    const toDate = new Date()
+    const vouchers = await VoucherModel.find({
+      deleted: false,
+      $and: [{ startTime: { $lte: toDate } }, { endTime: { $gte: toDate } }]
+    })
+    res.json(vouchers)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: true, message: 'Error' })
+  }
+}
+
 module.exports = {
   createNewVoucher,
   updateVoucher,
@@ -224,5 +249,6 @@ module.exports = {
   getVoucher,
   deleteVoucher,
   tryApplyVoucher,
-  applyVoucher
+  applyVoucher,
+  getAllVoucherForUser
 }
