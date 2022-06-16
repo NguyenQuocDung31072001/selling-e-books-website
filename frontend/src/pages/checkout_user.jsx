@@ -252,8 +252,8 @@ export default function Checkout(props) {
           onSave={saveShipInfo}
         />
       )}
-      <div className="flex flex-col items-center space-y-4 ">
-        <div className="container flex flex-col space-y-4 max-w-screen-xl py-6">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-[90%] flex flex-col space-y-4 max-w-screen-xl py-6">
           <div className="text-left bg-white pt-6 pb-6 px-8">
             <Text strong className="text-lg">
               Địa Chỉ Nhận Hàng

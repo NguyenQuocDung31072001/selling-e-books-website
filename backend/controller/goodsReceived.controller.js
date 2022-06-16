@@ -6,7 +6,7 @@ const GoodsReceivedModel = require('../model/goodsReceived')
 const createNewGoodsReceived = async (req, res) => {
   try {
     const { book, quantity, price, date } = req.body
-
+  
     if (quantity < 0 || price < 0)
       throw new createHttpError.BadRequest('Quantity and price must >= 0')
     const existBook = await BookModel.findById(book)
