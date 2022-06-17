@@ -245,14 +245,14 @@ function DetailBookUser() {
         </div>
         {book && (
           <div className="flex">
-            <div className="w-[500px] h-[600px] px-[20px] flex items-center justify-center shadow-md shadow-zinc-200">
+            <div className="w-[50%] h-[calc(100vh)] px-[20px] flex items-center justify-center shadow-md shadow-zinc-200">
               <img
                 className="w-full h-full object-cover "
                 src={book.coverUrl}
                 alt=""
               />
             </div>
-            <div className=" flex flex-col items-start px-4">
+            <div className="w-[50%] h-[calc(100vh)] flex flex-col items-start px-4">
               <div className="">
                 <Title level={1}>{book.name}</Title>
               </div>
@@ -297,9 +297,9 @@ function DetailBookUser() {
                 </p>
               </div>
 
-              <div className="w-[80%] flex flex-col items-start">
+              <div className="w-[90%] text-left">
                 <Title level={4}>Mô tả </Title>
-                <p className="text-[16px]">{book.description}</p>
+                <div className="text-[16px] ">{book.description}</div>
               </div>
               <div className="absolute bottom-5 right-20">
                 <button
@@ -396,7 +396,7 @@ function DetailBookUser() {
                   <CheckCircleFilled />
                   <span>Đã mua hàng</span>
                 </div>
-                <div className="flex">
+                <div className="flex text-left">
                   <p>{review.content}</p>
                 </div>
               </div>
