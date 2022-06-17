@@ -34,7 +34,7 @@ const getAnonymousOrder = async (req, res) => {
         select: '_id slug name coverUrl'
       })
       .select(
-        '_id books status paid shippingCost total address phone payment createdAt updatedAt email customer isVerified confirmed'
+        '_id books status paid shippingCost subTotal voucher total address phone payment createdAt updatedAt email customer isVerified confirmed'
       )
       .sort(sorterField && sorterField != 'user' ? sorter : { updatedAt: -1 })
       .lean()

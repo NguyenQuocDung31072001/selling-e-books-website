@@ -16,6 +16,7 @@ import { PATH_NAME } from '../config/pathName'
 import ShipModal from '../component/checkout/ship_modal'
 import { numberFormat } from '../utils/formatNumber'
 import Footer from '../component/footer'
+import { openNotification } from '../utils/notification'
 
 export default function Cart() {
   const [loading, setLoading] = useState(false)
@@ -224,7 +225,7 @@ export default function Cart() {
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
-      console.log("row checked : ",selectedRowKeys)
+      console.log('row checked : ', selectedRowKeys)
       setRowChecked(selectedRowKeys)
       setSelectedRows(selectedRows)
       let tong_cong = 0
@@ -242,6 +243,14 @@ export default function Cart() {
     setOpenShipModal(false)
   }
   const checkout = () => {
+    if (selectedRows.length == 0) {
+      openNotification(
+        'error',
+        'Không thành công!',
+        'Vui lòng chọn ít nhất một sách trước khi tiếp tục'
+      )
+      return
+    }
     navigate('/user/checkout', {
       state: {
         shipData: shipData,

@@ -68,6 +68,7 @@ export default function Checkout(props) {
 
       // const user = currentUser._id
       const shippingCost = await getShippingCost(address, books)
+      console.log(shippingCost)
       setShippingCost(shippingCost)
     }
     if (shipData && shipData.address?.province?.ProvinceID) getShippingCostFnc()
@@ -363,7 +364,7 @@ export default function Checkout(props) {
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
-                    }).format(shippingCost.total || 0)}
+                    }).format(shippingCost?.total || 0)}
                   </div>
                 </div>
                 {voucher.success && (
