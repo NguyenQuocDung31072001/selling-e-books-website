@@ -140,6 +140,9 @@ const getReviewOfBookById = async (req, res) => {
     const reviews = await Review.find({ book: bookId })
       .populate('book')
       .populate({ path: 'account', select: 'username avatar_url' })
+    
+    // const reviews = await Review.findOneAndDelete({ book: bookId })
+    
     res.status(200).json({
       reviews: reviews
     })
