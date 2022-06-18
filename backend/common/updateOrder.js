@@ -60,12 +60,17 @@ const updateOrderById = async (id, status, callback = null) => {
           if (status == -1 || status == -2 || status == -3)
             await restoreBooks(currentOrder.books)
           if (status == 3) {
-            updateBooks(currentOrder.books)
-            updateAccountLibrary(currentOrder.user, currentOrder.books)
+            await Promise.all([
+              updateBooks(currentOrder.books),
+              updateAccountLibrary(currentOrder.user, currentOrder.books)
+            ])
           }
+          let updateQuery = { status: status }
+          if (currentOrder.payment === 0 && status === 3)
+            updateQuery.paid = true
           const updatedOrder = await Order.findOneAndUpdate(
             { _id: id },
-            { status: status },
+            updateQuery,
             { new: true }
           )
             .populate({

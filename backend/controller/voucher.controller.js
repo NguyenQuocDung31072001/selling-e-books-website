@@ -172,7 +172,7 @@ const deleteVoucher = async (req, res) => {
   }
 }
 
-const applyVoucher = async (order, voucherCode) => {
+const applyVoucher = async (order, voucherCode, apply = true) => {
   const voucher = await VoucherModel.findOne({ code: voucherCode })
   if (!voucher) throw createHttpError.NotFound('Voucher không tồn tại')
   if (voucher.limit && voucher.limit <= voucher.used)
@@ -196,8 +196,10 @@ const applyVoucher = async (order, voucherCode) => {
     else finalDiscount = voucher.discountCap
   }
   if (typeof finalDiscount !== 'undefined') {
-    voucher.used++
-    await voucher.save()
+    if (apply) {
+      voucher.used++
+      await voucher.save()
+    }
     return {
       code: voucherCode,
       discount: finalDiscount
@@ -211,7 +213,7 @@ const tryApplyVoucher = async (req, res) => {
     const order = {
       subTotal: subTotal
     }
-    const voucher = await applyVoucher(order, voucherCode)
+    const voucher = await applyVoucher(order, voucherCode, false)
     res
       .status(200)
       .json({ ...voucher, success: true, error: false, message: 0 })

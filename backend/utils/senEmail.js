@@ -1216,7 +1216,7 @@ async function sendConfirmOrderEmail(email, order) {
                                             line-height: 27px;
                                           "
                                         >
-                                          0đ
+                                          ${order.voucher?.discount || 0}đ
                                         </td>
                                       </tr>
                                       <tr>

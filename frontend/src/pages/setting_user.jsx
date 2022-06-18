@@ -299,6 +299,8 @@ function SettingUser() {
                 size="large"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                disabled
+                className="tex-black"
               />
             </div>
 
