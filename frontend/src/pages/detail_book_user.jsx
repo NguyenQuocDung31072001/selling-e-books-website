@@ -347,7 +347,7 @@ function DetailBookUser() {
                 />
                 <TextArea
                   rows={4}
-                  placeholder="maxLength is 100"
+                  placeholder="Đánh giá không quá 100 kí tự..."
                   maxLength={100}
                   onChange={onChangeContent}
                 />
@@ -450,7 +450,7 @@ function DetailBookUser() {
             </div>
             <TextArea
               rows={4}
-              placeholder="maxLength is 100"
+              placeholder="Đánh giá không quá 100 kí tự..."
               maxLength={100}
               value={updateContent}
               onChange={e => setUpdateContent(e.currentTarget.value)}

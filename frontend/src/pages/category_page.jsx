@@ -48,7 +48,7 @@ export default function CategoryUser() {
         for (let i = 0; i < allGenre.length; i++) {
           allGenreName.push(allGenre[i].name)
         }
-        const allAuthorName = ['']
+        const allAuthorName = ['']app
         for (let i = 0; i < allAuthor.length; i++) {
           allAuthorName.push(allAuthor[i].fullName)
         }
